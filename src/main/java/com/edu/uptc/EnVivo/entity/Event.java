@@ -31,7 +31,7 @@ public class Event {
     @Column(name = "interest_count")
     private Integer interestCount;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 }

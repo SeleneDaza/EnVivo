@@ -1,0 +1,25 @@
+<form th:action="@{/evento/crear}" method="post">
+    <form action="/evento/crear" method="post">
+        <label>Nombre del Evento:</label>
+        <input type="text" name="name" required>
+
+        <label>Descripción:</label>
+        <textarea name="description"></textarea>
+
+        <label>Fecha:</label>
+        <input type="date" name="date">
+
+        <label>Valor:</label>
+        <input type="number" name="price">
+
+        <label>Categoría:</label>
+        <select name="category">
+            <option value="">Seleccione categoría</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.nombre}"
+                    th:text="${cat.nombre}">
+            </option>
+        </select>
+
+        <button type="submit">Crear</button>
+    </form>
