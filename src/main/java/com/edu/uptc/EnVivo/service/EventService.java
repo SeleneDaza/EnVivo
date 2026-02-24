@@ -14,22 +14,23 @@ public class EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
 
-    public void crearEvento(CreateEventDTO dto) {
-
-        Category category = categoryRepository
-                .findByName(dto.getCategory())
-                .orElseThrow(() ->
-                        new RuntimeException("Categoría no encontrada"));
+    public Event createEvent(CreateEventDTO dto) {
 
         Event event = new Event();
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
-        event.setImage(dto.getImage());
-        event.setInterestCount(0);
-        event.setCategory(category);
 
-        eventRepository.save(event);
+        if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
+            Category category = categoryRepository
+                    .findByName(dto.getCategory())
+                    .orElseThrow(() ->
+                            new RuntimeException("Categoría no encontrada"));
+
+            event.setCategory(category);
+        }
+
+        return eventRepository.save(event);
     }
 }
