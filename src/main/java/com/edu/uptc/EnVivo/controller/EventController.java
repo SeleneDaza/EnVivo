@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
@@ -74,6 +75,12 @@ public class EventController {
     public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto) {
         eventoService.createEvent(dto);
         // Después de guardar, recargamos la página de admin
+        return "redirect:/admin";
+    }
+    // 3. Eliminar un evento
+    @GetMapping("/admin/eliminar/{id}")
+    public String eliminarEventoAdmin(@PathVariable Long id) {
+        eventoService.eliminarEvento(id);
         return "redirect:/admin";
     }
 }

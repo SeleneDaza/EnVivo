@@ -54,4 +54,8 @@ public class EventService {
         }
         return eventRepository.findAll(pageable);
     }
+
+    public void eliminarEvento(Long id) {
+        eventRepository.deleteById(id);
+    }
 }

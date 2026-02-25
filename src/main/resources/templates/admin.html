@@ -93,7 +93,7 @@
                         </td>
                         <td class="px-6 py-4 text-right space-x-3">
                             <button class="text-blue-200 hover:text-blue-500 transition-colors"><i class="fa-solid fa-pencil"></i></button>
-                            <button class="text-blue-200 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                            <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}" onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?');"class="text-blue-200 hover:text-red-400 transition-colors cursor-pointer inline-block"><i class="fa-solid fa-trash-can"></i></a>
                         </td>
                     </tr>
                 </tbody>
