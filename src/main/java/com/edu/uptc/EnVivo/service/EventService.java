@@ -44,7 +44,6 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    // EventService.java
     public Page<Event> findAll(Pageable pageable) {
         return eventRepository.findAll(pageable);
     }

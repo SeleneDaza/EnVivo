@@ -6,7 +6,6 @@
     <title>EnVivo - Cartelera de Eventos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Efecto de desenfoque para la tarjeta de información */
         .glass-effect {
             background: rgba(115, 115, 115, 0.4);
             backdrop-filter: blur(12px);
@@ -36,7 +35,7 @@
 <main class="max-w-[1400px] mx-auto p-10">
 
     <div th:if="${eventos.empty}" class="text-center text-gray-500 py-20 text-xl font-medium">
-        No encontramos eventos que coincidan con tu búsqueda 😔
+        No encontramos eventos que coincidan con tu búsqueda
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
