@@ -6,6 +6,9 @@ import com.edu.uptc.EnVivo.entity.Event;
 import com.edu.uptc.EnVivo.repository.CategoryRepository;
 import com.edu.uptc.EnVivo.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -39,5 +42,17 @@ public class EventService {
     // Agrega este método para listar en el index
     public List<Event> findAll() {
         return eventRepository.findAll();
+    }
+
+    // EventService.java
+    public Page<Event> findAll(Pageable pageable) {
+        return eventRepository.findAll(pageable);
+    }
+
+    public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return eventRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        }
+        return eventRepository.findAll(pageable);
     }
 }
