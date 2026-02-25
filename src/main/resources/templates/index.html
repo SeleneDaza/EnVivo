@@ -6,11 +6,12 @@
     <title>EnVivo - Cartelera de Eventos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Efecto exacto de la primera imagen */
         .glass-effect {
-            background: rgba(20, 20, 20, 0.6); /* Más oscuro para legibilidad según mockup */
+            background: rgba(115, 115, 115, 0.4);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -22,7 +23,7 @@
         <div class="text-3xl font-black text-[#ff5a1f] tracking-tighter">EnVivo</div>
         <div class="relative w-1/3">
             <input type="text" placeholder="Buscar eventos" 
-                   class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-orange-200">
+                   class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-orange-200 transition-all">
         </div>
     </nav>
 
@@ -30,30 +31,49 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-12">
             
             <div th:each="evento : ${eventos}" 
-                 class="relative aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white transition-transform hover:scale-[1.02]">
+                 class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
                 
-                <img th:src="${evento.image}" class="w-full h-full object-cover">
+                <img th:src="${evento.image}" class="w-full h-full object-cover" alt="Poster">
 
-                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] glass-effect rounded-[1.2rem] p-4 text-white">
-                    <h3 class="text-sm font-bold leading-tight" th:text="${evento.name}">Nombre</h3>
-                    <div class="flex items-center gap-1 mt-1 opacity-80 text-[10px]">
-                        <span>📍</span>
-                        <span>Bogotá, Colombia</span>
+                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
+                    <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md" th:text="${evento.name}">
+                        Nombre del Evento
+                    </h3>
+                    
+                    <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-1">
+                            <span class="text-lg font-light opacity-70">$</span>
+                            <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="absolute bottom-3 w-full text-center">
+                    <p class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60" 
+                       th:text="${evento.category}">
+                        MOVISTAR ARENA
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="flex justify-center items-center gap-10 mt-8 pb-10">
+        <div class="flex justify-center items-center gap-10 mt-4 pb-10">
             <a th:href="@{/(page=${currentPage - 1})}" 
-               th:classappend="${currentPage == 0} ? 'invisible' : ''"
-               class="flex items-center gap-2 bg-[#ff7a45] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#e66a39] transition-colors">
+               th:classappend="${currentPage == 0} ? 'pointer-events-none opacity-0' : ''"
+               class="flex items-center gap-2 bg-[#ff7a45] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#e66a39] transition-all">
                 <span>←</span> Anterior
             </a>
 
             <a th:href="@{/(page=${currentPage + 1})}" 
-               th:classappend="${currentPage + 1 >= totalPages} ? 'invisible' : ''"
-               class="flex items-center gap-2 bg-[#ff7a45] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#e66a39] transition-colors">
+               th:classappend="${currentPage + 1 >= totalPages} ? 'pointer-events-none opacity-0' : ''"
+               class="flex items-center gap-2 bg-[#ff7a45] text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-[#e66a39] transition-all">
                 Siguiente <span>→</span>
             </a>
         </div>
