@@ -54,7 +54,7 @@ public class EventController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             Model model) {
 
-        int pageSize = 10;
+        int pageSize = 50;
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
 
