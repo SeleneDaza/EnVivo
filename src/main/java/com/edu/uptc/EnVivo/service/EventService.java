@@ -54,4 +54,26 @@ public class EventService {
         }
         return eventRepository.findAll(pageable);
     }
+
+    public void eliminarEvento(Long id) {
+        eventRepository.deleteById(id);
+    }
+
+    public Event obtenerPorId(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+    }
+
+    public Event actualizarEvento(Long id, CreateEventDTO dto) {
+        Event event = obtenerPorId(id);
+        
+        event.setName(dto.getName());
+        event.setDescription(dto.getDescription());
+        event.setDate(dto.getDate());
+        event.setPrice(dto.getPrice());
+        event.setImage(dto.getImage());
+        //Aqui se actualizan las categorias cuando sea necesario
+
+        return eventRepository.save(event);
+    }
 }
