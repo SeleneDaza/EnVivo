@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EnVivo | Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#f3f4f6] min-h-screen font-sans">
+
+    <nav class="bg-white px-8 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
+            <span class="text-sm font-semibold text-[#c0392b] mt-1">admin</span>
+        </div>
+        <div class="flex-1 max-w-xl mx-10">
+            <input type="text" placeholder="Buscar eventos..." 
+                   class="w-full bg-[#f9fafb] border border-gray-200 rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm">
+        </div>
+        <div class="flex items-center gap-4 text-gray-400">
+            <i class="fa-regular fa-bell"></i>
+            <i class="fa-solid fa-user-circle text-2xl"></i>
+        </div>
+    </nav>
+
+    <main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <section class="lg:col-span-4 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
+            <h2 class="text-[#f39c12] font-black text-2xl mb-10 tracking-tight uppercase">Crear Evento</h2>
+            
+            <form th:action="@{/admin/guardar}" th:object="${evento}" method="POST" class="space-y-8">
+                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
+                    <label class="text-gray-700 font-medium whitespace-nowrap">Nombre:</label>
+                    <input type="text" th:field="*{name}" class="w-full bg-transparent outline-none text-gray-600">
+                </div>
+                
+                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
+                    <label class="text-gray-700 font-medium whitespace-nowrap">Fecha:</label>
+                    <input type="date" th:field="*{date}" class="w-full bg-transparent outline-none text-gray-600">
+                </div>
+
+                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
+                    <label class="text-gray-700 font-medium whitespace-nowrap">Precio:</label>
+                    <input type="number" th:field="*{price}" class="w-full bg-transparent outline-none text-gray-600" placeholder="0.00">
+                </div>
+
+                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
+                    <label class="text-gray-700 font-medium whitespace-nowrap">Categoría:</label>
+                    <input type="text" th:field="*{category}" class="w-full bg-transparent outline-none text-gray-600">
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-gray-700 font-medium">URL Imagen:</label>
+                    <div class="flex items-center gap-4 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
+                        <input type="text" th:field="*{image}" class="text-xs text-gray-400 w-full bg-transparent outline-none" placeholder="No file selected">
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-[#ff7f50] hover:bg-[#e67348] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-orange-100 mt-4">
+                    Crear Evento
+                </button>
+            </form>
+        </section>
+
+        <section class="lg:col-span-8 bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-50">
+            <table class="w-full text-left">
+                <thead class="bg-white border-b border-gray-100">
+                    <tr class="text-gray-400 text-xs uppercase tracking-widest">
+                        <th class="px-6 py-5 font-semibold">Evento</th>
+                        <th class="px-6 py-5 font-semibold">Fecha / Info</th>
+                        <th class="px-6 py-5 font-semibold text-center">Precio</th>
+                        <th class="px-6 py-5 font-semibold text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr th:each="e : ${eventos}" class="group hover:bg-orange-50/30 transition-colors">
+                        <td class="px-6 py-4 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm">
+                                <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800" th:text="${e.name}">Nombre</div>
+                                <div class="text-[10px] text-gray-400" th:text="${e.description}">Descripción</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm text-gray-500" th:text="${e.date}">2024-10-10</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-sm font-medium text-gray-600" th:text="${'$' + e.price}">$0</span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-3">
+                            <button class="text-blue-200 hover:text-blue-500 transition-colors"><i class="fa-solid fa-pencil"></i></button>
+                            <button class="text-blue-200 hover:text-red-400 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+</body>
+</html>
