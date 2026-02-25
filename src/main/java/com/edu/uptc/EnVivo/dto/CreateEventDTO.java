@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 @Data
 public class CreateEventDTO {
+    private Long event_id;
     private String name;
     private String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd")

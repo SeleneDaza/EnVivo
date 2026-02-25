@@ -83,4 +83,36 @@ public class EventController {
         eventoService.eliminarEvento(id);
         return "redirect:/admin";
     }
+
+    // 4. Mostrar el formulario de Admin pero en modo "Editar"
+    @GetMapping("/admin/editar/{id}")
+    public String editarEventoAdmin(@PathVariable Long id,
+                                    @RequestParam(name = "keyword", required = false) String keyword,
+                                    @RequestParam(name = "page", defaultValue = "0") int page,
+                                    Model model) {
+        int pageSize = 50;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        model.addAttribute("eventos", eventPage);
+        model.addAttribute("keyword", keyword);
+
+        Event evento = eventoService.obtenerPorId(id);
+        CreateEventDTO dto = new CreateEventDTO();
+        dto.setEvent_id(evento.getEvent_id());
+        dto.setName(evento.getName());
+        dto.setDescription(evento.getDescription());
+        dto.setDate(evento.getDate());
+        dto.setPrice(evento.getPrice());
+        dto.setImage(evento.getImage());
+
+        model.addAttribute("evento", dto);
+
+        return "admin"; 
+    }
+
+    @PostMapping("/admin/editar/{id}")
+    public String guardarEdicionAdmin(@PathVariable Long id, @ModelAttribute("evento") CreateEventDTO dto) {
+        eventoService.actualizarEvento(id, dto);
+        return "redirect:/admin";
+    }
 }
