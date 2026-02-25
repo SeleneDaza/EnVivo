@@ -6,6 +6,7 @@
     <title>EnVivo - Cartelera de Eventos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Efecto de desenfoque para la tarjeta de información */
         .glass-effect {
             background: rgba(115, 115, 115, 0.4);
             backdrop-filter: blur(12px);
@@ -18,85 +19,93 @@
 </head>
 <body class="bg-[#f3f4f6]">
 
-    <nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
-        <div class="text-3xl font-black text-[#ff5a1f] tracking-tighter">EnVivo</div>
-        <div class="relative w-1/3">
-            <input type="text" placeholder="Buscar eventos" 
-                   class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all">
-        </div>
-    </nav>
+<nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
+    <a th:href="@{/}" class="text-3xl font-black text-[#ff5a1f] tracking-tighter hover:opacity-80 transition-opacity">
+        EnVivo
+    </a>
 
-    <main class="max-w-[1400px] mx-auto p-10">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-            
-            <div th:each="evento : ${eventos.content}" 
-                 class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
-                
-                <img th:src="${evento.image}" 
-                     alt="Poster del evento"
-                     class="w-full h-full object-cover">
+    <div class="relative w-1/3">
+        <form th:action="@{/}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Buscar eventos..."
+                   class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all shadow-inner">
+            <button type="submit" class="hidden">Buscar</button>
+        </form>
+    </div>
+</nav>
 
-                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
-                    <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md" th:text="${evento.name}">
-                        Nombre del Evento
-                    </h3>
-                    
-                    <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
-                        </div>
-                        
-                        <div class="flex items-center gap-1">
-                            <span class="text-lg font-light opacity-70">$</span>
-                            <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
-                        </div>
+<main class="max-w-[1400px] mx-auto p-10">
+
+    <div th:if="${eventos.empty}" class="text-center text-gray-500 py-20 text-xl font-medium">
+        No encontramos eventos que coincidan con tu búsqueda 😔
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+
+        <div th:each="evento : ${eventos.content}"
+             class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
+
+            <img th:src="${evento.image}"
+                 alt="Poster del evento"
+                 class="w-full h-full object-cover">
+
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
+                <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md" th:text="${evento.name}">
+                    Nombre del Evento
+                </h3>
+
+                <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <span class="text-lg font-light opacity-70">$</span>
+                        <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
                     </div>
                 </div>
+            </div>
 
-                <div class="absolute bottom-3 w-full text-center">
-                    <p class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60" 
-                       th:text="${evento.category}">
-                        CATEGORÍA
-                    </p>
-                </div>
+            <div class="absolute bottom-3 w-full text-center">
+                <p class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60"
+                   th:text="${evento.category != null ? evento.category.name : 'GENERAL'}">
+                    CATEGORÍA
+                </p>
             </div>
         </div>
+    </div>
 
-        ---
+    <div th:if="${eventos.totalPages > 0}" class="mt-16 flex flex-col justify-center items-center gap-6">
 
-        <div class="mt-16 flex justify-center items-center gap-4">
-            
-            <a th:href="@{/(page=${eventos.number - 1})}" 
-               th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
+        <div class="flex gap-6">
+            <a th:href="@{/(page=${eventos.number - 1}, keyword=${keyword})}"
+               th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-50' : 'hover:bg-orange-600 hover:-translate-x-1'"
+               class="flex items-center gap-2 px-8 py-3 rounded-full bg-[#ff5a1f] text-white text-sm font-bold transition-all shadow-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
                 Anterior
             </a>
 
-            <div class="flex gap-2">
-                <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
-                   th:href="@{/(page=${i})}"
-                   th:text="${i + 1}"
-                   th:classappend="${eventos.number == i} ? 'bg-[#ff5a1f] text-white' : 'bg-white hover:bg-gray-100'"
-                   class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 text-sm font-bold transition-all">
-                </a>
-            </div>
-
-            <a th:href="@{/(page=${eventos.number + 1})}" 
-               th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
+            <a th:href="@{/(page=${eventos.number + 1}, keyword=${keyword})}"
+               th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-50' : 'hover:bg-orange-600 hover:translate-x-1'"
+               class="flex items-center gap-2 px-8 py-3 rounded-full bg-[#ff5a1f] text-white text-sm font-bold transition-all shadow-lg">
                 Siguiente
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                </svg>
             </a>
-
         </div>
 
-        <div class="text-center mt-4 text-xs text-gray-400 font-medium uppercase tracking-widest">
+        <div class="text-xs text-gray-400 font-medium uppercase tracking-widest">
             Página <span th:text="${eventos.number + 1}">1</span> de <span th:text="${eventos.totalPages}">5</span>
         </div>
 
-    </main>
+    </div>
+
+</main>
 
 </body>
 </html>

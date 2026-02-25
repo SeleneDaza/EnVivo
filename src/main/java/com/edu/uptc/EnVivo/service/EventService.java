@@ -48,4 +48,11 @@ public class EventService {
     public Page<Event> findAll(Pageable pageable) {
         return eventRepository.findAll(pageable);
     }
+
+    public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return eventRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        }
+        return eventRepository.findAll(pageable);
+    }
 }

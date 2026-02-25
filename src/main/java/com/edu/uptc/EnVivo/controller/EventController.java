@@ -25,16 +25,26 @@ public class EventController {
 
     // EventController.java
     @GetMapping("/")
-    public String index(@RequestParam(defaultValue = "0") int page, Model model) {
+    public String index(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Model model) {
+
         // Definimos el tamaño máximo de 10 por página
-        int pageSize = 10; 
-        Page<Event> eventPage = eventoService.findAll(PageRequest.of(page, pageSize));
-        
-        model.addAttribute("eventos", eventPage.getContent()); // Lista de eventos
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", eventPage.getTotalPages());
-        
-        return "index"; 
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page, pageSize);
+
+        // Llamamos al servicio para que busque o traiga todos según el caso
+        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+
+        // ¡OJO! Aquí pasamos el eventPage COMPLETO (no usamos .getContent())
+        // Así el HTML de Thymeleaf podrá usar eventos.totalPages, eventos.hasNext(), etc.
+        model.addAttribute("eventos", eventPage);
+
+        // Pasamos el keyword para que no se borre de la barra de búsqueda en el navegador
+        model.addAttribute("keyword", keyword);
+
+        return "index";
     }
 
     @PostMapping("/evento/crear")
