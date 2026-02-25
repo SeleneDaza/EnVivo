@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import com.edu.uptc.EnVivo.entity.Event;
+import org.springframework.data.domain.Pageable;
+
 
 @Controller
 @RequiredArgsConstructor
