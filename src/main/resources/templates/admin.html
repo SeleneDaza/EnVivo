@@ -27,13 +27,19 @@
         
         <section class="lg:col-span-4 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
             <h2 class="text-[#f39c12] font-black text-2xl mb-10 tracking-tight uppercase">Crear Evento</h2>
-            
+
             <form th:action="@{/admin/guardar}" th:object="${evento}" method="POST" class="space-y-8">
+
                 <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
                     <label class="text-gray-700 font-medium whitespace-nowrap">Nombre:</label>
-                    <input type="text" th:field="*{name}" class="w-full bg-transparent outline-none text-gray-600">
+                    <input type="text" th:field="*{name}" required class="w-full bg-transparent outline-none text-gray-600">
                 </div>
-                
+
+                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
+                    <label class="text-gray-700 font-medium whitespace-nowrap">Descripción:</label>
+                    <input type="text" th:field="*{description}" class="w-full bg-transparent outline-none text-gray-600">
+                </div>
+
                 <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
                     <label class="text-gray-700 font-medium whitespace-nowrap">Fecha:</label>
                     <input type="date" th:field="*{date}" class="w-full bg-transparent outline-none text-gray-600">
@@ -41,22 +47,17 @@
 
                 <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
                     <label class="text-gray-700 font-medium whitespace-nowrap">Precio:</label>
-                    <input type="number" th:field="*{price}" class="w-full bg-transparent outline-none text-gray-600" placeholder="0.00">
-                </div>
-
-                <div class="flex items-end gap-3 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium whitespace-nowrap">Categoría:</label>
-                    <input type="text" th:field="*{category}" class="w-full bg-transparent outline-none text-gray-600">
+                    <input type="number" th:field="*{price}" class="w-full bg-transparent outline-none text-gray-600" placeholder="0">
                 </div>
 
                 <div class="flex flex-col gap-2">
                     <label class="text-gray-700 font-medium">URL Imagen:</label>
                     <div class="flex items-center gap-4 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
-                        <input type="text" th:field="*{image}" class="text-xs text-gray-400 w-full bg-transparent outline-none" placeholder="No file selected">
+                        <input type="text" th:field="*{image}" class="text-sm text-gray-600 w-full bg-transparent outline-none" placeholder="Ej: /img/concierto.jpg">
                     </div>
                 </div>
 
-                <button type="submit" 
+                <button type="submit"
                         class="w-full bg-[#ff7f50] hover:bg-[#e67348] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-orange-100 mt-4">
                     Crear Evento
                 </button>

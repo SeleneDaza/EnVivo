@@ -46,4 +46,34 @@ public class EventController {
         eventoService.createEvent(dto);
         return "redirect:/";
     }
+
+    // 1. Mostrar la página de Admin (con paginación y búsqueda, igual que el index)
+    @GetMapping("/admin")
+    public String adminIndex(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Model model) {
+
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+
+        // Pasamos la lista de eventos y la palabra clave
+        model.addAttribute("eventos", eventPage);
+        model.addAttribute("keyword", keyword);
+
+        // ¡SÚPER IMPORTANTE! Pasamos un objeto vacío para que el formulario HTML
+        // sepa dónde guardar los datos (th:object="${evento}")
+        model.addAttribute("evento", new CreateEventDTO());
+
+        return "admin"; // Asumiendo que tu archivo se llama admin.html
+    }
+
+    // 2. Recibir los datos del formulario y guardarlos
+    @PostMapping("/admin/guardar")
+    public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto) {
+        eventoService.createEvent(dto);
+        // Después de guardar, recargamos la página de admin
+        return "redirect:/admin";
+    }
 }
