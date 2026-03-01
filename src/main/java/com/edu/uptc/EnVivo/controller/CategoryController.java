@@ -16,6 +16,6 @@ public class CategoryController {
     @PostMapping("/categoria/crear")
     public String crearCategoria(@ModelAttribute CreateCategoryDTO dto) {
         categoryService.createCategory(dto);
-        return "redirect:/";
+        return "redirect:/admin";
     }
 }
