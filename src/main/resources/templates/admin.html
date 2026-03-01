@@ -28,6 +28,7 @@
             </h2>
             
             <form th:action="${evento.event_id == null ? '/admin/guardar' : '/admin/editar/' + evento.event_id}" 
+                    onsubmit="alert('¡Evento guardado con éxito!');"
                 th:object="${evento}" method="POST" enctype="multipart/form-data" class="space-y-8">
                 
                 <input type="hidden" th:field="*{event_id}">
@@ -138,7 +139,7 @@
                                <i class="fa-solid fa-pencil"></i>
                             </a>
                             <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}" 
-                               onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?');"
+                                onclick="if(confirm('¿Estás seguro de que deseas eliminar este evento?')) { alert('Evento eliminado con éxito'); return true; } else { alert('No se ha eliminado el evento'); return false; }"                               
                                class="text-blue-200 hover:text-red-400 transition-colors cursor-pointer inline-block">
                                <i class="fa-solid fa-trash-can"></i>
                             </a>
@@ -210,5 +211,6 @@
             }
         });
     </script>
+
 </body>
 </html>
