@@ -1,6 +1,8 @@
 package com.edu.uptc.EnVivo.controller;
 
+import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
+import com.edu.uptc.EnVivo.service.CategoryService;
 import com.edu.uptc.EnVivo.service.EventService;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +26,8 @@ public class EventController {
 
     private final EventService eventoService;
 
+    private final CategoryService categoryService;
+
     @GetMapping("/")
     public String index(
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -38,6 +42,9 @@ public class EventController {
         model.addAttribute("eventos", eventPage);
 
         model.addAttribute("keyword", keyword);
+
+        model.addAttribute("categorias", categoryService.getCategories());
+        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
 
         return "index";
     }
@@ -59,15 +66,15 @@ public class EventController {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
 
-        // Pasamos la lista de eventos y la palabra clave
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
 
-        // ¡SÚPER IMPORTANTE! Pasamos un objeto vacío para que el formulario HTML
-        // sepa dónde guardar los datos (th:object="${evento}")
         model.addAttribute("evento", new CreateEventDTO());
 
-        return "admin"; // Asumiendo que tu archivo se llama admin.html
+        model.addAttribute("categorias", categoryService.getCategories());
+        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+
+        return "admin";
     }
 
     // 2. Recibir los datos del formulario y guardarlos
@@ -105,9 +112,17 @@ public class EventController {
         dto.setPrice(evento.getPrice());
         dto.setImage(evento.getImage());
 
+        // 👇 AGREGAMOS ESTO para que el HTML sepa qué categoría tenía el evento
+        if (evento.getCategory() != null) {
+            dto.setCategory(evento.getCategory().getName());
+        }
+
         model.addAttribute("evento", dto);
 
-        return "admin"; 
+        model.addAttribute("categorias", categoryService.getCategories());
+        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+
+        return "admin";
     }
 
     @PostMapping("/admin/editar/{id}")
