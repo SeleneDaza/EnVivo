@@ -10,16 +10,12 @@
 
     <nav class="bg-white px-8 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-2">
-            <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
+            <span class="text-2xl font-bold text-[#e67e22]">EnViasdvo</span>
             <span class="text-sm font-semibold text-[#c0392b] mt-1">admin</span>
         </div>
         <div class="flex-1 max-w-xl mx-10">
             <input type="text" placeholder="Buscar eventos..." 
                    class="w-full bg-[#f9fafb] border border-gray-200 rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm">
-        </div>
-        <div class="flex items-center gap-4 text-gray-400">
-            <i class="fa-regular fa-bell"></i>
-            <i class="fa-solid fa-user-circle text-2xl"></i>
         </div>
     </nav>
 
@@ -94,8 +90,8 @@
                                 <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
                             </div>
                             <div>
-                                <div class="font-bold text-gray-800" th:text="${e.name}">Nombre</div>
-                                <div class="text-[10px] text-gray-400" th:text="${e.description}">Descripción</div>
+                                <div class="font-bold text-gray-800 truncate max-w-xs" th:text="${e.name}">Nombre</div>
+                                <div class="text-[10px] text-gray-400 truncate max-w-xs" th:text="${e.description}">Descripción</div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
