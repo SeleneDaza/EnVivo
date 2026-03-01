@@ -10,7 +10,7 @@
 
     <nav class="bg-white px-8 py-4 flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-2">
-            <span class="text-2xl font-bold text-[#e67e22]">EnViasdvo</span>
+            <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
             <span class="text-sm font-semibold text-[#c0392b] mt-1">admin</span>
         </div>
         <div class="flex-1 max-w-xl mx-10">
@@ -50,11 +50,21 @@
                     <span id="char-count" class="text-[10px] absolute right-0 bottom-2 text-gray-400">0/100</span>
                 </div>
 
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
+                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2 relative">
                     <label class="text-gray-700 font-medium">Descripción:</label>
-                    <input type="text" th:field="*{description}" 
-                        class="w-full bg-transparent outline-none text-gray-600 placeholder:text-gray-300"
-                        placeholder="Breve descripción">
+                    
+                    <input th:field="*{description}" 
+                            id="event-desc"
+                            rows="3"
+                            maxlength="510" 
+                            class="w-full bg-transparent outline-none text-gray-600 transition-colors resize-none mt-1"
+                            placeholder="Descripción del evento"></input>
+
+                    <div id="desc-error" class="hidden text-[10px] text-red-500 font-bold mt-1">
+                        ⚠️ Has excedido el límite de 500 caracteres.
+                    </div>
+                    
+                    <span id="desc-char-count" class="text-[10px] text-right text-gray-400">0/500</span>
                 </div>
 
                 <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
@@ -145,32 +155,60 @@
         fechaInput.setAttribute('min', hoy);
     </script>
     <script>
-    const nameInput = document.getElementById('event-name');
-    const nameError = document.getElementById('name-error');
-    const charCount = document.getElementById('char-count');
+        const nameInput = document.getElementById('event-name');
+        const nameError = document.getElementById('name-error');
+        const charCount = document.getElementById('char-count');
 
-    nameInput.addEventListener('input', function() {
-        const length = this.value.length;
-        
-        // Actualizar contador
-        charCount.textContent = `${length}/100`;
-
-        if (length > 100) {
-            // AVISO AL USUARIO: Borde rojo y mensaje de error
-            this.classList.add('border-b-2', 'border-red-500');
-            nameError.classList.remove('hidden');
-            charCount.classList.add('text-red-500');
+        nameInput.addEventListener('input', function() {
+            const length = this.value.length;
             
-            // Opcional: Impedir el envío si se pasa (aunque el backend debería controlarlo)
-            this.setCustomValidity("El nombre no puede exceder los 100 caracteres.");
-        } else {
-            // Estado Normal
-            this.classList.remove('border-b-2', 'border-red-500');
-            nameError.classList.add('hidden');
-            charCount.classList.remove('text-red-500');
-            this.setCustomValidity(""); // Limpia el error para permitir envío
-        }
-    });
-</script>
+            // Actualizar contador
+            charCount.textContent = `${length}/100`;
+
+            if (length > 100) {
+                // AVISO AL USUARIO: Borde rojo y mensaje de error
+                this.classList.add('border-b-2', 'border-red-500');
+                nameError.classList.remove('hidden');
+                charCount.classList.add('text-red-500');
+                
+                // Opcional: Impedir el envío si se pasa (aunque el backend debería controlarlo)
+                this.setCustomValidity("El nombre no puede exceder los 100 caracteres.");
+            } else {
+                // Estado Normal
+                this.classList.remove('border-b-2', 'border-red-500');
+                nameError.classList.add('hidden');
+                charCount.classList.remove('text-red-500');
+                this.setCustomValidity(""); // Limpia el error para permitir envío
+            }
+        });
+    </script>
+    <script>
+        const descInput = document.getElementById('event-desc');
+        const descError = document.getElementById('desc-error');
+        const descCharCount = document.getElementById('desc-char-count');
+
+        descInput.addEventListener('input', function() {
+            const length = this.value.length;
+            
+            // Actualizar contador
+            descCharCount.textContent = `${length}/500`;
+
+            if (length > 500) {
+                // AVISO: Borde rojo y mensaje
+                this.classList.add('border-red-400'); // Resalta el borde del área de texto
+                descError.classList.remove('hidden');
+                descCharCount.classList.replace('text-gray-400', 'text-red-500');
+                
+                // Bloquea el envío del formulario con mensaje nativo
+                this.setCustomValidity("La descripción no puede exceder los 500 caracteres.");
+            } else {
+                // Estado Normal
+                this.classList.remove('border-red-400');
+                descError.classList.add('hidden');
+                descCharCount.classList.replace('text-red-500', 'text-gray-400');
+                this.setCustomValidity(""); 
+            }
+        });
+    </script>
 </body>
 </html>
