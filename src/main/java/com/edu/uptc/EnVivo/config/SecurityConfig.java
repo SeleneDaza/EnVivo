@@ -44,8 +44,8 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User.builder()
-                .username("admin")
-                .password("{noop}admin123") // {noop} es para contraseñas en texto plano (solo desarrollo)
+                .username("a")
+                .password("{noop}a") // {noop} es para contraseñas en texto plano (solo desarrollo)
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(user);
