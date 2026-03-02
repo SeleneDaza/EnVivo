@@ -15,40 +15,37 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests((requests) -> requests
-            // Rutas públicas
-            .requestMatchers("/", "/index", "/register", "/css/**", "/js/**", "/images/**").permitAll()
-            
-            // RESTRICCIÓN: Solo usuarios con rol ADMIN pueden entrar aquí
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/categories/**").hasRole("ADMIN")
-            
-            // El resto requiere estar logueado
-            .anyRequest().authenticated()
-        )
-        .formLogin((form) -> form
-            .loginPage("/")
-            .loginProcessingUrl("/login")
-            .defaultSuccessUrl("/main", true) 
-            .permitAll()
-        )
-        .logout((logout) -> logout
-            .logoutUrl("/logout")
-            .logoutSuccessUrl("/")
-            .permitAll()
-        )
-        .csrf(csrf -> csrf.disable()); 
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((requests) -> requests
+                // Permitimos el index (login), el registro y los archivos estáticos
+                .requestMatchers("/", "/index", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+                // Cualquier otra ruta (como /main, /admin, /categories) requiere login
+                .anyRequest().authenticated()
+            )
+            .formLogin((form) -> form
+                .loginPage("/") // Tu archivo index.html es la raíz
+                .loginProcessingUrl("/login") // Esta es la URL que Spring Security escuchará
+                .defaultSuccessUrl("/main", true) // Al entrar con éxito, va a la cartelera
+                .failureUrl("/?error=true") // Si falla, vuelve al index con un parámetro de error
+                .permitAll()
+            )
+            .logout((logout) -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
+            )
+            // Deshabilitamos CSRF temporalmente para facilitar las pruebas con tus formularios actuales
+            .csrf(csrf -> csrf.disable()); 
 
-    return http.build();
-}
+        return http.build();
+    }
 
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user = User.builder()
                 .username("admin")
-                .password("{noop}admin123")
+                .password("{noop}admin123") // {noop} es para contraseñas en texto plano (solo desarrollo)
                 .roles("ADMIN")
                 .build();
         return new InMemoryUserDetailsManager(user);
