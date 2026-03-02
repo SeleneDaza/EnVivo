@@ -3,6 +3,7 @@ package com.edu.uptc.EnVivo.controller;
 import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
 import com.edu.uptc.EnVivo.service.CategoryService;
+import com.edu.uptc.EnVivo.service.CloudinaryService;
 import com.edu.uptc.EnVivo.service.EventService;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.edu.uptc.EnVivo.entity.Event;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,10 +28,11 @@ public class EventController {
 
     private final EventService eventoService;
     private final CategoryService categoryService;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping("/")
     public String loginPage() {
-        return "index"; 
+        return "index";
     }
 
     @GetMapping("/main")
@@ -46,13 +51,13 @@ public class EventController {
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
 
-        return "main"; 
+        return "main";
     }
 
     @PostMapping("/evento/crear")
     public String createEvent(@ModelAttribute CreateEventDTO dto) {
         eventoService.createEvent(dto);
-        return "redirect:/main"; 
+        return "redirect:/main";
     }
 
     @GetMapping("/admin")
@@ -75,9 +80,22 @@ public class EventController {
     }
 
     @PostMapping("/admin/guardar")
-    public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto) {
-        eventoService.createEvent(dto);
-        return "redirect:/admin";
+    public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto,
+                                     @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            // Si el usuario seleccionó un archivo, lo subimos a Cloudinary
+            if (file != null && !file.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(file);
+                dto.setImage(imageUrl); // Le pasamos la URL de la nube al DTO
+            }
+
+            eventoService.createEvent(dto);
+            return "redirect:/admin";
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "redirect:/admin?error_imagen";
+        }
     }
 
     @GetMapping("/admin/eliminar/{id}")
@@ -118,8 +136,21 @@ public class EventController {
     }
 
     @PostMapping("/admin/editar/{id}")
-    public String guardarEdicionAdmin(@PathVariable Long id, @ModelAttribute("evento") CreateEventDTO dto) {
-        eventoService.actualizarEvento(id, dto);
-        return "redirect:/admin";
+    public String guardarEdicionAdmin(@PathVariable Long id,
+                                      @ModelAttribute("evento") CreateEventDTO dto,
+                                      @RequestParam(value = "file", required = false) MultipartFile file) {
+        try {
+            if (file != null && !file.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(file);
+                dto.setImage(imageUrl); // Actualiza con la nueva URL
+            }
+
+            eventoService.actualizarEvento(id, dto);
+            return "redirect:/admin";
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "redirect:/admin?error_imagen";
+        }
     }
 }
