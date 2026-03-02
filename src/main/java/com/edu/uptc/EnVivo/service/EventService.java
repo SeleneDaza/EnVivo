@@ -39,7 +39,6 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    // Agrega este método para listar en el index
     public List<Event> findAll() {
         return eventRepository.findAll();
     }
@@ -66,13 +65,28 @@ public class EventService {
 
     public Event actualizarEvento(Long id, CreateEventDTO dto) {
         Event event = obtenerPorId(id);
-        
+
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
-        event.setImage(dto.getImage());
-        //Aqui se actualizan las categorias cuando sea necesario
+
+        // 🛡️ PROTECCIÓN DE IMAGEN: Solo la cambiamos si el DTO trae un link nuevo
+        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+            event.setImage(dto.getImage());
+        }
+
+        // 🏷️ ACTUALIZAR CATEGORÍA
+        if (dto.getCategory() != null && !dto.getCategory().isEmpty()) {
+            // Buscamos la categoría en la BD por su nombre
+            Category categoryEntity = categoryRepository.findByName(dto.getCategory())
+                    .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada: " + dto.getCategory()));
+
+            event.setCategory(categoryEntity);
+        } else {
+            // Si el admin eligió "-- Sin categoría --" en el select, la dejamos en null
+            event.setCategory(null);
+        }
 
         return eventRepository.save(event);
     }
