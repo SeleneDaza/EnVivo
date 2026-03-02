@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -34,4 +36,7 @@ public class Event {
     @ManyToOne(optional = true)
     @JoinColumn(name = "category_id", nullable = true)
     private Category category;
+
+    @ManyToMany(mappedBy = "favoriteEvents")
+    private Set<User> favoritedByUsers = new HashSet<>();
 }
