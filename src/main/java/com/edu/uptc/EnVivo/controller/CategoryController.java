@@ -42,7 +42,15 @@ public class CategoryController {
 
     @GetMapping("/delete/{id}")
     public String eliminarCategoria(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        return "redirect:/categories";
+        try {
+            categoryService.deleteCategory(id);
+            return "redirect:/categories?exito";
+
+        } catch (IllegalStateException e) {
+            return "redirect:/categories?error_en_uso";
+
+        } catch (Exception e) {
+            return "redirect:/categories?error_general";
+        }
     }
 }
