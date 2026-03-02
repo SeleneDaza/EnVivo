@@ -3,98 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EnVivo - Cartelera de Eventos</title>
+    <title>EnVivo - Iniciar Sesión</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass-effect {
-            background: rgba(115, 115, 115, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-[#f3f4f6]">
+<body class="bg-[#f3f4f6] min-h-screen flex items-center justify-center p-4">
 
-    <nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
-        <div class="text-3xl font-black text-[#ff5a1f] tracking-tighter">EnVivo</div>
-        <div class="relative w-1/3">
-            <input type="text" placeholder="Buscar eventos" 
-                   class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all">
-        </div> 
-    </nav>
-
-    <main class="max-w-[1400px] mx-auto p-10">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-            
-            <div th:each="evento : ${eventos.content}" 
-                 class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
-                
-                <img th:src="${evento.image}" 
-                     alt="Poster del evento"
-                     class="w-full h-full object-cover">
-
-                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
-                   <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md truncate" th:text="${evento.name}">
-                        Nombre del Evento
-                    </h3>
-                    
-                    <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
-                        </div>
-                        
-                        <div class="flex items-center gap-1">
-                            <span class="text-lg font-light opacity-70">$</span>
-                            <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="absolute bottom-3 w-full text-center">
-                    <p th:if="${evento.category != null}"
-                       th:text="${evento.category.name}"
-                       class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60">
-                    </p>
-                </div>
-            </div>
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-5xl font-black text-[#ff5a1f] tracking-tighter mb-2">EnVivo</h1>
+            <p class="text-gray-500 text-sm font-medium">Ingresa a tu cuenta para continuar.</p>
         </div>
 
-        <div class="mt-16 flex justify-center items-center gap-4">
+        <form th:action="@{/main}" method="GET" class="space-y-5">
             
-            <a th:href="@{/(page=${eventos.number - 1})}" 
-               th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
-                Anterior
-            </a>
-
-            <div class="flex gap-2">
-                <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
-                   th:href="@{/(page=${i})}"
-                   th:text="${i + 1}"
-                   th:classappend="${eventos.number == i} ? 'bg-[#ff5a1f] text-white' : 'bg-white hover:bg-gray-100'"
-                   class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 text-sm font-bold transition-all">
-                </a>
+            <div>
+                <label for="username" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Usuario</label>
+                <input type="text" id="username" name="username" value="admin_user" required
+                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium"
+                       placeholder="Nombre de usuario">
             </div>
 
-            <a th:href="@{/(page=${eventos.number + 1})}" 
-               th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
-                Siguiente
-            </a>
+            <div>
+                <label for="password" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Contraseña</label>
+                <input type="password" id="password" name="password" value="123456" required
+                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium"
+                       placeholder="••••••••">
+            </div>
 
+            <button type="submit" 
+                    class="w-full bg-[#ff5a1f] text-white font-black text-lg py-3 rounded-full hover:bg-[#e64a19] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                Ingresar
+            </button>
+        </form>
+
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
+            <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-4 text-gray-400 font-bold tracking-widest">O</span></div>
         </div>
 
-        <div class="text-center mt-4 text-xs text-gray-400 font-medium uppercase tracking-widest">
-            Página <span th:text="${eventos.number + 1}">1</span> de <span th:text="${eventos.totalPages}">5</span>
+        <div class="text-center">
+            <p class="text-sm text-gray-500 font-medium mb-4">¿No tienes una cuenta aún?</p>
+            <button onclick="document.getElementById('modalRegistro').classList.remove('hidden')"
+                    class="w-full border-2 border-[#ff5a1f] text-[#ff5a1f] font-bold py-3 rounded-full hover:bg-orange-50 transition-colors">
+                Crear cuenta nueva
+            </button>
         </div>
+    </div>
 
-    </main>
+    <div id="modalRegistro" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md relative">
+            <button onclick="document.getElementById('modalRegistro').classList.add('hidden')" 
+                    class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            
+            <h2 class="text-3xl font-black text-gray-800 mb-2">Regístrate</h2>
+            <p class="text-gray-500 text-sm mb-6">Únete a la comunidad de EnVivo.</p>
+
+            <form th:action="@{/register}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Usuario nuevo</label>
+                    <input type="text" name="newUsername" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Contraseña</label>
+                    <input type="password" name="newPassword" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Confirmar Contraseña</label>
+                    <input type="password" name="confirmPassword" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <button type="submit" 
+                        class="w-full bg-black text-white font-black text-lg py-3 rounded-full hover:bg-gray-800 transition-all mt-4">
+                    Registrarme
+                </button>
+            </form>
+        </div>
+    </div>
 
 </body>
 </html>

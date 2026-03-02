@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
 }

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EnVivo | Administración de Categorías</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-[#f3f4f6] min-h-screen font-sans">
+
+    <nav class="bg-gray-100 px-10 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
+            <span class="text-sm font-semibold text-[#c0392b]">admin</span>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <a th:href="@{/admin}"
+               class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+                Eventos
+            </a>
+
+            <a th:href="@{/categories}"
+               class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
+                Categorías
+            </a>
+
+            <a th:href="@{/reports}"
+               class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+                Reportes
+            </a>
+        </div>
+
+        <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600">
+            A
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto mt-10 px-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            
+            <section class="md:col-span-5">
+                <div class="bg-white rounded-[2rem] p-8 border border-gray-200 shadow-sm sticky top-10">
+                    <h3 class="text-gray-700 font-bold mb-6 flex items-center gap-2 text-lg">
+                        <i class="fa-solid" th:classappend="${categoria.categoryId == null} ? 'fa-plus-circle text-[#ff7f50]' : 'fa-pen-to-square text-blue-500'"></i>
+                        <span th:text="${categoria.categoryId == null} ? 'Nueva Categoría' : 'Editar Categoría'"></span>
+                    </h3>
+
+                    <form th:action="@{/categories/create}" th:object="${categoria}" method="POST" class="space-y-4">
+                        
+                        <input type="hidden" th:field="*{categoryId}" />
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Nombre de categoría</label>
+                            <input type="text" th:field="*{name}" required placeholder="Ej: Teatro, Rock, Stand Up..."
+                                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-orange-400 transition-all text-sm">
+                        </div>
+
+                        <button type="submit" 
+                                th:classappend="${categoria.categoryId == null} ? 'bg-gray-800 hover:bg-black' : 'bg-blue-600 hover:bg-blue-700'"
+                                class="w-full text-white py-3 rounded-xl font-bold text-sm transition-all shadow-md">
+                            <span th:text="${categoria.categoryId == null} ? 'Añadir Categoría' : 'Actualizar Categoría'"></span>
+                        </button>
+
+                        <a th:if="${categoria.categoryId != null}" th:href="@{/categories}" 
+                           class="block text-center text-xs text-gray-500 hover:underline mt-2">
+                            Cancelar y crear nueva
+                        </a>
+                    </form>
+                </div>
+            </section>
+
+            <section class="md:col-span-7">
+                <div class="bg-gray-50 rounded-[2rem] p-8 border border-gray-200 shadow-sm min-h-[400px]">
+                    <h3 class="text-gray-700 font-bold mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul text-gray-400"></i>
+                        Categorías Actuales
+                    </h3>
+
+                    <div class="grid gap-3">
+                        <div th:each="c : ${categorias}" 
+                             class="flex items-center justify-between bg-white p-4 rounded-2xl border border-transparent hover:border-orange-200 hover:shadow-md transition-all group">
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
+                                    <i class="fa-solid fa-tag text-xs"></i>
+                                </div>
+                                <span class="font-semibold text-gray-700" th:text="${c.name}">Nombre</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
+                                   class="w-8 h-8 flex items-center justify-center text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </a>
+
+                                <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
+                                   onclick="return confirm('¿Eliminar esta categoría?')"
+                                   class="w-8 h-8 flex items-center justify-center text-red-300 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(categorias)}" class="text-center py-12">
+                            <p class="text-gray-400 text-sm italic">No hay categorías para mostrar</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+</body>
+</html>
