@@ -33,41 +33,47 @@
     <main class="max-w-[1400px] mx-auto p-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
             
-            <div th:each="evento : ${eventos.content}" 
-                 class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
-                
-                <img th:src="${evento.image}" 
-                     alt="Poster del evento"
-                     class="w-full h-full object-cover">
+    <div th:each="evento : ${eventos.content}" 
+         class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
+        
+        <img th:src="${evento.image}" 
+             alt="Poster del evento"
+             class="w-full h-full object-cover">
 
-                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
-                   <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md truncate" th:text="${evento.name}">
-                        Nombre del Evento
-                    </h3>
-                    
-                    <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
-                        </div>
-                        
-                        <div class="flex items-center gap-1">
-                            <span class="text-lg font-light opacity-70">$</span>
-                            <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
-                        </div>
-                    </div>
+         <!-- boton de me gusta     -->
+        <button class="absolute top-6 right-6 p-2 rounded-full glass-effect text-white opacity-80 hover:opacity-100 hover:text-red-500 transition-all duration-300 group/btn">
+            <svg class="w-5 h-5 transition-transform duration-300 group-hover/btn:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+            </svg>
+        </button>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
+           <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md truncate" th:text="${evento.name}">
+                Nombre del Evento
+            </h3>
+            
+            <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
                 </div>
-
-                <div class="absolute bottom-3 w-full text-center">
-                    <p th:if="${evento.category != null}"
-                       th:text="${evento.category.name}"
-                       class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60">
-                    </p>
+                
+                <div class="flex items-center gap-1">
+                    <span class="text-lg font-light opacity-70">$</span>
+                    <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
                 </div>
             </div>
         </div>
+
+        <div class="absolute bottom-3 w-full text-center">
+            <p th:if="${evento.category != null}"
+               th:text="${evento.category.name}"
+               class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60">
+            </p>
+        </div>
+        </div>
+    </div>
 
         <div class="mt-16 flex justify-center items-center gap-4">
             
