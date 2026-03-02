@@ -8,15 +8,40 @@
 </head>
 <body class="bg-[#f3f4f6] min-h-screen font-sans">
 
-<nav class="bg-white px-8 py-4 flex justify-between items-center shadow-sm">
+<nav class="bg-gray-100 px-10 py-4 flex justify-between items-center">
+
+    <!-- Logo -->
     <div class="flex items-center gap-2">
         <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
-        <span class="text-sm font-semibold text-[#c0392b] mt-1">admin</span>
+        <span class="text-sm font-semibold text-[#c0392b]">admin</span>
     </div>
-    <div class="flex-1 max-w-xl mx-10">
-        <input type="text" placeholder="Buscar eventos..."
-               class="w-full bg-[#f9fafb] border border-gray-200 rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm">
+
+    <!-- Menú -->
+    <div class="flex items-center gap-4">
+
+        <!-- Activo -->
+        <a th:href="@{/events}"
+           class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
+            Eventos
+        </a>
+
+        <!-- Inactivos -->
+        <a th:href="@{/categories}"
+           class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+            Categorías
+        </a>
+
+        <a th:href="@{/reports}"
+           class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+            Reportes
+        </a>
     </div>
+
+    <!-- Usuario -->
+    <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600">
+        
+    </div>
+
 </nav>
 
 <main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -115,20 +140,6 @@
                 </a>
             </form>
         </section>
-<!--Agregué el formulario para crear la Nueva Categoría -->
-        <section th:if="${evento.event_id == null}" class="bg-gray-50 rounded-[2rem] p-8 border border-gray-200 shadow-sm">
-            <h3 class="text-gray-700 font-bold mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-plus-circle text-[#ff7f50]"></i> Nueva Categoría
-            </h3>
-            <form th:action="@{/categoria/crear}" th:object="${nuevaCategoria}" method="POST" class="flex gap-3">
-                <input type="text" th:field="*{name}" required placeholder="Ej: Teatro, Rock..."
-                       class="flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-orange-400 text-sm">
-                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-5 py-2 rounded-xl font-medium text-sm transition-colors">
-                    Añadir
-                </button>
-            </form>
-        </section>
-
     </div>
 
     <section class="lg:col-span-8 bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-50 h-fit">

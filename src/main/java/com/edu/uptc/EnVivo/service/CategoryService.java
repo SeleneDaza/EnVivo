@@ -14,13 +14,23 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public Category createCategory(CreateCategoryDTO dto) {
+    public Category saveCategory(CreateCategoryDTO dto) {
         Category category = new Category();
+        // Si el DTO trae ID, JPA actualizará en lugar de crear uno nuevo
+        category.setCategoryId(dto.getCategoryId()); 
         category.setName(dto.getName());
         return categoryRepository.save(category);
     }
 
     public List<Category> getCategories() {
         return categoryRepository.findAll();
+    }
+
+    public Category getById(Long id) {
+        return categoryRepository.findById(id).orElse(new Category());
+    }
+
+    public void deleteCategory(Long id) {
+        categoryRepository.deleteById(id);
     }
 }
