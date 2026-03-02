@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6"> <head>
     <meta charset="UTF-8">
     <title>EnVivo | Administración</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -8,13 +8,13 @@
 </head>
 <body class="bg-[#f3f4f6] min-h-screen font-sans">
 
-<nav class="bg-gray-100 px-10 py-4 flex justify-between items-center">
+<nav class="bg-gray-100 px-10 py-4 flex justify-between items-center shadow-sm">
     <div class="flex items-center gap-2">
         <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
         <span class="text-sm font-semibold text-[#c0392b]">admin</span>
     </div>
     <div class="flex items-center gap-4">
-        <a th:href="@{/events}"
+        <a th:href="@{/admin}"
            class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
             Eventos
         </a>
@@ -22,207 +22,29 @@
            class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
             Categorías
         </a>
-
-        <a th:href="@{/reports}"
-           class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
-            Reportes
+        <a th:href="@{/main}"
+           class="px-6 py-2 border border-gray-400 text-gray-500 font-semibold rounded-full hover:bg-gray-50 transition">
+            Ver Cartelera
         </a>
-    </div>
-    <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600">  
-    </div>
 
+        <form th:action="@{/logout}" method="POST" class="inline">
+            <button type="submit" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition">
+                Salir
+            </button>
+        </form>
+    </div>
 </nav>
 
-<main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-4 space-y-6">
+<main class="p-10 max-w-[1600px] mx-auto">
+    <div class="flex flex-col lg:flex-row gap-8">
+        
+        <section class="flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            </section>
 
-        <section class="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
-            <h2 class="text-[#f39c12] font-black text-2xl mb-10 tracking-tight uppercase"
-                th:text="${evento.event_id == null ? 'Crear Evento' : 'Editar Evento'}">
-                Crear Evento
-            </h2>
-
-            <form th:action="${evento.event_id == null ? '/admin/guardar' : '/admin/editar/' + evento.event_id}"
-                  onsubmit="alert('¡Evento guardado con éxito!');"
-                  th:object="${evento}" method="POST" enctype="multipart/form-data" class="space-y-8">
-
-                <input type="hidden" th:field="*{event_id}">
-
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2 relative">
-                    <label class="text-gray-700 font-medium">Nombre: <span class="text-red-500">*</span></label>
-
-                    <input type="text"
-                           th:field="*{name}"
-                           id="event-name"
-                           required
-                           maxlength="105"
-                           class="w-full bg-transparent outline-none text-gray-600 transition-colors"
-                           placeholder="Nombre del evento">
-
-                    <div id="name-error" class="hidden text-[10px] text-red-500 font-bold mt-1">
-                        ⚠️ Has alcanzado el límite de 100 caracteres.
-                    </div>
-
-                    <span id="char-count" class="text-[10px] absolute right-0 bottom-2 text-gray-400">0/100</span>
-                </div>
-
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2 relative">
-                    <label class="text-gray-700 font-medium">Descripción:</label>
-
-                    <input th:field="*{description}"
-                           id="event-desc"
-                           rows="3"
-                           maxlength="510"
-                           class="w-full bg-transparent outline-none text-gray-600 transition-colors resize-none mt-1"
-                           placeholder="Descripción del evento"></input>
-
-                    <div id="desc-error" class="hidden text-[10px] text-red-500 font-bold mt-1">
-                        ⚠️ Has excedido el límite de 500 caracteres.
-                    </div>
-
-                    <span id="desc-char-count" class="text-[10px] text-right text-gray-400">0/500</span>
-                </div>
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Categoría:</label>
-                    <select th:field="*{category}" class="w-full bg-transparent outline-none text-gray-600 cursor-pointer py-1">
-                        <option value="">-- Sin categoría --</option>
-                        <option th:each="cat : ${categorias}" th:value="${cat.name}" th:text="${cat.name}"></option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Fecha:</label>
-                    <input type="date" th:field="*{date}"  id="fechaEvento"
-                           class="w-full bg-transparent outline-none text-gray-600">
-                </div>
-
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Precio:</label>
-                    <input type="number" th:field="*{price}" min="0" step="0.01"
-                           class="w-full bg-transparent outline-none text-gray-600" placeholder="0.00">
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-gray-700 font-medium">Imagen del Evento:</label>
-                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300 hover:bg-gray-100 transition-colors">
-                        <input type="file" name="imagenArchivo" accept=".jpg, .jpeg, .png"
-                               class="text-sm text-gray-600 w-full cursor-pointer
-                                        file:mr-4 file:py-2 file:px-4
-                                        file:rounded-full file:border-0
-                                        file:text-sm file:font-semibold
-                                        file:bg-orange-50 file:text-[#ff7f50]
-                                        hover:file:bg-orange-100">
-                    </div>
-                    <p class="text-[10px] text-gray-400">Formatos permitidos: PNG, JPG (Máx. 2MB)</p>
-                </div>
-
-                <button type="submit"
-                        class="w-full bg-[#ff7f50] hover:bg-[#e67348] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-orange-100 mt-4">
-                    <span th:text="${evento.event_id == null ? 'Crear Evento' : 'Guardar Cambios'}">Crear Evento</span>
-                </button>
-
-                <a th:if="${evento.event_id != null}" th:href="@{/admin}"
-                   class="block text-center w-full text-gray-400 hover:text-gray-600 font-medium text-sm mt-2 transition-colors">
-                    Cancelar edición
-                </a>
-            </form>
-        </section>
+        <aside class="w-full lg:w-[400px] space-y-6">
+            </aside>
     </div>
-
-    <section class="lg:col-span-8 bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-50 h-fit">
-        <table class="w-full text-left">
-            <thead class="bg-white border-b border-gray-100">
-            <tr class="text-gray-400 text-xs uppercase tracking-widest">
-                <th class="px-6 py-5 font-semibold">Evento</th>
-                <th class="px-6 py-5 font-semibold">Fecha / Info</th>
-                <th class="px-6 py-5 font-semibold text-center">Precio</th>
-                <th class="px-6 py-5 font-semibold text-right">Acciones</th>
-            </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-            <tr th:each="e : ${eventos.content}" class="group hover:bg-orange-50/30 transition-colors">
-                <td class="px-6 py-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm flex-shrink-0">
-                        <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
-                    </div>
-                    <div>
-                        <div class="font-bold text-gray-800 truncate max-w-xs" th:text="${e.name}">Nombre</div>
-                        <div class="text-[10px] text-gray-400 truncate max-w-xs" th:text="${e.description}">Descripción</div>
-                        <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-orange-100 text-[#e67e22] text-[9px] font-bold rounded-md uppercase tracking-wider" th:text="${e.category.name}">
-                            CATEGORIA
-                        </span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <span class="text-sm text-gray-500" th:text="${e.date}">2024-10-10</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <span class="text-sm font-medium text-gray-600" th:text="${'$' + (e.price != null ? e.price : '0')}">$0</span>
-                </td>
-                <td class="px-6 py-4 text-right space-x-3">
-                    <a th:href="@{/admin/editar/{id}(id=${e.event_id})}"
-                       class="text-blue-200 hover:text-blue-500 transition-colors cursor-pointer inline-block">
-                        <i class="fa-solid fa-pencil"></i>
-                    </a>
-                    <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}"
-                       onclick="if(confirm('¿Estás seguro de que deseas eliminar este evento?')) { alert('Evento eliminado con éxito'); return true; } else { alert('No se ha eliminado el evento'); return false; }"
-                       class="text-blue-200 hover:text-red-400 transition-colors cursor-pointer inline-block">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </section>
 </main>
-<script>
-    const fechaInput = document.getElementById('fechaEvento');
-    const hoy = new Date().toISOString().split('T')[0];
-    fechaInput.setAttribute('min', hoy);
-</script>
-<script>
-    const nameInput = document.getElementById('event-name');
-    const nameError = document.getElementById('name-error');
-    const charCount = document.getElementById('char-count');
-
-    nameInput.addEventListener('input', function() {
-        const length = this.value.length;
-        charCount.textContent = `${length}/100`;
-        if (length > 100) {
-            this.classList.add('border-b-2', 'border-red-500');
-            nameError.classList.remove('hidden');
-            charCount.classList.add('text-red-500');
-            this.setCustomValidity("El nombre no puede exceder los 100 caracteres.");
-        } else {
-            this.classList.remove('border-b-2', 'border-red-500');
-            nameError.classList.add('hidden');
-            charCount.classList.remove('text-red-500');
-            this.setCustomValidity(""); 
-        }
-    });
-</script>
-<script>
-    const descInput = document.getElementById('event-desc');
-    const descError = document.getElementById('desc-error');
-    const descCharCount = document.getElementById('desc-char-count');
-
-    descInput.addEventListener('input', function() {
-        const length = this.value.length;
-        descCharCount.textContent = `${length}/500`;
-
-        if (length > 500) {
-            this.classList.add('border-red-400'); 
-            descError.classList.remove('hidden');
-            descCharCount.classList.replace('text-gray-400', 'text-red-500');
-            this.setCustomValidity("La descripción no puede exceder los 500 caracteres.");
-        } else {
-            this.classList.remove('border-red-400');
-            descError.classList.add('hidden');
-            descCharCount.classList.replace('text-red-500', 'text-gray-400');
-            this.setCustomValidity("");
-        }
-    });
-</script>
 
 </body>
 </html>

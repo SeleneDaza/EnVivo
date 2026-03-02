@@ -1,17 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6" lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EnVivo - Cartelera de Eventos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .glass-effect {
-            background: rgba(115, 115, 115, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        .glass-effect { background: rgba(115, 115, 115, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -22,83 +18,64 @@
         <div class="text-3xl font-black text-[#ff5a1f] tracking-tighter">EnVivo</div>
         
         <div class="flex items-center gap-6">
-            <div class="relative w-full">
-                <input type="text" placeholder="Buscar eventos" 
-                       class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all">
-            </div> 
-            <a th:href="@{/}" class="text-sm font-bold text-gray-500 hover:text-red-500 transition-colors">Salir</a>
-        </div>
-    </nav>
+            <form th:action="@{/main}" method="GET" class="relative w-80">
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="Buscar eventos..." 
+                       class="w-full pl-12 pr-4 py-3 rounded-full bg-gray-100 border-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium">
+                <svg class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </form>
 
-    <main class="max-w-[1400px] mx-auto p-10">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-            
-            <div th:each="evento : ${eventos.content}" 
-                 class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
-                
-                <img th:src="${evento.image}" 
-                     alt="Poster del evento"
-                     class="w-full h-full object-cover">
-
-                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
-                   <h3 class="text-lg font-bold leading-tight mb-4 drop-shadow-md truncate" th:text="${evento.name}">
-                        Nombre del Evento
-                    </h3>
-                    
-                    <div class="flex justify-between items-center text-[11px] font-medium tracking-wide">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
-                        </div>
-                        
-                        <div class="flex items-center gap-1">
-                            <span class="text-lg font-light opacity-70">$</span>
-                            <span class="text-base font-bold" th:text="${evento.price}">Precio</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="absolute bottom-3 w-full text-center">
-                    <p th:if="${evento.category != null}"
-                       th:text="${evento.category.name}"
-                       class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60">
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-16 flex justify-center items-center gap-4">
-            
-            <a th:href="@{/main(page=${eventos.number - 1})}" 
-               th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
-                Anterior
-            </a>
-
-            <div class="flex gap-2">
-                <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
-                   th:href="@{/main(page=${i})}"
-                   th:text="${i + 1}"
-                   th:classappend="${eventos.number == i} ? 'bg-[#ff5a1f] text-white' : 'bg-white hover:bg-gray-100'"
-                   class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 text-sm font-bold transition-all">
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin}" class="px-6 py-2.5 bg-gray-900 text-white text-sm font-bold rounded-full hover:bg-black transition-all shadow-lg">
+                    Panel Admin
                 </a>
             </div>
 
-            <a th:href="@{/main(page=${eventos.number + 1})}" 
-               th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
-               class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
-                Siguiente
-            </a>
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="text-sm font-bold text-gray-500 hover:text-red-600 transition-colors">
+                    Salir
+                </button>
+            </form>
+        </div>
+    </nav>
 
+    <main class="max-w-7xl mx-auto px-10 py-12">
+        <header class="mb-12">
+            <h2 class="text-4xl font-black text-gray-900 tracking-tight mb-2">Cartelera de Eventos</h2>
+            <p class="text-gray-500 font-medium">Descubre los mejores eventos en vivo cerca de ti.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div th:each="e : ${eventos}" class="group relative bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                <div class="relative h-80 overflow-hidden">
+                    <img th:src="${e.image}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute top-6 left-6">
+                        <span class="px-4 py-2 rounded-full glass-effect text-white text-xs font-black uppercase tracking-widest" th:text="${e.category != null ? e.category.name : 'General'}">Categoría</span>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900 leading-tight group-hover:text-[#ff5a1f] transition-colors" th:text="${e.name}">Nombre</h3>
+                        <div class="text-right">
+                            <p class="text-sm font-black text-[#ff5a1f] uppercase tracking-tighter" th:text="${e.date}">Fecha</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2" th:text="${e.description}">Descripción</p>
+                    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                        <span class="text-3xl font-black text-gray-900" th:text="'$' + ${e.price}">$0</span>
+                        <button class="bg-[#ff5a1f] text-white px-8 py-3 rounded-full font-black text-sm hover:bg-[#e64a19] transition-all shadow-md active:scale-95">RESERVAR</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="text-center mt-4 text-xs text-gray-400 font-medium uppercase tracking-widest">
-            Página <span th:text="${eventos.number + 1}">1</span> de <span th:text="${eventos.totalPages}">5</span>
+        <div th:if="${eventos.totalPages > 1}" class="mt-16 flex justify-center items-center gap-4">
+            <a th:href="@{/main(page=${eventos.number - 1}, keyword=${keyword})}" th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30'" class="px-6 py-3 rounded-full bg-white border border-gray-200 text-sm font-bold">Anterior</a>
+            <div class="flex gap-2">
+                <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}" th:href="@{/main(page=${i}, keyword=${keyword})}" th:text="${i + 1}" th:classappend="${eventos.number == i} ? 'bg-[#ff5a1f] text-white' : 'bg-white'" class="w-12 h-12 flex items-center justify-center rounded-full border border-gray-200 text-sm font-bold"></a>
+            </div>
+            <a th:href="@{/main(page=${eventos.number + 1}, keyword=${keyword})}" th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30'" class="px-6 py-3 rounded-full bg-white border border-gray-200 text-sm font-bold">Siguiente</a>
         </div>
-
     </main>
-
 </body>
 </html>
