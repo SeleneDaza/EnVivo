@@ -16,40 +16,75 @@
         
         <div class="text-center mb-10">
             <h1 class="text-5xl font-black text-[#ff5a1f] tracking-tighter mb-2">EnVivo</h1>
-            <p class="text-gray-500 text-sm font-medium">Bienvenido, ingresa tus credenciales.</p>
+            <p class="text-gray-500 text-sm font-medium">Ingresa a tu cuenta para continuar.</p>
         </div>
 
-        <form th:action="@{/main}" method="GET" class="space-y-6">
+        <form th:action="@{/main}" method="GET" class="space-y-5">
             
             <div>
-                <label for="username" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Correo electrónico</label>
-                <input type="text" id="username" name="username" value="admin@envivo.com" required
-                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium text-gray-700 placeholder-gray-400"
-                       placeholder="ejemplo@correo.com">
+                <label for="username" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Usuario</label>
+                <input type="text" id="username" name="username" value="admin_user" required
+                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium"
+                       placeholder="Nombre de usuario">
             </div>
 
             <div>
                 <label for="password" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Contraseña</label>
                 <input type="password" id="password" name="password" value="123456" required
-                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium text-gray-700"
+                       class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm font-medium"
                        placeholder="••••••••">
             </div>
 
-            <div class="flex items-center justify-between text-sm px-2">
-                <label class="flex items-center text-gray-500 cursor-pointer hover:text-gray-700 transition-colors">
-                    <input type="checkbox" name="remember-me" class="mr-2 w-4 h-4 rounded border-gray-300 text-[#ff5a1f] focus:ring-[#ff5a1f]">
-                    <span class="font-medium">Recordarme</span>
-                </label>
-                <a href="#" class="text-[#ff5a1f] font-bold hover:underline">¿Olvidaste tu clave?</a>
-            </div>
-
             <button type="submit" 
-                    class="w-full bg-[#ff5a1f] text-white font-black text-lg py-3 rounded-full hover:bg-[#e64a19] transition-all shadow-md hover:shadow-lg mt-2 transform hover:-translate-y-0.5">
+                    class="w-full bg-[#ff5a1f] text-white font-black text-lg py-3 rounded-full hover:bg-[#e64a19] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                 Ingresar
             </button>
-
         </form>
 
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
+            <div class="relative flex justify-center text-xs uppercase"><span class="bg-white px-4 text-gray-400 font-bold tracking-widest">O</span></div>
+        </div>
+
+        <div class="text-center">
+            <p class="text-sm text-gray-500 font-medium mb-4">¿No tienes una cuenta aún?</p>
+            <button onclick="document.getElementById('modalRegistro').classList.remove('hidden')"
+                    class="w-full border-2 border-[#ff5a1f] text-[#ff5a1f] font-bold py-3 rounded-full hover:bg-orange-50 transition-colors">
+                Crear cuenta nueva
+            </button>
+        </div>
+    </div>
+
+    <div id="modalRegistro" class="hidden fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md relative">
+            <button onclick="document.getElementById('modalRegistro').classList.add('hidden')" 
+                    class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 font-bold">✕</button>
+            
+            <h2 class="text-3xl font-black text-gray-800 mb-2">Regístrate</h2>
+            <p class="text-gray-500 text-sm mb-6">Únete a la comunidad de EnVivo.</p>
+
+            <form th:action="@{/register}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Usuario nuevo</label>
+                    <input type="text" name="newUsername" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Contraseña</label>
+                    <input type="password" name="newPassword" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Confirmar Contraseña</label>
+                    <input type="password" name="confirmPassword" required
+                           class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                </div>
+                <button type="submit" 
+                        class="w-full bg-black text-white font-black text-lg py-3 rounded-full hover:bg-gray-800 transition-all mt-4">
+                    Registrarme
+                </button>
+            </form>
+        </div>
     </div>
 
 </body>
