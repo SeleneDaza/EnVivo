@@ -6,7 +6,6 @@ import com.edu.uptc.EnVivo.service.CategoryService;
 import com.edu.uptc.EnVivo.service.EventService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,16 +18,19 @@ import org.springframework.data.domain.PageRequest;
 import com.edu.uptc.EnVivo.entity.Event;
 import org.springframework.data.domain.Pageable;
 
-
 @Controller
 @RequiredArgsConstructor
 public class EventController {
 
     private final EventService eventoService;
-
     private final CategoryService categoryService;
 
     @GetMapping("/")
+    public String loginPage() {
+        return "index"; 
+    }
+
+    @GetMapping("/main")
     public String index(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -40,22 +42,19 @@ public class EventController {
         Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
 
         model.addAttribute("eventos", eventPage);
-
         model.addAttribute("keyword", keyword);
-
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
 
-        return "index";
+        return "main"; 
     }
 
     @PostMapping("/evento/crear")
     public String createEvent(@ModelAttribute CreateEventDTO dto) {
         eventoService.createEvent(dto);
-        return "redirect:/";
+        return "redirect:/main"; 
     }
 
-    // 1. Mostrar la página de Admin (con paginación y búsqueda, igual que el index)
     @GetMapping("/admin")
     public String adminIndex(
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -68,30 +67,25 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
-
         model.addAttribute("evento", new CreateEventDTO());
-
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
 
         return "admin";
     }
 
-    // 2. Recibir los datos del formulario y guardarlos
     @PostMapping("/admin/guardar")
     public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto) {
         eventoService.createEvent(dto);
-        // Después de guardar, recargamos la página de admin
         return "redirect:/admin";
     }
-    // 3. Eliminar un evento
+
     @GetMapping("/admin/eliminar/{id}")
     public String eliminarEventoAdmin(@PathVariable Long id) {
         eventoService.eliminarEvento(id);
         return "redirect:/admin";
     }
 
-    // 4. Mostrar el formulario de Admin pero en modo "Editar"
     @GetMapping("/admin/editar/{id}")
     public String editarEventoAdmin(@PathVariable Long id,
                                     @RequestParam(name = "keyword", required = false) String keyword,
@@ -112,13 +106,11 @@ public class EventController {
         dto.setPrice(evento.getPrice());
         dto.setImage(evento.getImage());
 
-        // 👇 AGREGAMOS ESTO para que el HTML sepa qué categoría tenía el evento
         if (evento.getCategory() != null) {
             dto.setCategory(evento.getCategory().getName());
         }
 
         model.addAttribute("evento", dto);
-
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
 

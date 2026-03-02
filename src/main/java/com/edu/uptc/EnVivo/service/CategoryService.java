@@ -16,7 +16,6 @@ public class CategoryService {
 
     public Category saveCategory(CreateCategoryDTO dto) {
         Category category = new Category();
-        // Si el DTO trae ID, JPA actualizará en lugar de crear uno nuevo
         category.setCategoryId(dto.getCategoryId()); 
         category.setName(dto.getName());
         return categoryRepository.save(category);

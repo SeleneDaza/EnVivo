@@ -2,7 +2,6 @@ package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.entity.Category;
-// import com.edu.uptc.EnVivo.model.Category; // Asegúrate de importar tu entidad
 import com.edu.uptc.EnVivo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -26,8 +25,6 @@ public class CategoryController {
     @GetMapping("/edit/{id}")
     public String prepararEditar(@PathVariable Long id, Model model) {
         Category cat = categoryService.getById(id);
-        
-        // Convertimos la entidad a DTO para el formulario
         CreateCategoryDTO dto = new CreateCategoryDTO();
         dto.setCategoryId(cat.getCategoryId());
         dto.setName(cat.getName());

@@ -9,23 +9,15 @@
 <body class="bg-[#f3f4f6] min-h-screen font-sans">
 
 <nav class="bg-gray-100 px-10 py-4 flex justify-between items-center">
-
-    <!-- Logo -->
     <div class="flex items-center gap-2">
         <span class="text-2xl font-bold text-[#e67e22]">EnVivo</span>
         <span class="text-sm font-semibold text-[#c0392b]">admin</span>
     </div>
-
-    <!-- Menú -->
     <div class="flex items-center gap-4">
-
-        <!-- Activo -->
         <a th:href="@{/events}"
            class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
             Eventos
         </a>
-
-        <!-- Inactivos -->
         <a th:href="@{/categories}"
            class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
             Categorías
@@ -36,16 +28,12 @@
             Reportes
         </a>
     </div>
-
-    <!-- Usuario -->
-    <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600">
-        
+    <div class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600">  
     </div>
 
 </nav>
 
 <main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <!-- ENVOLVÍ LA COLUMNA IZQUIERDA EN UN NUEVO div-->
     <div class="lg:col-span-4 space-y-6">
 
         <section class="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
@@ -94,7 +82,6 @@
 
                     <span id="desc-char-count" class="text-[10px] text-right text-gray-400">0/500</span>
                 </div>
-<!-- Agregué el selector de Categorías en el formulario en el div-->
                 <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
                     <label class="text-gray-700 font-medium">Categoría:</label>
                     <select th:field="*{category}" class="w-full bg-transparent outline-none text-gray-600 cursor-pointer py-1">
@@ -161,7 +148,6 @@
                     <div>
                         <div class="font-bold text-gray-800 truncate max-w-xs" th:text="${e.name}">Nombre</div>
                         <div class="text-[10px] text-gray-400 truncate max-w-xs" th:text="${e.description}">Descripción</div>
-<!-- VER QUE CATEGORÍA TIENE CADA EVENTO EN LA TABLA-->
                         <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-orange-100 text-[#e67e22] text-[9px] font-bold rounded-md uppercase tracking-wider" th:text="${e.category.name}">
                             CATEGORIA
                         </span>
@@ -190,7 +176,6 @@
     </section>
 </main>
 <script>
-    // Bloquear fechas pasadas en el input de fecha
     const fechaInput = document.getElementById('fechaEvento');
     const hoy = new Date().toISOString().split('T')[0];
     fechaInput.setAttribute('min', hoy);
@@ -202,24 +187,17 @@
 
     nameInput.addEventListener('input', function() {
         const length = this.value.length;
-
-        // Actualizar contador
         charCount.textContent = `${length}/100`;
-
         if (length > 100) {
-            // AVISO AL USUARIO: Borde rojo y mensaje de error
             this.classList.add('border-b-2', 'border-red-500');
             nameError.classList.remove('hidden');
             charCount.classList.add('text-red-500');
-
-            // Opcional: Impedir el envío si se pasa (aunque el backend debería controlarlo)
             this.setCustomValidity("El nombre no puede exceder los 100 caracteres.");
         } else {
-            // Estado Normal
             this.classList.remove('border-b-2', 'border-red-500');
             nameError.classList.add('hidden');
             charCount.classList.remove('text-red-500');
-            this.setCustomValidity(""); // Limpia el error para permitir envío
+            this.setCustomValidity(""); 
         }
     });
 </script>
@@ -230,20 +208,14 @@
 
     descInput.addEventListener('input', function() {
         const length = this.value.length;
-
-        // Actualizar contador
         descCharCount.textContent = `${length}/500`;
 
         if (length > 500) {
-            // AVISO: Borde rojo y mensaje
-            this.classList.add('border-red-400'); // Resalta el borde del área de texto
+            this.classList.add('border-red-400'); 
             descError.classList.remove('hidden');
             descCharCount.classList.replace('text-gray-400', 'text-red-500');
-
-            // Bloquea el envío del formulario con mensaje nativo
             this.setCustomValidity("La descripción no puede exceder los 500 caracteres.");
         } else {
-            // Estado Normal
             this.classList.remove('border-red-400');
             descError.classList.add('hidden');
             descCharCount.classList.replace('text-red-500', 'text-gray-400');

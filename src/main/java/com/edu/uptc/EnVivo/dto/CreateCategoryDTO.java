@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class CreateCategoryDTO {
-    private Long categoryId; // Importante para la edición
+    private Long categoryId;
     private String name;
 }
