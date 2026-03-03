@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -48,10 +49,13 @@ public class EventService {
     }
 
     public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
+        Sort porFechaDesc = Sort.by(Sort.Direction.DESC, "date");
+        Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaDesc);
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            return eventRepository.findByNameContainingIgnoreCase(keyword, pageable);
+            return eventRepository.findByNameContainingIgnoreCase(keyword, ordenado);
         }
-        return eventRepository.findAll(pageable);
+        return eventRepository.findAll(ordenado);
     }
 
     public void eliminarEvento(Long id) {
