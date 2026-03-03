@@ -82,7 +82,7 @@
                  class="w-full h-full object-cover">
 
             <!-- ❤️ Solo autenticado -->
-            <button sec:authorize="isAuthenticated()"
+            <button sec:authorize="isAuthenticated() and !hasAuthority('ADMIN') and !hasAuthority('ROLE_ADMIN')"
                     th:data-event-id="${evento.event_id}"
                     onclick="toggleInterest(this)"
                     th:classappend="${misFavoritos != null and misFavoritos.contains(evento.event_id)} ? 'text-red-500' : 'text-white'"
