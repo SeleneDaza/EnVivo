@@ -79,7 +79,7 @@ public class SecurityConfig {
                 )
                 .logout((logout) -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/main") // al cerrar sesión vuelve a main
+                        .logoutSuccessUrl("/main")
                         .permitAll()
                 )
                 .csrf(csrf -> csrf.disable());
