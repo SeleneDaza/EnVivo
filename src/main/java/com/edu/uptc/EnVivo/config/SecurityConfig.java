@@ -7,8 +7,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -18,36 +22,48 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((requests) -> requests
-                // Permitimos el index (login), el registro y los archivos estáticos
-                .requestMatchers("/", "/index", "/register", "/css/**", "/js/**", "/images/**").permitAll()
-                // Cualquier otra ruta (como /main, /admin, /categories) requiere login
+                // Permitimos login, registro, main y archivos estáticos
+                .requestMatchers("/", "/main", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+                // Todo lo demás requiere autenticación
                 .anyRequest().authenticated()
             )
             .formLogin((form) -> form
-                .loginPage("/") // Tu archivo index.html es la raíz
-                .loginProcessingUrl("/login") // Esta es la URL que Spring Security escuchará
-                .defaultSuccessUrl("/main", true) // Al entrar con éxito, va a la cartelera
-                .failureUrl("/?error=true") // Si falla, vuelve al index con un parámetro de error
+                .loginPage("/") 
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/main", true) // siempre vuelve a main
+                .failureUrl("/?error=true")
                 .permitAll()
             )
             .logout((logout) -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("/main") // al cerrar sesión vuelve a main
                 .permitAll()
             )
-            // Deshabilitamos CSRF temporalmente para facilitar las pruebas con tus formularios actuales
-            .csrf(csrf -> csrf.disable()); 
+            .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+
         UserDetails user = User.builder()
-                .username("a")
-                .password("{noop}a") // {noop} es para contraseñas en texto plano (solo desarrollo)
+                .username("user")
+                .password(passwordEncoder.encode("1234"))
+                .roles("USER")
+                .build();
+
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("1234"))
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(user);
+
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
