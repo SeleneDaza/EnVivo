@@ -215,4 +215,9 @@ public class EventController {
         // Retornamos el nombre de la nueva vista (favoritos.html)
         return "favorites";
     }
+
+    @GetMapping("/reports")
+    public String verReporte(Principal principal, Model model){
+        return "reports";
+    }
 }
