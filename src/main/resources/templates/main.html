@@ -34,27 +34,27 @@
 
     <div class="flex items-center gap-6">
 
-        <!-- 🔎 Buscador -->
+        <!-- Buscador -->
         <div class="relative w-full">
             <input type="text" placeholder="Buscar eventos"
                    class="w-full px-6 py-2 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all">
         </div>
 
-        <!-- 👑 Botón ADMIN -->
+        <!-- ADMIN -->
         <a th:href="@{/admin}"
            sec:authorize="hasRole('ADMIN')"
            class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
             Administrador
         </a>
 
-        <!-- 🔐 Si NO está logueado -->
+        <!-- LOGIN -->
         <a th:href="@{/}"
            sec:authorize="isAnonymous()"
            class="text-sm font-bold text-gray-500 hover:text-red-500 transition-colors">
             Iniciar Sesión
         </a>
 
-        <!-- 🚪 Si está logueado -->
+        <!-- LOGOUT -->
         <form th:action="@{/logout}" method="post"
               sec:authorize="isAuthenticated()">
             <button type="submit"
@@ -79,7 +79,7 @@
                  alt="Poster del evento"
                  class="w-full h-full object-cover">
 
-            <!-- ❤️ SOLO SI ESTÁ LOGUEADO -->
+            <!-- ❤️ Solo autenticado -->
             <button sec:authorize="isAuthenticated()"
                     class="absolute top-6 right-6 p-2 rounded-full glass-effect text-white opacity-80 hover:opacity-100 hover:text-red-500 transition-all duration-300 group/btn">
                 <svg class="w-5 h-5 transition-transform duration-300 group-hover/btn:scale-110"
@@ -91,7 +91,7 @@
                 </svg>
             </button>
 
-            <!-- 📌 Info evento -->
+            <!-- Info -->
             <div class="absolute bottom-10 left-1/2 -translate-x-1/2 w-[85%] glass-effect rounded-[1.5rem] p-5 text-white">
 
                 <h3 class="text-lg font-bold leading-tight mb-4 truncate"
@@ -118,7 +118,7 @@
                 </div>
             </div>
 
-            <!-- 🏷 Categoría -->
+            <!-- Categoría -->
             <div class="absolute bottom-3 w-full text-center">
                 <p th:if="${evento.category != null}"
                    th:text="${evento.category.name}"
@@ -127,6 +127,42 @@
             </div>
 
         </div>
+    </div>
+
+    <!-- ================= PAGINACIÓN ================= -->
+
+    <div class="mt-16 flex justify-center items-center gap-4">
+
+        <!-- Anterior -->
+        <a th:href="@{/main(page=${eventos.number - 1})}"
+           th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
+           class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
+            Anterior
+        </a>
+
+        <!-- Números -->
+        <div class="flex gap-2">
+            <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
+               th:href="@{/main(page=${i})}"
+               th:text="${i + 1}"
+               th:classappend="${eventos.number == i} ? 'bg-[#ff5a1f] text-white' : 'bg-white hover:bg-gray-100'"
+               class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 text-sm font-bold transition-all">
+            </a>
+        </div>
+
+        <!-- Siguiente -->
+        <a th:href="@{/main(page=${eventos.number + 1})}"
+           th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-orange-500 hover:text-white'"
+           class="px-5 py-2 rounded-full bg-white border border-gray-200 text-sm font-bold transition-colors">
+            Siguiente
+        </a>
+
+    </div>
+
+    <!-- Info página -->
+    <div class="text-center mt-4 text-xs text-gray-400 font-medium uppercase tracking-widest">
+        Página <span th:text="${eventos.number + 1}">1</span>
+        de <span th:text="${eventos.totalPages}">5</span>
     </div>
 
 </main>
