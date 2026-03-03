@@ -49,8 +49,8 @@ public class EventService {
     }
 
     public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
-        Sort porFechaDesc = Sort.by(Sort.Direction.DESC, "date");
-        Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaDesc);
+        Sort porFechaAsc = Sort.by(Sort.Direction.ASC, "date");
+        Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaAsc);
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             return eventRepository.findByNameContainingIgnoreCase(keyword, ordenado);
