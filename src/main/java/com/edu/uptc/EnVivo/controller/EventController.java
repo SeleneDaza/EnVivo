@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class EventController {
@@ -195,5 +197,22 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error al procesar tu solicitud: " + e.getMessage()));
         }
+    }
+
+    // --- ENDPOINT PARA Ver panel de favoritos
+    @GetMapping("/favorites")
+    public String verFavoritos(Principal principal, Model model) {
+        // Si no hay sesión iniciada, lo devolvemos al inicio
+        if (principal == null) {
+            return "redirect:/";
+        }
+        
+        // Obtenemos la lista ya ordenada por fecha
+        List<Event> misFavoritos = eventoService.obtenerEventosFavoritosOrdenados(principal.getName());
+        
+        model.addAttribute("eventos", misFavoritos);
+        
+        // Retornamos el nombre de la nueva vista (favoritos.html)
+        return "favorites";
     }
 }

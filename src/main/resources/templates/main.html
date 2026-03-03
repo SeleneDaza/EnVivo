@@ -56,6 +56,12 @@
             Iniciar Sesión
         </a>
 
+        <a th:href="@{/favorites}"
+           sec:authorize="hasAuthority('CLIENTE') or hasAuthority('ROLE_CLIENTE')"
+           class="px-6 py-2 bg-white text-[#ff5a1f] border border-[#ff5a1f] font-semibold rounded-full shadow-sm hover:bg-orange-50 transition">
+            Mis Favoritos
+        </a>
+
         <!-- LOGOUT -->
         <form th:action="@{/logout}" method="post"
               sec:authorize="isAuthenticated()">
