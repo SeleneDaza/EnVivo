@@ -1,33 +1,55 @@
 package com.edu.uptc.EnVivo.config;
 
+import com.edu.uptc.EnVivo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final UserRepository userRepository;
+
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            com.edu.uptc.EnVivo.entity.User user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getRoles().stream()
+                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                            .collect(Collectors.toList())
+            );
+        };
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests((requests) -> requests
-                // Permitimos el index (login), el registro y los archivos estáticos
                 .requestMatchers("/", "/index", "/register", "/css/**", "/js/**", "/images/**").permitAll()
-                // Cualquier otra ruta (como /main, /admin, /categories) requiere login
+                .requestMatchers("/admin/**", "/categories/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin((form) -> form
-                .loginPage("/") // Tu archivo index.html es la raíz
-                .loginProcessingUrl("/login") // Esta es la URL que Spring Security escuchará
-                .defaultSuccessUrl("/main", true) // Al entrar con éxito, va a la cartelera
-                .failureUrl("/?error=true") // Si falla, vuelve al index con un parámetro de error
+                .loginPage("/")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/main", true)
+                .failureUrl("/?error=true")
                 .permitAll()
             )
             .logout((logout) -> logout
@@ -35,19 +57,8 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/")
                 .permitAll()
             )
-            // Deshabilitamos CSRF temporalmente para facilitar las pruebas con tus formularios actuales
-            .csrf(csrf -> csrf.disable()); 
+            .csrf(csrf -> csrf.disable());
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-                .username("a")
-                .password("{noop}a") // {noop} es para contraseñas en texto plano (solo desarrollo)
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(user);
     }
 }

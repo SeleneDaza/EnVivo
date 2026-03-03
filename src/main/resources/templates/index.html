@@ -28,7 +28,15 @@
             <div th:if="${param.logout}" class="bg-blue-50 border border-blue-200 text-blue-600 px-4 py-3 rounded-xl text-sm font-bold text-center">
                 Has cerrado sesión correctamente.
             </div>
-            
+
+            <div th:if="${param.registered}" class="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-xl text-sm font-bold text-center">
+                ¡Cuenta creada con éxito! Ya puedes iniciar sesión.
+            </div>
+
+            <div th:if="${param.registerError}" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold text-center">
+                El usuario ya existe o las contraseñas no coinciden.
+            </div>
+
             <div>
                 <label for="username" class="block text-sm font-bold text-gray-700 mb-2 ml-2">Usuario</label>
                 <input type="text" id="username" name="username" required
@@ -71,7 +79,7 @@
             <h2 class="text-3xl font-black text-gray-800 mb-2">Regístrate</h2>
             <p class="text-gray-500 text-sm mb-6">Únete a la comunidad de EnVivo.</p>
 
-            <form th:action="@{/register}" method="POST" class="space-y-4">
+            <form th:action="@{/register}" method="POST" class="space-y-4" id="formRegistro">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Usuario nuevo</label>
                     <input type="text" name="newUsername" required
@@ -79,21 +87,58 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Contraseña</label>
-                    <input type="password" name="newPassword" required
+                    <input type="password" name="newPassword" id="newPassword" required
                            class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Confirmar Contraseña</label>
-                    <input type="password" name="confirmPassword" required
+                    <input type="password" name="confirmPassword" id="confirmPassword" required
                            class="w-full px-6 py-3 rounded-full bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all text-sm">
+                    <p id="msgConfirm" class="hidden text-xs font-bold mt-2 ml-2"></p>
                 </div>
-                <button type="submit" 
-                        class="w-full bg-black text-white font-black text-lg py-3 rounded-full hover:bg-gray-800 transition-all mt-4">
+                <button type="submit" id="btnRegistrar"
+                        class="w-full bg-black text-white font-black text-lg py-3 rounded-full hover:bg-gray-800 transition-all mt-4 disabled:opacity-40 disabled:cursor-not-allowed">
                     Registrarme
                 </button>
             </form>
         </div>
     </div>
+    <script>
+        const passwordInput   = document.getElementById('newPassword');
+        const confirmInput    = document.getElementById('confirmPassword');
+        const msg             = document.getElementById('msgConfirm');
+        const btnRegistrar    = document.getElementById('btnRegistrar');
+
+        function validarContrasenas() {
+            const pass    = passwordInput.value;
+            const confirm = confirmInput.value;
+
+            if (confirm === '') {
+                msg.classList.add('hidden');
+                btnRegistrar.disabled = false;
+                return;
+            }
+
+            msg.classList.remove('hidden');
+
+            if (pass === confirm) {
+                msg.textContent = '✓ Las contraseñas coinciden';
+                msg.className = 'text-xs font-bold mt-2 ml-2 text-green-600';
+                confirmInput.classList.remove('border-red-400');
+                confirmInput.classList.add('border-green-400');
+                btnRegistrar.disabled = false;
+            } else {
+                msg.textContent = '✗ Las contraseñas no coinciden';
+                msg.className = 'text-xs font-bold mt-2 ml-2 text-red-500';
+                confirmInput.classList.remove('border-green-400');
+                confirmInput.classList.add('border-red-400');
+                btnRegistrar.disabled = true;
+            }
+        }
+
+        confirmInput.addEventListener('input', validarContrasenas);
+        passwordInput.addEventListener('input', validarContrasenas);
+    </script>
 
 </body>
 </html>
