@@ -1,6 +1,7 @@
 package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
+import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.entity.Event;
 import com.edu.uptc.EnVivo.repository.CategoryRepository;
@@ -145,6 +146,14 @@ public class EventService {
                         .map(Event::getEvent_id)
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
+    }
+
+    // --- LÓGICA PARA Top 10 eventos más atractivos (reporte admin) ---
+    public List<EventReporteDTO> getTop10EventosPorInteres() {
+        Pageable top10 = PageRequest.of(0, 10);
+        return eventRepository.findTop10ByFavoritesCount(top10).stream()
+                .map(e -> new EventReporteDTO(e, e.getFavoritedByUsers().size()))
+                .collect(Collectors.toList());
     }
 
     // --- LÓGICA PARA Lista de favoritos ordenada ---

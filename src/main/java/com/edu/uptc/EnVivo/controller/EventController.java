@@ -2,6 +2,7 @@ package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
+import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.service.CategoryService;
 import com.edu.uptc.EnVivo.service.CloudinaryService;
 import com.edu.uptc.EnVivo.service.EventService;
@@ -217,7 +218,9 @@ public class EventController {
     }
 
     @GetMapping("/reports")
-    public String verReporte(Principal principal, Model model){
+    public String verReporte(Model model) {
+        List<EventReporteDTO> top10 = eventoService.getTop10EventosPorInteres();
+        model.addAttribute("top10", top10);
         return "reports";
     }
 }
