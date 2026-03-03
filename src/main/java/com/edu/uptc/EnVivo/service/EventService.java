@@ -11,11 +11,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,12 +80,12 @@ public class EventService {
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
 
-        // 🛡️ PROTECCIÓN DE IMAGEN: Solo la cambiamos si el DTO trae un link nuevo
+        // PROTECCIÓN DE IMAGEN: Solo la cambiamos si el DTO trae un link nuevo
         if (dto.getImage() != null && !dto.getImage().isEmpty()) {
             event.setImage(dto.getImage());
         }
 
-        // 🏷️ ACTUALIZAR CATEGORÍA
+        // ACTUALIZAR CATEGORÍA
         if (dto.getCategory() != null && !dto.getCategory().isEmpty()) {
             // Buscamos la categoría en la BD por su nombre
             Category categoryEntity = categoryRepository.findByName(dto.getCategory())
@@ -122,10 +127,19 @@ public class EventService {
         }
 
         // 3. Guardamos los cambios en base de datos
-        userRepository.save(user);
-        eventRepository.save(event); // Guardamos el evento para actualizar el contador
+        userRepository.saveAndFlush(user);
+        eventRepository.saveAndFlush(event); // Guardamos el evento para actualizar el contador
 
         // Retornamos true si se agregó el interés, false si se quitó
         return !isInterested; 
+    }
+
+    public Set<Long> obtenerFavoritosUsuario(String userEmail) {
+        if (userEmail == null) return Collections.emptySet();
+        return userRepository.findByEmail(userEmail)
+                .map(user -> user.getFavoriteEvents().stream()
+                        .map(Event::getEvent_id)
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
     }
 }

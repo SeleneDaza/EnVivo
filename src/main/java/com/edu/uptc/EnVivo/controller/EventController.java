@@ -28,6 +28,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.security.Principal;
 import java.util.Map;
 
+import java.util.Set;
+import java.util.Collections;
+
 @Controller
 @RequiredArgsConstructor
 public class EventController {
@@ -45,12 +48,19 @@ public class EventController {
     public String index(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
+            Principal principal,
             Model model) {
 
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize);
 
         Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+
+        Set<Long> misFavoritos = (principal != null) 
+            ? eventoService.obtenerFavoritosUsuario(principal.getName()) 
+            : Collections.emptySet();
+
+        model.addAttribute("misFavoritos", misFavoritos);
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
