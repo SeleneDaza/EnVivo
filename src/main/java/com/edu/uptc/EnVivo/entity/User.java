@@ -35,4 +35,15 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private Set<Event> favoriteEvents = new HashSet<>();
+
+
+    public void addFavoriteEvent(Event event) {
+        this.favoriteEvents.add(event);
+        event.getFavoritedByUsers().add(this);
+    }
+
+    public void removeFavoriteEvent(Event event) {
+        this.favoriteEvents.remove(event);
+        event.getFavoritedByUsers().remove(this);
+    }
 }

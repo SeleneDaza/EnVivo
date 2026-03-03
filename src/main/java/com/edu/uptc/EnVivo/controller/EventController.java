@@ -22,6 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseBody;
+import java.security.Principal;
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 public class EventController {
@@ -151,6 +157,33 @@ public class EventController {
         } catch (IOException e) {
             e.printStackTrace();
             return "redirect:/admin?error_imagen";
+        }
+    }
+
+    // ENDPOINT(Botón Me Interesa) ---
+    @PostMapping("/evento/{id}/interest")
+    @ResponseBody
+    public ResponseEntity<?> toggleInterest(@PathVariable("id") Long eventId, Principal principal) {
+        // 1. Validamos que el usuario haya iniciado sesión
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Debes iniciar sesión para marcar interés."));
+        }
+        
+        try {
+            // 2. Llamamos al servicio pasando el ID del evento y el email del usuario logueado (principal.getName())
+            boolean newState = eventoService.toggleInterest(eventId, principal.getName());
+            
+            // 3. Cumpliendo el RF09: Preparamos un mensaje de éxito para el cliente
+            String mensaje = newState ? "¡Añadido a tus intereses! ❤️" : "Eliminado de tus intereses 🤍";
+            
+            // Devolvemos el nuevo estado y el mensaje en formato JSON
+            return ResponseEntity.ok(Map.of("interested", newState, "message", mensaje));
+            
+        } catch (Exception e) {
+            // Manejo de errores en caso de que el evento no exista
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error al procesar tu solicitud: " + e.getMessage()));
         }
     }
 }

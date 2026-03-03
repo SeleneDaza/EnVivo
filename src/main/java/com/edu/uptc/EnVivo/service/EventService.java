@@ -13,12 +13,16 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import com.edu.uptc.EnVivo.entity.User;
+import com.edu.uptc.EnVivo.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     public Event createEvent(CreateEventDTO dto) {
         Event event = new Event();
@@ -89,5 +93,39 @@ public class EventService {
         }
 
         return eventRepository.save(event);
+    }
+
+    // --- LÓGICA (Botón Me Interesa) ---
+    @Transactional
+    public boolean toggleInterest(Long eventId, String userEmail) {
+        // 1. Obtenemos al usuario logueado y al evento
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Event event = obtenerPorId(eventId);
+
+        // Prevención de nulos en la base de datos para el contador (por si hay eventos viejos)
+        if (event.getInterestCount() == null) {
+            event.setInterestCount(0);
+        }
+
+        // 2. Verificamos si el usuario YA tiene este evento en sus favoritos
+        boolean isInterested = user.getFavoriteEvents().contains(event);
+
+        if (isInterested) {
+            // Si ya le interesaba, lo quitamos (Desmarcar) y restamos al contador
+            user.removeFavoriteEvent(event);
+            event.setInterestCount(event.getInterestCount() - 1);
+        } else {
+            // Si no le interesaba, lo agregamos (Marcar) y sumamos al contador
+            user.addFavoriteEvent(event);
+            event.setInterestCount(event.getInterestCount() + 1);
+        }
+
+        // 3. Guardamos los cambios en base de datos
+        userRepository.save(user);
+        eventRepository.save(event); // Guardamos el evento para actualizar el contador
+
+        // Retornamos true si se agregó el interés, false si se quitó
+        return !isInterested; 
     }
 }
