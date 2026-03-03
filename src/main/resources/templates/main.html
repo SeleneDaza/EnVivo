@@ -55,7 +55,6 @@
         <!-- LOGOUT -->
         <form th:action="@{/logout}" method="post"
               sec:authorize="isAuthenticated()">
-              sec:authorize="isAuthenticated()">
             <button type="submit"
                     class="text-sm font-bold text-gray-500 hover:text-red-500 transition-colors">
                 Cerrar sesión
