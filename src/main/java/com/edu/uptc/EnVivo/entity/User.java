@@ -1,13 +1,16 @@
 package com.edu.uptc.EnVivo.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
+
 public class User {
 
     @Id
@@ -35,4 +38,15 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private Set<Event> favoriteEvents = new HashSet<>();
+
+
+    public void addFavoriteEvent(Event event) {
+        this.favoriteEvents.add(event);
+        event.getFavoritedByUsers().add(this);
+    }
+
+    public void removeFavoriteEvent(Event event) {
+        this.favoriteEvents.remove(event);
+        event.getFavoritedByUsers().remove(this);
+    }
 }
