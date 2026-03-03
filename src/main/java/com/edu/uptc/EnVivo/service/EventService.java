@@ -146,4 +146,19 @@ public class EventService {
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
     }
+
+    // --- LÓGICA PARA Lista de favoritos ordenada ---
+    public List<Event> obtenerEventosFavoritosOrdenados(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                
+        return user.getFavoriteEvents().stream()
+                .sorted((e1, e2) -> {
+                    // Protegemos por si algún evento no tiene fecha
+                    if (e1.getDate() == null) return 1;
+                    if (e2.getDate() == null) return -1;
+                    return e1.getDate().compareTo(e2.getDate()); // Ordena de más próximo a más lejano
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
 }
