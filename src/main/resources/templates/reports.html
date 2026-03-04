@@ -30,28 +30,95 @@
 </head>
 <body class="bg-[#f8f9fa] min-h-screen">
 
-    <nav class="bg-white px-10 py-4 flex justify-between items-center shadow-sm border-b border-gray-100">
+    <nav class="bg-white px-6 md:px-10 py-4 shadow-sm border-b border-gray-100">
+    
+    <div class="flex justify-between items-center">
+        
+        <!-- Logo -->
         <div class="flex items-center gap-2">
-            <a th:href="@{/main}" class="text-2xl font-black text-main tracking-tighter">EnVivo</a>
-            <span class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">admin</span>
+            <a th:href="@{/main}" class="text-2xl font-black text-main tracking-tighter">
+                EnVivo
+            </a>
+            <span class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">
+                admin
+            </span>
         </div>
 
-        <div class="flex items-center gap-4">
-            <a th:href="@{/admin}" class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all text-sm">
+        <!-- Botón hamburguesa (solo móvil) -->
+        <button id="menu-btn" class="md:hidden text-main text-2xl">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Menú Desktop -->
+        <div class="hidden md:flex items-center gap-4 text-sm">
+            <a th:href="@{/admin}"
+               class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
                 Eventos
             </a>
-            <a th:href="@{/categories}" class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all text-sm">
+
+            <a th:href="@{/categories}"
+               class="px-6 py-2 bg-main text-white font-bold rounded-full shadow-md shadow-main/20 transition-all">
                 Categorías
             </a>
-            <a th:href="@{/reports}" class="px-6 py-2 bg-main text-white font-bold rounded-full shadow-md shadow-main/20 transition-all text-sm">
+
+            <a th:href="@{/reports}"
+               class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
                 Reportes
             </a>
+<<<<<<< EV-98-Generar-interfaz-adaptable-para-las-páginas-admin
         </div>
+=======
 
-        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
-            <i class="fa-solid fa-chart-line text-sm text-info"></i>
+            <a th:href="@{/users}"
+               class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
+                Usuarios
+            </a>
+>>>>>>> local
+
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit"
+                    class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-error/10 hover:text-error transition-all border border-gray-100">
+                    <i class="fa-solid fa-power-off text-sm"></i>
+                </button>
+            </form>
         </div>
-    </nav>
+    </div>
+
+    <!-- Menú Mobile -->
+    <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 md:hidden text-sm">
+        <a th:href="@{/admin}" class="block px-4 py-2 border border-main text-main font-bold rounded-full text-center">
+            Eventos
+        </a>
+
+        <a th:href="@{/categories}" class="block px-4 py-2 bg-main text-white font-bold rounded-full text-center">
+            Categorías
+        </a>
+
+        <a th:href="@{/reports}" class="block px-4 py-2 border border-main text-main font-bold rounded-full text-center">
+            Reportes
+        </a>
+
+        <a th:href="@{/users}" class="block px-4 py-2 border border-main text-main font-bold rounded-full text-center">
+            Usuarios
+        </a>
+
+        <form th:action="@{/logout}" method="POST">
+            <button type="submit"
+                class="w-full py-2 rounded-full bg-gray-50 text-gray-500 hover:bg-error/10 hover:text-error border border-gray-100">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
+</nav>
+
+<script>
+    const btn = document.getElementById('menu-btn');
+    const menu = document.getElementById('mobile-menu');
+
+    btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+    });
+</script>
 
     <main class="max-w-5xl mx-auto mt-12 px-6">
         
