@@ -57,10 +57,11 @@ public class EventController {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        // Solo eventos vigentes (fecha >= hoy) para la página pública
+        Page<Event> eventPage = eventoService.buscarOPaginarVigentes(keyword, pageable);
 
-        Set<Long> misFavoritos = (principal != null) 
-            ? eventoService.obtenerFavoritosUsuario(principal.getName()) 
+        Set<Long> misFavoritos = (principal != null)
+            ? eventoService.obtenerFavoritosUsuario(principal.getName())
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
