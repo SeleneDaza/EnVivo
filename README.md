@@ -145,25 +145,6 @@ CREATE DATABASE events_db;
 
 > Hibernate creará las tablas automáticamente al iniciar la aplicación gracias a `ddl-auto: update`.
 
-### 3. Configurar las variables de entorno
-
-Editar el archivo `src/main/resources/application.yaml` con las credenciales:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/events_db
-    username: TU_USUARIO_POSTGRES
-    password: TU_CONTRASEÑA_POSTGRES
-
-cloudinary:
-  cloud-name: TU_CLOUD_NAME
-  api-key: TU_API_KEY
-  api-secret: TU_API_SECRET
-```
-
-> **Nunca** subir el archivo `application.yaml` con credenciales reales al repositorio. Usa variables de entorno del sistema operativo o un archivo `.env` con Spring Cloud Config en producción.
-
 ### 4. Instalar dependencias
 
 ```bash
