@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -50,6 +51,16 @@ public class UserService {
 
         userRepository.save(usuario);
         return true;
+    }
+
+    /**
+     * Retorna solo los usuarios que NO tienen el rol ADMIN.
+     */
+    public List<User> getClientUsers() {
+        return userRepository.findAll().stream()
+                .filter(u -> u.getRoles().stream()
+                        .noneMatch(r -> r.getName().equalsIgnoreCase("ADMIN")))
+                .collect(java.util.stream.Collectors.toList());
     }
 }
 

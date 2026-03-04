@@ -111,7 +111,7 @@
                     th:classappend="${misFavoritos != null and misFavoritos.contains(evento.event_id)} ? 'text-error' : 'text-white'"
                     class="absolute top-4 sm:top-6 right-4 sm:right-6 p-2 rounded-full glass-effect opacity-80 hover:opacity-100 hover:text-error transition-all duration-300 group/btn">
 
-                <svg class="w-5 h-5 transition-transform duration-300 group-hover/btn:scale-110"
+                <svg class="svg-heart w-5 h-5 transition-transform duration-300 group-hover/btn:scale-110"
                      th:attr="fill=${misFavoritos != null and misFavoritos.contains(evento.event_id)} ? 'currentColor' : 'none'"
                      stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

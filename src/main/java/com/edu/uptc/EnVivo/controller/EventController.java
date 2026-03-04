@@ -224,9 +224,4 @@ public class EventController {
         model.addAttribute("top10", top10);
         return "reports";
     }
-
-    @GetMapping("/users")
-    public String verUsuarios(Model model) {
-        return "users";
-    }
 }

@@ -81,49 +81,39 @@
                 Usuarios registrados al sistema
             </h3>
 
-            <!-- <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
-                  th:text="${#lists.size(categorias) + ' total'}"></span> -->
+            <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
+                  th:text="${#lists.size(usuarios) + ' total'}"></span>
         </div>
 
         <div class="p-8">
 
             <div class="divide-y divide-gray-50">
 
-                <div th:each="c : ${categorias}"
+                <div th:each="u : ${usuarios}"
                      class="flex items-center justify-between py-5 group hover:bg-subtle/20 transition-all px-4 rounded-2xl">
 
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
-                            <i class="fa-solid fa-tag text-sm"></i>
+                            <i class="fa-solid fa-user text-sm"></i>
                         </div>
- 
-                        <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
-                              th:text="${c.name}">
-                        </span> 
+
+                        <div class="flex flex-col">
+                            <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
+                                  th:text="${u.email}">
+                            </span>
+                        </div>
                     </div>
 
-                    <!-- <div class="flex items-center gap-2">
-                        <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
-                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-pencil text-xs"></i>
-                        </a>
-
-                        <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
-                           onclick="return confirm('¿Eliminar esta categoría?')"
-                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </a>
-                    </div> -->
                 </div>
 
-                <!-- <div th:if="${#lists.isEmpty(categorias)}" class="text-center py-16">
+                <div th:if="${#lists.isEmpty(usuarios)}" class="text-center py-16">
                     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                        <i class="fa-solid fa-folder-open text-2xl"></i>
+                        <i class="fa-solid fa-users text-2xl"></i>
                     </div>
                     <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
-                        No hay categorías registradas
+                        No hay usuarios registrados
                     </p>
-                </div> -->
+                </div>
 
             </div>
         </div>
