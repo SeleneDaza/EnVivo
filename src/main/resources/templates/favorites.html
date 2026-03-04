@@ -11,32 +11,48 @@
     
     <title>EnVivo - Mis Favoritos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                main: '#FF6F28',
+                darker: '#BF371C',
+                lighter: '#FFCA99',
+                subtle: '#E3EDFF',
+                error: '#FF3B3B',
+                success: '#06C270',
+              }
+            }
+          }
+        }
+    </script>
     <style>
         .glass-effect {
-            background: rgba(115, 115, 115, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 
-<body class="bg-[#f3f4f6]">
+<body class="bg-[#f8f9fa]">
 
-<nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm">
-    <div class="text-3xl font-black text-[#ff5a1f] tracking-tighter">
+<nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm border-b border-gray-100">
+    <div class="text-3xl font-black text-main tracking-tighter">
         <a th:href="@{/main}">EnVivo</a>
     </div>
 
     <div class="flex items-center gap-6">
-        <a th:href="@{/main}" class="text-sm font-bold text-gray-500 hover:text-[#ff5a1f] transition-colors">
+        <a th:href="@{/main}" class="text-sm font-bold text-gray-400 hover:text-main transition-colors">
             Volver a la Cartelera
         </a>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="text-sm font-bold text-gray-500 hover:text-red-500 transition-colors">
+            <button type="submit" class="text-sm font-bold text-gray-400 hover:text-error transition-colors">
                 Cerrar sesión
             </button>
         </form>
@@ -45,16 +61,18 @@
 
 <main class="max-w-[1400px] mx-auto p-10">
 
-    <div class="mb-10 border-b pb-4">
-        <h1 class="text-4xl font-black text-gray-800">Tus Eventos Favoritos ❤️</h1>
-        <p class="text-gray-500 mt-2">Aquí están los eventos que te interesan, ordenados desde el más próximo.</p>
+    <div class="mb-10 border-b border-gray-200 pb-6">
+        <h1 class="text-4xl font-black text-gray-800">Tus Eventos Favoritos <span class="text-error">❤️</span></h1>
+        <p class="text-gray-500 mt-2 font-medium">Aquí están los eventos que te interesan, ordenados desde el más próximo.</p>
     </div>
 
-    <div th:if="${eventos.empty}" class="text-center py-20 bg-white rounded-3xl shadow-sm">
-        <span class="text-6xl block mb-4">-</span>
+    <div th:if="${eventos.empty}" class="text-center py-20 bg-white rounded-[3rem] shadow-sm border border-gray-50">
+        <div class="bg-subtle w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="text-4xl text-main font-bold">!</span>
+        </div>
         <h2 class="text-2xl font-bold text-gray-700">Aún no tienes eventos favoritos</h2>
-        <p class="text-gray-500 mt-2 mb-6">Explora la cartelera y dale al corazón en los eventos que te interesen.</p>
-        <a th:href="@{/main}" class="px-6 py-3 bg-[#ff5a1f] text-white font-bold rounded-full hover:bg-orange-600 transition">
+        <p class="text-gray-400 mt-2 mb-8 max-w-sm mx-auto">Explora la cartelera y dale al corazón en los eventos que te interesen.</p>
+        <a th:href="@{/main}" class="px-8 py-3 bg-main text-white font-black rounded-full hover:bg-darker transition-all shadow-lg shadow-main/20">
             Ir a la Cartelera
         </a>
     </div>
@@ -62,15 +80,14 @@
     <div th:if="${!eventos.empty}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         
         <div th:each="evento : ${eventos}"
-             class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-2xl bg-white hover:scale-[1.02] transition-transform duration-300">
+             class="relative group aspect-[3/4.2] rounded-[2.5rem] overflow-hidden shadow-xl bg-white hover:scale-[1.02] transition-transform duration-300">
 
             <img th:src="${evento.image}" alt="Poster del evento" class="w-full h-full object-cover">
 
             <button th:data-event-id="${evento.event_id}"
                     onclick="toggleInterest(this)"
-                    class="absolute top-6 right-6 p-2 rounded-full glass-effect text-red-500 opacity-80 hover:opacity-100 transition-all duration-300 group/btn">
-                <svg class="w-5 h-5 transition-transform duration-300 group-hover/btn:scale-110 svg-heart"
-                     fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                    class="absolute top-6 right-6 p-2 rounded-full glass-effect text-error opacity-100 hover:scale-110 transition-all duration-300">
+                <svg class="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
                     </path>
@@ -93,7 +110,7 @@
             <div class="absolute bottom-3 w-full text-center">
                 <p th:if="${evento.category != null}"
                    th:text="${evento.category.name}"
-                   class="text-[10px] font-black text-black tracking-[0.3em] uppercase opacity-60">
+                   class="text-[9px] font-black text-white/60 tracking-[0.3em] uppercase">
                 </p>
             </div>
         </div>
@@ -117,10 +134,9 @@
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message); 
-            // Si el cliente desmarcó el evento, escondemos la tarjeta o recargamos la página para que desaparezca
             if (!data.interested) {
-                // Opción rápida: recargar la página para que la lista se actualice
+                // Efecto de desvanecimiento antes de recargar para mejor UX
+                buttonElement.closest('.relative').style.opacity = '0.5';
                 window.location.reload();
             }
         })
