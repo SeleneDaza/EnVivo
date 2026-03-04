@@ -1,236 +1,205 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" 
-      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6"> <head>
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6"> 
+<head>
     <meta charset="UTF-8">
     <title>EnVivo | Administración</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                main: '#FF6F28',
+                darker: '#BF371C',
+                lighter: '#FFCA99',
+                subtle: '#E3EDFF',
+                error: '#FF3B3B',
+                warning: '#FFCC00',
+                info: '#0063F7',
+                success: '#06C270',
+              }
+            }
+          }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-[#f3f4f6] min-h-screen font-sans">
+<body class="bg-[#f8f9fa] min-h-screen">
 
-<nav class="bg-gray-100 px-10 py-4 flex justify-between items-center">
+<nav class="bg-white px-10 py-4 flex justify-between items-center shadow-sm border-b border-gray-100">
     <div class="flex items-center gap-2">
-        <a th:href="@{/main}" 
-        class="text-2xl font-bold text-[#e67e22] hover:text-[#d35400] transition-colors duration-300">
-            EnVivo
-        </a>
-        <span class="text-sm font-semibold text-[#c0392b]">admin</span>
+        <a th:href="@{/main}" class="text-2xl font-black text-main tracking-tighter">EnVivo</a>
+        <span class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">admin</span>
     </div>
     <div class="flex items-center gap-4">
-        <a th:href="@{/admin}"
-           class="px-6 py-2 bg-[#ff7f50] text-white font-semibold rounded-full shadow-sm hover:bg-[#e67348] transition">
+        <a th:href="@{/admin}" class="px-6 py-2 bg-main text-white font-bold rounded-full shadow-md shadow-main/20 transition-all text-sm">
             Eventos
         </a>
-        <a th:href="@{/categories}"
-           class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+        <a th:href="@{/categories}" class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all text-sm">
             Categorías
         </a>
-
-        <a th:href="@{/reports}"
-           class="px-6 py-2 border border-[#ff7f50] text-[#ff7f50] font-semibold rounded-full hover:bg-orange-50 transition">
+        <a th:href="@{/reports}" class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all text-sm">
             Reportes
         </a>
     </div>
 
-    <div class="flex items-center gap-3">
-        <form th:action="@{/logout}" method="POST" class="inline">
-            <button type="submit" class="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 hover:bg-red-100 hover:text-red-600 transition shadow-sm" title="Cerrar Sesión">
-                <i class="fa-solid fa-power-off text-xs"></i>
-            </button>
-        </form>
-    </div>
-
+    <form th:action="@{/logout}" method="POST" class="inline">
+        <button type="submit" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-error/10 hover:text-error transition-all border border-gray-100">
+            <i class="fa-solid fa-power-off text-sm"></i>
+        </button>
+    </form>
 </nav>
 
 <main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-4 space-y-6">
-
-        <section class="bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
-            <h2 class="text-[#f39c12] font-black text-2xl mb-10 tracking-tight uppercase"
+    
+    <div class="lg:col-span-4">
+        <section class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-50 sticky top-8">
+            <h2 class="font-black text-2xl mb-8 tracking-tight uppercase"
+                th:classappend="${evento.event_id == null ? 'text-main' : 'text-info'}"
                 th:text="${evento.event_id == null ? 'Crear Evento' : 'Editar Evento'}">
-                Crear Evento
             </h2>
 
             <form th:action="${evento.event_id == null ? '/admin/guardar' : '/admin/editar/' + evento.event_id}"
-                  onsubmit="alert('¡Evento guardado con éxito!');"
-                  th:object="${evento}" method="POST" enctype="multipart/form-data" class="space-y-8">
+                  th:object="${evento}" method="POST" enctype="multipart/form-data" class="space-y-6">
 
                 <input type="hidden" th:field="*{event_id}">
 
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2 relative">
-                    <label class="text-gray-700 font-medium">Nombre: <span class="text-red-500">*</span></label>
-
-                    <input type="text"
-                           th:field="*{name}"
-                           id="event-name"
-                           required
-                           maxlength="105"
-                           class="w-full bg-transparent outline-none text-gray-600 transition-colors"
-                           placeholder="Nombre del evento">
-
-                    <div id="name-error" class="hidden text-[10px] text-red-500 font-bold mt-1">
-                        ⚠️ Has alcanzado el límite de 100 caracteres.
-                    </div>
-
-                    <span id="char-count" class="text-[10px] absolute right-0 bottom-2 text-gray-400">0/100</span>
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Nombre del Evento</label>
+                    <input type="text" th:field="*{name}" id="event-name" required maxlength="105"
+                           class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-lighter transition-all text-sm font-medium"
+                           placeholder="Ej: Concierto de Rock">
+                    <div id="name-error" class="hidden text-[10px] text-error font-bold mt-1">⚠️ Máximo 100 caracteres alcanzado.</div>
+                    <p id="char-count" class="text-[10px] text-right text-gray-400 font-bold">0/100</p>
                 </div>
 
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2 relative">
-                    <label class="text-gray-700 font-medium">Descripción:</label>
-
-                    <input th:field="*{description}"
-                           id="event-desc"
-                           maxlength="510"
-                           class="w-full bg-transparent outline-none text-gray-600 transition-colors resize-none mt-1"
-                           placeholder="Descripción del evento">
-
-                    <div id="desc-error" class="hidden text-[10px] text-red-500 font-bold mt-1">
-                        ⚠️ Has excedido el límite de 500 caracteres.
-                    </div>
-
-                    <span id="desc-char-count" class="text-[10px] text-right text-gray-400">0/500</span>
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Descripción</label>
+                    <textarea th:field="*{description}" id="event-desc" maxlength="510" rows="3"
+                              class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-lighter transition-all text-sm font-medium resize-none"
+                              placeholder="Breve detalle del evento..."></textarea>
+                    <p id="desc-char-count" class="text-[10px] text-right text-gray-400 font-bold">0/500</p>
                 </div>
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Categoría:</label>
-                    <select th:field="*{category}" class="w-full bg-transparent outline-none text-gray-600 cursor-pointer py-1">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Fecha</label>
+                        <input type="date" th:field="*{date}" id="fechaEvento"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-lighter outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Precio</label>
+                        <input type="number" th:field="*{price}" min="0" step="0.01"
+                               class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-lighter outline-none" placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Categoría</label>
+                    <select th:field="*{category}" class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-lighter outline-none appearance-none">
                         <option value="">-- Sin categoría --</option>
                         <option th:each="cat : ${categorias}" th:value="${cat.name}" th:text="${cat.name}"></option>
                     </select>
                 </div>
 
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Fecha:</label>
-                    <input type="date" th:field="*{date}"  id="fechaEvento"
-                           class="w-full bg-transparent outline-none text-gray-600">
-                </div>
-
-                <div class="flex flex-col gap-1 border-b border-gray-300 pb-2">
-                    <label class="text-gray-700 font-medium">Precio:</label>
-                    <input type="number" th:field="*{price}" min="0" step="0.01"
-                           class="w-full bg-transparent outline-none text-gray-600" placeholder="0.00">
-                </div>
-
-                <div class="flex flex-col gap-2">
-                    <label class="text-gray-700 font-medium">Imagen del Evento:</label>
-                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300 hover:bg-gray-100 transition-colors">
+                <div class="space-y-2">
+                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Imagen</label>
+                    <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-gray-200 hover:border-lighter transition-all group">
                         <input type="file" name="file" accept=".jpg, .jpeg, .png"
-                               class="text-sm text-gray-600 w-full cursor-pointer
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-orange-50 file:text-[#ff7f50]
-                                hover:file:bg-orange-100">
+                               class="text-[10px] text-gray-400 w-full cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-subtle file:text-info hover:file:bg-info hover:file:text-white transition-all">
                     </div>
-                    <p class="text-[10px] text-gray-400">Formatos permitidos: PNG, JPG (Máx. 2MB)</p>
                 </div>
 
                 <button type="submit"
-                        class="w-full bg-[#ff7f50] hover:bg-[#e67348] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-orange-100 mt-4">
-                    <span th:text="${evento.event_id == null ? 'Crear Evento' : 'Guardar Cambios'}">Crear Evento</span>
+                        th:classappend="${evento.event_id == null ? 'bg-main shadow-main/20 hover:bg-darker' : 'bg-info shadow-info/20 hover:bg-blue-700'}"
+                        class="w-full text-white font-black py-4 rounded-2xl transition-all shadow-lg transform hover:-translate-y-1 mt-4">
+                    <span th:text="${evento.event_id == null ? 'Crear Evento' : 'Guardar Cambios'}"></span>
                 </button>
 
-                <a th:if="${evento.event_id != null}" th:href="@{/events}"
-                   class="block text-center w-full text-gray-400 hover:text-gray-600 font-medium text-sm mt-2 transition-colors">
-                    Cancelar edición
+                <a th:if="${evento.event_id != null}" th:href="@{/admin}"
+                   class="block text-center text-xs font-black text-gray-400 hover:text-error uppercase tracking-widest transition-colors">
+                    Cancelar Edición
                 </a>
             </form>
         </section>
     </div>
 
-    <section class="lg:col-span-8 bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-50 h-fit">
+    <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
         <table class="w-full text-left">
-            <thead class="bg-white border-b border-gray-100">
-            <tr class="text-gray-400 text-xs uppercase tracking-widest">
-                <th class="px-6 py-5 font-semibold">Evento</th>
-                <th class="px-6 py-5 font-semibold">Fecha / Info</th>
-                <th class="px-6 py-5 font-semibold text-center">Precio</th>
-                <th class="px-6 py-5 font-semibold text-right">Acciones</th>
-            </tr>
+            <thead class="bg-gray-50/50 border-b border-gray-100">
+                <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                    <th class="px-8 py-6 font-black">Evento</th>
+                    <th class="px-6 py-6 font-black">Fecha</th>
+                    <th class="px-6 py-6 font-black text-center">Precio</th>
+                    <th class="px-8 py-6 font-black text-right">Acciones</th>
+                </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-            <tr th:each="e : ${eventos.content}" class="group hover:bg-orange-50/30 transition-colors">
-                <td class="px-6 py-4 flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm flex-shrink-0">
-                        <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100'">
-                    </div>
-                    <div>
-                        <div class="font-bold text-gray-800 truncate max-w-xs" th:text="${e.name}">Nombre</div>
-                        <div class="text-[10px] text-gray-400 truncate max-w-xs" th:text="${e.description}">Descripción</div>
-                        <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-orange-100 text-[#e67e22] text-[9px] font-bold rounded-md uppercase tracking-wider" th:text="${e.category.name}">
-                            CATEGORIA
-                        </span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <span class="text-sm text-gray-500" th:text="${e.date}">2024-10-10</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                    <span class="text-sm font-medium text-gray-600" th:text="${'$' + (e.price != null ? e.price : '0')}">$0</span>
-                </td>
-                <td class="px-6 py-4 text-right space-x-3">
-                    <a th:href="@{/admin/editar/{id}(id=${e.event_id})}"
-                       class="text-blue-200 hover:text-blue-500 transition-colors cursor-pointer inline-block">
-                        <i class="fa-solid fa-pencil"></i>
-                    </a>
-                    <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}"
-                       onclick="if(confirm('¿Estás seguro de que deseas eliminar este evento?')) { alert('Evento eliminado con éxito'); return true; } else { alert('No se ha eliminado el evento'); return false; }"
-                       class="text-blue-200 hover:text-red-400 transition-colors cursor-pointer inline-block">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </a>
-                </td>
-            </tr>
+                <tr th:each="e : ${eventos.content}" class="group hover:bg-subtle/20 transition-all">
+                    <td class="px-8 py-5 flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm flex-shrink-0">
+                            <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-black text-gray-800 truncate text-sm" th:text="${e.name}">Nombre</div>
+                            <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-lighter/20 text-main text-[9px] font-black rounded uppercase tracking-tighter" th:text="${e.category.name}">
+                                CATEGORIA
+                            </span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5">
+                        <span class="text-xs font-bold text-gray-500" th:text="${e.date}">2024-10-10</span>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="text-sm font-black text-gray-700" th:text="${'$' + (e.price != null ? e.price : '0')}">$0</span>
+                    </td>
+                    <td class="px-8 py-5 text-right">
+                        <a th:href="@{/admin/editar/{id}(id=${e.event_id})}"
+                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
+                            <i class="fa-solid fa-pencil text-xs"></i>
+                        </a>
+                        <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}"
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?')"
+                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </section>
 </main>
 
 <script>
+    // Configuración de fecha mínima y contadores
     const fechaInput = document.getElementById('fechaEvento');
-    const hoy = new Date().toISOString().split('T')[0];
-    fechaInput.setAttribute('min', hoy);
-</script>
-<script>
-    const nameInput = document.getElementById('event-name');
-    const nameError = document.getElementById('name-error');
-    const charCount = document.getElementById('char-count');
+    if(fechaInput) fechaInput.min = new Date().toISOString().split('T')[0];
 
-    nameInput.addEventListener('input', function() {
-        const length = this.value.length;
-        charCount.textContent = `${length}/100`;
-        if (length > 100) {
-            this.classList.add('border-b-2', 'border-red-500');
-            nameError.classList.remove('hidden');
-            charCount.classList.add('text-red-500');
-            this.setCustomValidity("El nombre no puede exceder los 100 caracteres.");
-        } else {
-            this.classList.remove('border-b-2', 'border-red-500');
-            nameError.classList.add('hidden');
-            charCount.classList.remove('text-red-500');
-            this.setCustomValidity(""); 
-        }
-    });
-</script>
-<script>
-    const descInput = document.getElementById('event-desc');
-    const descError = document.getElementById('desc-error');
-    const descCharCount = document.getElementById('desc-char-count');
+    function setupCounter(inputId, counterId, limit) {
+        const input = document.getElementById(inputId);
+        const counter = document.getElementById(counterId);
+        if(!input || !counter) return;
 
-    descInput.addEventListener('input', function() {
-        const length = this.value.length;
-        descCharCount.textContent = `${length}/500`;
+        input.addEventListener('input', () => {
+            const length = input.value.length;
+            counter.textContent = `${length}/${limit}`;
+            if (length >= limit) {
+                counter.classList.replace('text-gray-400', 'text-error');
+                input.classList.add('ring-2', 'ring-error');
+            } else {
+                counter.classList.replace('text-error', 'text-gray-400');
+                input.classList.remove('ring-error');
+            }
+        });
+    }
 
-        if (length > 500) {
-            this.classList.add('border-red-400'); 
-            descError.classList.remove('hidden');
-            descCharCount.classList.replace('text-gray-400', 'text-red-500');
-            this.setCustomValidity("La descripción no puede exceder los 500 caracteres.");
-        } else {
-            this.classList.remove('border-red-400');
-            descError.classList.add('hidden');
-            descCharCount.classList.replace('text-red-500', 'text-gray-400');
-            this.setCustomValidity("");
-        }
-    });
+    setupCounter('event-name', 'char-count', 100);
+    setupCounter('event-desc', 'desc-char-count', 500);
 </script>
 
 </body>
