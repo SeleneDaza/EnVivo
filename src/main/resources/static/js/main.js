@@ -54,11 +54,11 @@ function toggleInterest(buttonElement) {
         if (data.interested) {
             buttonElement.classList.remove('text-white');
             buttonElement.classList.add('text-red-500');
-            svgElement.setAttribute('fill', 'currentColor');
+            if (svgElement) svgElement.setAttribute('fill', 'currentColor');
         } else {
             buttonElement.classList.add('text-white');
             buttonElement.classList.remove('text-red-500');
-            svgElement.setAttribute('fill', 'none');
+            if (svgElement) svgElement.setAttribute('fill', 'none');
         }
     })
     .catch(error => {
