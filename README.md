@@ -105,11 +105,12 @@ EnVivo/
 <img width="1216" height="243" alt="modelo" src="https://github.com/user-attachments/assets/5d46e3ad-82f6-4327-9120-1ac6474fd7e5" />
 
 
-- **`users`**: Almacena los usuarios registrados (usuario + contraseña cifrada).
+- **`usuarios`**: Almacena los usuarios registrados (usuario + contraseña cifrada).
 - **`roles`**: `ADMIN` o `CLIENTE`.
-- **`events`**: Catálogo de eventos con nombre, fecha, precio, descripción, imagen y categoría.
-- **`categories`**: Clasificación de los eventos.
-- **`user_favorites`**: Tabla pivote que registra los eventos marcados como *"Me interesa"*.
+- **`eventos`**: Catálogo de eventos con nombre, fecha, precio, descripción, imagen y categoría.
+- **`categorias`**: Clasificación de los eventos.
+- **`favoritos`**: Tabla pivote que registra los eventos marcados como *"Me interesa"*.
+- **`usuarios_roles`**: Tabla relacional entre eventos y usuarios
 
 ---
 
