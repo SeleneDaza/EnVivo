@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,22 @@ public class EventService {
             return eventRepository.findByNameContainingIgnoreCase(keyword, ordenado);
         }
         return eventRepository.findAll(ordenado);
+    }
+
+    /**
+     * Igual que buscarOPaginar, pero SOLO devuelve eventos cuya fecha
+     * es >= hoy. Se usa en la página pública (/main).
+     * Los eventos pasados no se muestran al público general.
+     */
+    public Page<Event> buscarOPaginarVigentes(String keyword, Pageable pageable) {
+        Sort porFechaAsc = Sort.by(Sort.Direction.ASC, "date");
+        Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaAsc);
+        LocalDate hoy = LocalDate.now();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return eventRepository.findVigentesByNameContaining(keyword, hoy, ordenado);
+        }
+        return eventRepository.findVigentes(hoy, ordenado);
     }
 
     public void eliminarEvento(Long id) {
