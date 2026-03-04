@@ -102,7 +102,7 @@ EnVivo/
 
 ### Modelo de Datos (Entidades principales)
 
-
+<img width="1216" height="243" alt="modelo" src="https://github.com/user-attachments/assets/5d46e3ad-82f6-4327-9120-1ac6474fd7e5" />
 
 
 - **`users`**: Almacena los usuarios registrados (usuario + contraseña cifrada).
