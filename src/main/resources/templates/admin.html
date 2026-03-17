@@ -52,9 +52,9 @@
         </a>
     </div>
 
-    <form th:action="@{/logout}" method="POST" class="inline">
-        <button type="submit" class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-error/10 hover:text-error transition-all border border-gray-100">
-            <i class="fa-solid fa-power-off text-sm"></i>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="text-sm font-bold text-gray-400 hover:text-error transition-colors">
+            Cerrar sesión
         </button>
     </form>
 </nav>
