@@ -42,12 +42,12 @@ public class EventController {
     private final CategoryService categoryService;
     private final CloudinaryService cloudinaryService;
 
-    @GetMapping("/")
+    @GetMapping("/login")
     public String loginPage() {
         return "index";
     }
 
-    @GetMapping("/main")
+    @GetMapping("/")
     public String index(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,

@@ -26,9 +26,9 @@ public class AuthController {
         boolean exito = userService.registrar(dto);
 
         if (exito) {
-            return "redirect:/?registered=true";
+            return "redirect:/login?registered=true";
         } else {
-            return "redirect:/?registerError=true";
+            return "redirect:/login?registerError=true";
         }
     }
 }
