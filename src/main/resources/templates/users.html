@@ -72,53 +72,75 @@
     </form>
 </nav>
 
-<main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+<main class="max-w-5xl mx-auto mt-12 px-6 mb-20">
+    
+    <div class="mb-10 flex items-end justify-between">
+        <div>
+            <h1 class="text-4xl font-black text-gray-800 tracking-tight">Gestión de <span class="text-info">Usuarios</span></h1>
+            <p class="text-gray-500 font-medium mt-1">Lista centralizada de los usuarios registrados en la plataforma.</p>
+        </div>
+    </div>
 
-    <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
 
-        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 class="font-black text-gray-700 uppercase tracking-wide text-sm">
-                Usuarios registrados al sistema
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white">
+            <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
+                <i class="fa-solid fa-users text-info"></i>
+                Usuarios Registrados
             </h3>
-
             <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
                   th:text="${#lists.size(usuarios) + ' total'}"></span>
         </div>
 
-        <div class="p-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50/50 border-b border-gray-100">
+                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                        <th class="px-8 py-6 font-black w-20 text-center">N°</th>
+                        <th class="px-8 py-6 font-black">Usuario / Email</th>
+                        <th class="px-8 py-6 font-black text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr th:each="u, iterStat : ${usuarios}" class="group hover:bg-subtle/20 transition-all">
+                        
+                        <td class="px-8 py-5 text-center">
+                            <div class="w-10 h-10 mx-auto flex items-center justify-center rounded-2xl font-black text-sm shadow-sm bg-gray-50 text-gray-400 group-hover:bg-info group-hover:text-white transition-all">
+                                <span th:text="${iterStat.count}">1</span>
+                            </div>
+                        </td>
 
-            <div class="divide-y divide-gray-50">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-info/10 flex items-center justify-center text-info font-bold group-hover:bg-info group-hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-user text-sm"></i>
+                                </div>
+                                <span class="font-black text-gray-800 text-sm group-hover:text-info transition-colors"
+                                      th:text="${u.email}">Email</span>
+                            </div>
+                        </td>
 
-                <div th:each="u : ${usuarios}"
-                     class="flex items-center justify-between py-5 group hover:bg-subtle/20 transition-all px-4 rounded-2xl">
-
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
-                            <i class="fa-solid fa-user text-sm"></i>
-                        </div>
-
-                        <div class="flex flex-col">
-                            <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
-                                  th:text="${u.email}">
+                        <td class="px-8 py-5 text-center">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-success/10 text-success text-[10px] font-black uppercase tracking-widest">
+                                <i class="fa-solid fa-circle text-[6px]"></i> Activo
                             </span>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
 
-                </div>
-
-                <div th:if="${#lists.isEmpty(usuarios)}" class="text-center py-16">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                        <i class="fa-solid fa-users text-2xl"></i>
-                    </div>
-                    <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
-                        No hay usuarios registrados
-                    </p>
-                </div>
-
-            </div>
+                    <tr th:if="${#lists.isEmpty(usuarios)}">
+                        <td colspan="3" class="text-center py-16">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <i class="fa-solid fa-users text-2xl"></i>
+                            </div>
+                            <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
+                                No hay usuarios registrados
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
-
 </main>
 </body>
 </html>

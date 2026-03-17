@@ -76,83 +76,80 @@
         </div>
 
         <div class="grid grid-cols-1 gap-8 mb-20">
-            <section>
-                <div class="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 border border-gray-50">
-                    <h3 class="text-gray-800 font-black mb-8 flex items-center gap-3 text-xl uppercase tracking-tighter">
+            <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit mb-20">
+                
+                <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white">
+                    <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
                         <i class="fa-solid fa-trophy text-warning"></i>
                         Top 10 Eventos más deseados
                     </h3>
+                </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[10px] text-gray-400 uppercase tracking-[0.2em] border-b border-gray-50">
-                                    <th class="pb-5 font-black w-20">Rango</th>
-                                    <th class="pb-5 font-black">Evento</th>
-                                    <th class="pb-5 font-black">Categoría</th>
-                                    <th class="pb-5 font-black text-center">Interés Real</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                <tr th:each="item, iterStat : ${top10}"
-                                    class="group hover:bg-gray-50/50 transition-all">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50/50 border-b border-gray-100">
+                            <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                                <th class="px-8 py-6 font-black w-20 text-center">Rango</th>
+                                <th class="px-6 py-6 font-black">Evento</th>
+                                <th class="px-6 py-6 font-black">Categoría</th>
+                                <th class="px-8 py-6 font-black text-center">Interés Real</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr th:each="item, iterStat : ${top10}" class="group hover:bg-subtle/20 transition-all">
+                                <td class="px-8 py-5 text-center">
+                                    <div th:with="idx=${iterStat.index}" 
+                                         class="w-10 h-10 mx-auto flex items-center justify-center rounded-2xl font-black text-sm shadow-sm"
+                                         th:classappend="${idx == 0 ? 'bg-warning text-white shadow-warning/30' : 
+                                                           idx == 1 ? 'bg-gray-300 text-white shadow-gray-300/30' : 
+                                                           idx == 2 ? 'bg-[#CD7F32] text-white shadow-orange-900/20' : 'bg-subtle text-info'}">
+                                        <span th:text="${idx + 1}">1</span>
+                                    </div>
+                                </td>
 
-                                    <td class="py-5">
-                                        <div th:with="idx=${iterStat.index}" 
-                                             class="w-10 h-10 flex items-center justify-center rounded-2xl font-black text-sm shadow-sm"
-                                             th:classappend="${idx == 0 ? 'bg-warning text-white shadow-warning/30' : 
-                                                              idx == 1 ? 'bg-gray-300 text-white shadow-gray-300/30' : 
-                                                              idx == 2 ? 'bg-[#CD7F32] text-white shadow-orange-900/20' : 'bg-subtle text-info'}">
-                                            <span th:text="${idx + 1}">1</span>
-                                        </div>
-                                    </td>
-
-                                    <td class="py-5">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-100 shadow-inner">
-                                                <img th:if="${item.evento.image != null and !item.evento.image.isEmpty()}"
-                                                     th:src="${item.evento.image}"
-                                                     class="w-full h-full object-cover"/>
-                                                <div th:unless="${item.evento.image != null and !item.evento.image.isEmpty()}"
-                                                     class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
-                                                    <i class="fa-solid fa-image text-xs"></i>
-                                                </div>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-100 shadow-inner">
+                                            <img th:if="${item.evento.image != null and !item.evento.image.isEmpty()}"
+                                                 th:src="${item.evento.image}" class="w-full h-full object-cover"/>
+                                            <div th:unless="${item.evento.image != null and !item.evento.image.isEmpty()}"
+                                                 class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                                                <i class="fa-solid fa-image text-xs"></i>
                                             </div>
-                                            <span class="font-black text-gray-700 text-sm hover:text-main transition-colors cursor-default" 
-                                                  th:text="${item.evento.name}">Nombre</span>
                                         </div>
-                                    </td>
+                                        <span class="font-black text-gray-700 text-sm group-hover:text-main transition-colors" 
+                                              th:text="${item.evento.name}">Nombre</span>
+                                    </div>
+                                </td>
 
-                                    <td class="py-5">
-                                        <span th:if="${item.evento.category != null}"
-                                              class="px-3 py-1 rounded-lg bg-subtle text-info text-[10px] font-black uppercase tracking-widest"
-                                              th:text="${item.evento.category.name}">Categoría</span>
-                                        <span th:unless="${item.evento.category != null}"
-                                              class="text-gray-300 text-[10px] font-bold uppercase tracking-widest italic">N/A</span>
-                                    </td>
+                                <td class="px-6 py-5">
+                                    <span th:if="${item.evento.category != null}"
+                                          class="px-3 py-1 rounded-lg bg-subtle text-info text-[10px] font-black uppercase tracking-widest"
+                                          th:text="${item.evento.category.name}">Categoría</span>
+                                    <span th:unless="${item.evento.category != null}"
+                                          class="text-gray-300 text-[10px] font-bold uppercase tracking-widest italic">N/A</span>
+                                </td>
 
-                                    <td class="py-5 text-center">
-                                        <div class="inline-flex flex-col items-center">
-                                            <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-error/5 text-error font-black text-base">
-                                                <i class="fa-solid fa-heart animate-pulse"></i>
-                                                <span th:text="${item.totalInteresados}">0</span>
-                                            </div>
-                                            <p class="text-[9px] text-gray-400 font-bold uppercase mt-1 tracking-tighter">Fans interesados</p>
+                                <td class="px-8 py-5 text-center">
+                                    <div class="inline-flex flex-col items-center">
+                                        <div class="flex items-center gap-2 px-4 py-2 rounded-2xl bg-error/5 text-error font-black text-base">
+                                            <i class="fa-solid fa-heart animate-pulse"></i>
+                                            <span th:text="${item.totalInteresados}">0</span>
                                         </div>
-                                    </td>
-                                </tr>
+                                    </div>
+                                </td>
+                            </tr>
 
-                                <tr th:if="${#lists.isEmpty(top10)}">
-                                    <td colspan="4" class="text-center py-20">
-                                        <div class="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <i class="fa-solid fa-chart-pie text-3xl text-gray-200"></i>
-                                        </div>
-                                        <p class="text-gray-400 font-bold tracking-tight">No hay datos de interacción suficientes para generar el reporte.</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                            <tr th:if="${#lists.isEmpty(top10)}">
+                                <td colspan="4" class="text-center py-20">
+                                    <div class="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fa-solid fa-chart-pie text-3xl text-gray-200"></i>
+                                    </div>
+                                    <p class="text-gray-400 font-bold tracking-tight">No hay datos suficientes para generar el reporte.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </div>
