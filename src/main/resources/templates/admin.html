@@ -180,7 +180,7 @@
 </main>
 
 <script>
-    // Configuración de fecha mínima y contadores
+    // Configuración de fecha mínima y contadores 
     const fechaInput = document.getElementById('fechaEvento');
     if(fechaInput) fechaInput.min = new Date().toISOString().split('T')[0];
 
@@ -201,10 +201,8 @@
             }
         });
     }
-
     setupCounter('event-name', 'char-count', 100);
     setupCounter('event-desc', 'desc-char-count', 500);
 </script>
-
 </body>
 </html>
