@@ -18,7 +18,7 @@ function closeModal() {
     document.body.classList.remove('modal-open');
 }
 
-// Cerrar con ESC
+
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
 });
@@ -48,7 +48,24 @@ function toggleInterest(buttonElement) {
     })
     .then(data => {
         if (data.message) {
-            alert(data.message);
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'bottom-end', // <-- Cambiado a inferior derecha
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#ffffff',
+                color: '#333333',
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: data.interested ? 'success' : 'info',
+                title: data.message
+            });
         }
 
         if (data.interested) {
@@ -63,6 +80,13 @@ function toggleInterest(buttonElement) {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('No pudimos procesar tu solicitud en este momento.');
+        Swal.fire({
+            toast: true,
+            position: 'bottom-end',
+            icon: 'error',
+            title: 'No pudimos procesar tu solicitud en este momento.',
+            showConfirmButton: false,
+            timer: 3500
+        });
     });
 }
