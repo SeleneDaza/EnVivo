@@ -52,9 +52,11 @@
             </a>
         </div>
 
-        <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
-            <i class="fa-solid fa-chart-line text-sm text-info"></i>
-        </div>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="text-sm font-bold text-gray-400 hover:text-error transition-colors">
+                Cerrar sesión
+            </button>
+        </form>
     </nav>
 
     <main class="max-w-5xl mx-auto mt-12 px-6">
