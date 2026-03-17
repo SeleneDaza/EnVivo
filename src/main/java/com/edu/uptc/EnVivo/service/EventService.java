@@ -187,4 +187,15 @@ public class EventService {
                 })
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    // --- LÓGICA PARA Lista de favoritos paginada ---
+    public Page<Event> obtenerEventosFavoritosPaginados(String userEmail, Pageable pageable) {
+        // Le inyectamos el ordenamiento por fecha al Pageable
+        Pageable ordenado = PageRequest.of(
+                pageable.getPageNumber(), 
+                pageable.getPageSize(), 
+                Sort.by(Sort.Direction.ASC, "date")
+        );
+        return eventRepository.findFavoritosByUsuarioEmailPaginated(userEmail, ordenado);
+    }
 }
