@@ -203,18 +203,22 @@ public class EventController {
 
     // --- ENDPOINT PARA Ver panel de favoritos
     @GetMapping("/favorites")
-    public String verFavoritos(Principal principal, Model model) {
-        // Si no hay sesión iniciada, lo devolvemos al inicio
+    public String verFavoritos(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            Principal principal, 
+            Model model) {
+            
         if (principal == null) {
             return "redirect:/";
         }
         
-        // Obtenemos la lista ya ordenada por fecha
-        List<Event> misFavoritos = eventoService.obtenerEventosFavoritosOrdenados(principal.getName());
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page, pageSize);
+        
+        Page<Event> misFavoritos = eventoService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
         
         model.addAttribute("eventos", misFavoritos);
         
-        // Retornamos el nombre de la nueva vista (favoritos.html)
         return "favorites";
     }
 
