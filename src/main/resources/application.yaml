@@ -3,9 +3,9 @@ spring:
     name: EnVivo
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/events_db
-    username: postgres
-    password: 12345678
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/events_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,6 +17,6 @@ spring:
         format_sql: true
 
 cloudinary:
-  cloud-name: djznzgdqk
-  api-key: 263664625336344
-  api-secret: xB00fJgrihwTcftf5tIZjvIYGHY
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
