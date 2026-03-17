@@ -66,20 +66,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/main", "/main/**", "/register","/css/**", "/js/**", "/images/**").permitAll()
+                
+                        .requestMatchers("/", "/login", "/register","/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**", "/categories/**", "/users", "/reports").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
-                        .loginPage("/")
+                        .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/main", true)
-                        .failureUrl("/?error=true")
+                        .defaultSuccessUrl("/", true) 
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout((logout) -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/main")
+                        .logoutSuccessUrl("/")
                         .permitAll()
                 )
                 .csrf(csrf -> csrf.disable());

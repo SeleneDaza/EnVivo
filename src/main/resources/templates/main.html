@@ -59,7 +59,7 @@
              Administrador
         </a>
 
-        <a th:href="@{/}" sec:authorize="isAnonymous()"
+        <a th:href="@{/login}" sec:authorize="isAnonymous()"
            class="text-xs sm:text-sm font-bold text-gray-400 hover:text-error transition-colors">
             Iniciar Sesión
         </a>
@@ -148,7 +148,7 @@
     <!-- PAGINACIÓN RESPONSIVE -->
     <div class="mt-12 sm:mt-16 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
 
-        <a th:href="@{/main(page=${eventos.number - 1})}"
+        <a th:href="@{/(page=${eventos.number - 1})}"
            th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-lighter'"
            class="px-4 sm:px-5 py-2 rounded-full bg-white border border-gray-200 text-xs sm:text-sm font-bold transition-colors">
             Anterior
@@ -156,7 +156,7 @@
 
         <div class="flex flex-wrap gap-2">
             <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
-               th:href="@{/main(page=${i})}"
+               th:href="@{/(page=${i})}"
                th:text="${i + 1}"
                th:classappend="${eventos.number == i} ? 'bg-main text-white' : 'bg-white hover:border-main'"
                class="w-8 h-8 sm:w-10 sm:h-10 
@@ -167,7 +167,7 @@
             </a>
         </div>
 
-        <a th:href="@{/main(page=${eventos.number + 1})}"
+        <a th:href="@{/(page=${eventos.number + 1})}"
            th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-lighter'"
            class="px-4 sm:px-5 py-2 rounded-full bg-white border border-gray-200 text-xs sm:text-sm font-bold transition-colors">
             Siguiente
