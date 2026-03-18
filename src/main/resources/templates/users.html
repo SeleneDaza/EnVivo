@@ -34,42 +34,7 @@
 
 <body class="bg-[#f8f9fa] min-h-screen">
 
-<nav class="bg-white px-10 py-4 flex justify-between items-center shadow-sm border-b border-gray-100">
-    <div class="flex items-center gap-2">
-        <a th:href="@{/}" class="text-2xl font-black text-main tracking-tighter">EnVivo</a>
-        <span class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">
-            admin
-        </span>
-    </div>
-
-    <div class="flex items-center gap-4 text-sm">
-        <a th:href="@{/admin}"
-           class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
-            Eventos
-        </a>
-
-        <a th:href="@{/categories}"
-           class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
-            Categorías
-        </a>
-
-        <a th:href="@{/reports}"
-           class="px-6 py-2 border border-main text-main font-bold rounded-full hover:bg-subtle transition-all">
-            Reportes
-        </a>
-
-        <a th:href="@{/users}"
-           class="px-6 py-2 bg-main text-white font-bold rounded-full shadow-md shadow-main/20 transition-all">
-            Usuarios
-        </a>
-    </div>
-
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="text-sm font-bold text-gray-400 hover:text-error transition-colors">
-            Cerrar sesión
-        </button>
-    </form>
-</nav>
+<div th:replace="~{components/navbar :: navbar('admin','users')}"></div>
 
 <main class="max-w-5xl mx-auto mt-12 px-6 mb-20">
     
