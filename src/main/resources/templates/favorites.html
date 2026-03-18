@@ -145,7 +145,6 @@
         .then(response => response.json())
         .then(data => {
             if (!data.interested) {
-                // Efecto de desvanecimiento antes de recargar para mejor UX
                 buttonElement.closest('.relative').style.opacity = '0.5';
                 window.location.reload();
             }

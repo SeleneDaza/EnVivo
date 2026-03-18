@@ -25,17 +25,14 @@ public class UserService {
      * @return true si el registro fue exitoso, false si el usuario ya existe o las contraseñas no coinciden.
      */
     public boolean registrar(RegisterDTO dto) {
-        // Validar que las contraseñas coincidan
         if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
             return false;
         }
 
-        // Validar que el usuario no exista
         if (userRepository.existsByEmail(dto.getNewUsername())) {
             return false;
         }
 
-        // Obtener o crear el rol CLIENTE
         Role rolCliente = roleRepository.findByName("CLIENTE")
                 .orElseGet(() -> {
                     Role nuevoRol = new Role();
@@ -43,7 +40,6 @@ public class UserService {
                     return roleRepository.save(nuevoRol);
                 });
 
-        // Crear y guardar el usuario
         User usuario = new User();
         usuario.setEmail(dto.getNewUsername());
         usuario.setPassword(passwordEncoder.encode(dto.getNewPassword()));
@@ -52,10 +48,7 @@ public class UserService {
         userRepository.save(usuario);
         return true;
     }
-
-    /**
-     * Retorna solo los usuarios que NO tienen el rol ADMIN.
-     */
+    
     public List<User> getClientUsers() {
         return userRepository.findAll().stream()
                 .filter(u -> u.getRoles().stream()

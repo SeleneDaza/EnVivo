@@ -50,7 +50,7 @@ function toggleInterest(buttonElement) {
         if (data.message) {
             const Toast = Swal.mixin({
                 toast: true,
-                position: 'bottom-end', // <-- Cambiado a inferior derecha
+                position: 'bottom-end', 
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
