@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<div th:fragment="navbar(tipo, active)">
+    <nav class="flex items-center justify-between px-4 sm:px-10 py-4 bg-white shadow-sm border-b border-gray-100">
+
+        <div class="flex items-center gap-3 shrink-0">
+            <a th:href="@{/}" class="text-2xl sm:text-3xl font-black text-main tracking-tighter">
+                EnVivo
+            </a>
+            <span th:if="${tipo == 'admin'}"
+                  class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">
+                admin
+            </span>
+        </div>
+
+        <div class="hidden md:flex items-center justify-center gap-3 flex-1">
+            
+            <th:block th:if="${tipo == 'admin'}">
+                <a th:href="@{/admin}"
+                   th:classappend="${active == 'admin'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
+                   class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
+                   Eventos
+                </a>
+                <a th:href="@{/categories}"
+                   th:classappend="${active == 'categories'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
+                   class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
+                   Categorías
+                </a>
+                <a th:href="@{/reports}"
+                   th:classappend="${active == 'reports'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
+                   class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
+                   Reportes
+                </a>
+                <a th:href="@{/users}"
+                   th:classappend="${active == 'users'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
+                   class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
+                   Usuarios
+                </a>
+            </th:block>
+
+            <th:block th:if="${tipo == 'user'}">
+                <a th:href="@{/favorites}"
+                   sec:authorize="hasAuthority('CLIENTE') or hasAuthority('ROLE_CLIENTE')"
+                   class="px-4 py-2 bg-white text-main border border-main text-sm font-semibold rounded-full hover:bg-subtle transition-all">
+                   Mis Favoritos
+                </a>
+            </th:block>
+        </div>
+
+        <div class="flex items-center gap-4 shrink-0">
+            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')" th:if="${tipo == 'user'}"
+               class="hidden sm:block px-4 py-2 bg-main text-white text-sm font-semibold rounded-full shadow-md">
+                Administrador
+            </a>
+
+            <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" class="m-0">
+                <button type="submit"
+                        class="text-xs sm:text-sm font-bold text-gray-400 hover:text-error transition-colors whitespace-nowrap">
+                    Cerrar sesión
+                </button>
+            </form>
+
+            <a th:href="@{/index}" sec:authorize="isAnonymous()"
+               class="text-xs sm:text-sm font-bold text-gray-400 hover:text-error">
+                Iniciar Sesión
+            </a>
+        </div>
+    </nav>
+</div>
+
+</body>
+</html>

@@ -41,23 +41,7 @@
 
 <body class="bg-[#f8f9fa]">
 
-<nav class="flex items-center justify-between px-10 py-6 bg-white shadow-sm border-b border-gray-100">
-    <div class="text-3xl font-black text-main tracking-tighter">
-        <a th:href="@{/}">EnVivo</a>
-    </div>
-
-    <div class="flex items-center gap-6">
-        <a th:href="@{/}" class="text-sm font-bold text-gray-400 hover:text-main transition-colors">
-            Volver a la Cartelera
-        </a>
-
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="text-sm font-bold text-gray-400 hover:text-error transition-colors">
-                Cerrar sesión
-            </button>
-        </form>
-    </div>
-</nav>
+<div th:replace="components/navbar :: navbar('user','')"></div>
 
 <main class="max-w-[1400px] mx-auto p-10">
 
@@ -161,7 +145,6 @@
         .then(response => response.json())
         .then(data => {
             if (!data.interested) {
-                // Efecto de desvanecimiento antes de recargar para mejor UX
                 buttonElement.closest('.relative').style.opacity = '0.5';
                 window.location.reload();
             }
