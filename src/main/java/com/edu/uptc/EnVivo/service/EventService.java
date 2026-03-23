@@ -37,7 +37,11 @@ public class EventService {
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
-        event.setImage(dto.getImage()); 
+        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+            event.setImage(dto.getImage());
+        } else {
+            event.setImage("https://dummyimage.com/600x400/cccccc/000000&text=Evento");
+        }
 
         if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
             Category category = categoryRepository
