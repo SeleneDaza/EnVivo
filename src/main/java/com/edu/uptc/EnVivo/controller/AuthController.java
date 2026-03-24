@@ -22,13 +22,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute RegisterDTO dto) {
-        boolean isRegistered = userService.registerUser(dto);
-
-        if (isRegistered) {
-            return "redirect:/login?registered=true";
-        } else {
-            return "redirect:/login?registerError=true";
-        }
+    public String registrar(@ModelAttribute RegisterDTO dto) {
+        boolean exito = userService.registerUser(dto);
+        return "redirect:/login?" + (exito ? "registered=true" : "registerError=true");
     }
 }
