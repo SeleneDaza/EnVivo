@@ -149,11 +149,9 @@ CREATE DATABASE events_db;
 
 Por motivos de seguridad, las contraseñas y claves de API no están quemadas en el código fuente. El proyecto requiere la configuración de variables de entorno locales:
 
-Ubica el archivo .env.example en la raíz del proyecto.
-
-Crea una copia de este archivo y renómbralo a .env.
-
-Completa el archivo .env con tus credenciales locales y de Cloudinary:
+1. Ubica el archivo `.env.example` en la raíz del proyecto.
+2. Crea una copia de este archivo y renómbralo a `.env`.
+3. Completa el archivo `.env` con tus credenciales locales y de Cloudinary:
 
 # Configuración de Base de Datos
 DB_URL=jdbc:postgresql://localhost:5432/events_db
@@ -164,8 +162,6 @@ DB_PASSWORD=tu_password_local
 CLOUDINARY_CLOUD_NAME=tu_cloud_name
 CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
-
-Nota: El archivo .env ya se encuentra en el .gitignore. Nunca subas tus claves reales al repositorio. Si usas Visual Studio Code, asegúrate de configurar "envFile": "${workspaceFolder}/.env" en tu archivo launch.json.
 
 ### 4. Instalar dependencias
 
