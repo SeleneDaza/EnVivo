@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 import java.util.Collections;
@@ -30,17 +32,20 @@ public class EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
-    public Event createEvent(CreateEventDTO dto) {
+    public Event createEvent(CreateEventDTO dto, MultipartFile file) throws IOException {
         Event event = new Event();
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
-        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
-            event.setImage(dto.getImage());
+        
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            event.setImage(imageUrl);
         } else {
-            event.setImage("https://dummyimage.com/600x400/cccccc/000000&text=Evento");
+            event.setImage(dto.getImage()); 
         }
 
         if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
@@ -49,7 +54,6 @@ public class EventService {
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             event.setCategory(category);
         }
-
         return eventRepository.save(event);
     }
 
@@ -91,7 +95,7 @@ public class EventService {
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
     }
 
-    public Event actualizarEvento(Long id, CreateEventDTO dto) {
+    public Event actualizarEvento(Long id, CreateEventDTO dto, MultipartFile file) throws IOException {
         Event event = obtenerPorId(id);
 
         event.setName(dto.getName());
@@ -99,7 +103,10 @@ public class EventService {
         event.setDate(dto.getDate());
         event.setPrice(dto.getPrice());
 
-        if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            event.setImage(imageUrl);
+        } else if (dto.getImage() != null && !dto.getImage().isEmpty()) {
             event.setImage(dto.getImage());
         }
 

@@ -40,7 +40,6 @@ public class EventController {
 
     private final EventService eventoService;
     private final CategoryService categoryService;
-    private final CloudinaryService cloudinaryService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -76,7 +75,11 @@ public class EventController {
 
     @PostMapping("/evento/crear")
     public String createEvent(@ModelAttribute CreateEventDTO dto) {
-        eventoService.createEvent(dto);
+        try {
+            eventoService.createEvent(dto, null); 
+        } catch(IOException e) {
+             e.printStackTrace();
+        }
         return "redirect:/main";
     }
 
@@ -103,15 +106,8 @@ public class EventController {
     public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto,
                                      @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            // Si el usuario seleccionó un archivo, lo subimos a Cloudinary
-            if (file != null && !file.isEmpty()) {
-                String imageUrl = cloudinaryService.uploadImage(file);
-                dto.setImage(imageUrl); // Le pasamos la URL de la nube al DTO
-            }
-
-            eventoService.createEvent(dto);
+            eventoService.createEvent(dto, file);
             return "redirect:/admin";
-
         } catch (IOException e) {
             e.printStackTrace();
             return "redirect:/admin?error_imagen";
@@ -160,25 +156,17 @@ public class EventController {
                                       @ModelAttribute("evento") CreateEventDTO dto,
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            if (file != null && !file.isEmpty()) {
-                String imageUrl = cloudinaryService.uploadImage(file);
-                dto.setImage(imageUrl); // Actualiza con la nueva URL
-            }
-
-            eventoService.actualizarEvento(id, dto);
+            eventoService.actualizarEvento(id, dto, file);
             return "redirect:/admin";
-
         } catch (IOException e) {
             e.printStackTrace();
             return "redirect:/admin?error_imagen";
         }
     }
 
-    // ENDPOINT(Botón Me Interesa) ---
     @PostMapping("/evento/{id}/interest")
     @ResponseBody
     public ResponseEntity<?> toggleInterest(@PathVariable("id") Long eventId, Principal principal) {
-        // 1. Validamos que el usuario haya iniciado sesión
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "Debes iniciar sesión para marcar interés."));
@@ -189,7 +177,7 @@ public class EventController {
             boolean newState = eventoService.toggleInterest(eventId, principal.getName());
             
             // 3. Cumpliendo el RF09: Preparamos un mensaje de éxito para el cliente
-            String mensaje = newState ? "¡Añadido a tus intereses! ❤️" : "Eliminado de tus intereses 🤍";
+            String mensaje = newState ? "¡Añadido a tus intereses!" : "Eliminado de tus intereses";
             
             // Devolvemos el nuevo estado y el mensaje en formato JSON
             return ResponseEntity.ok(Map.of("interested", newState, "message", mensaje));
