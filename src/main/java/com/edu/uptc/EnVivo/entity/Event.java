@@ -6,9 +6,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
-
 @Entity
 @Table(name = "events")
 @Getter
@@ -29,7 +26,7 @@ public class Event {
 
     private Integer price;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 5000)
     private String description;
 
     private String image;
