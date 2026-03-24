@@ -15,7 +15,10 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.edu.uptc.EnVivo.entity.Role;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -32,34 +35,40 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        InMemoryUserDetailsManager inMemory = createInMemoryManager(passwordEncoder);
 
-        // Usuario administrador fijo en memoria
+        return username -> {
+            if (inMemory.userExists(username)) {
+                return inMemory.loadUserByUsername(username);
+            }
+            return loadUserFromDatabase(username);
+        };
+    }
+
+    private InMemoryUserDetailsManager createInMemoryManager(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("1234"))
                 .roles("ADMIN")
                 .build();
+        return new InMemoryUserDetailsManager(admin);
+    }
 
-        InMemoryUserDetailsManager inMemory = new InMemoryUserDetailsManager(admin);
+    private UserDetails loadUserFromDatabase(String username) {
+        com.edu.uptc.EnVivo.entity.User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-        // Devuelve un UserDetailsService que primero busca en memoria (admin),
-        // y si no encuentra, busca en la base de datos (clientes registrados)
-        return username -> {
-            if (inMemory.userExists(username)) {
-                return inMemory.loadUserByUsername(username);
-            }
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                mapRolesToAuthorities(user.getRoles())
+        );
+    }
 
-            com.edu.uptc.EnVivo.entity.User user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-
-            return new org.springframework.security.core.userdetails.User(
-                    user.getEmail(),
-                    user.getPassword(),
-                    user.getRoles().stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                            .collect(Collectors.toList())
-            );
-        };
+    private List<SimpleGrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toList());
     }
 
     @Bean
