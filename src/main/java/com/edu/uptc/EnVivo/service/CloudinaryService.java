@@ -14,8 +14,6 @@ import java.util.Map;
 public class CloudinaryService {
 
     private Cloudinary cloudinary;
-
-    // Leemos las llaves desde el appliction.yml
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
 
