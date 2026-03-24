@@ -62,9 +62,6 @@ public class UserService {
     }
     
     public List<User> getClientUsers() {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getRoles().stream()
-                        .noneMatch(r -> r.getName().equalsIgnoreCase("ADMIN")))
-                .collect(java.util.stream.Collectors.toList());
+        return userRepository.findUsersWithoutAdminRole();
     }
 }
