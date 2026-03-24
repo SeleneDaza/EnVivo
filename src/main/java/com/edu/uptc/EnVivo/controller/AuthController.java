@@ -16,20 +16,19 @@ public class AuthController {
     private final UserService userService;
 
     @GetMapping("/users")
-    public String listarUsuarios(Model model) {
+    public String listUsers(Model model) {
         model.addAttribute("usuarios", userService.getClientUsers());
         return "users";
     }
 
     @PostMapping("/register")
-    public String registrar(@ModelAttribute RegisterDTO dto) {
-        boolean exito = userService.registrar(dto);
+    public String register(@ModelAttribute RegisterDTO dto) {
+        boolean isRegistered = userService.registerUser(dto);
 
-        if (exito) {
+        if (isRegistered) {
             return "redirect:/login?registered=true";
         } else {
             return "redirect:/login?registerError=true";
         }
     }
 }
-

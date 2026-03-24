@@ -16,32 +16,28 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public String listarCategorias(Model model) {
+    public String listCategories(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("categoria", new CreateCategoryDTO()); 
         return "categories"; 
     }
 
     @GetMapping("/edit/{id}")
-    public String prepararEditar(@PathVariable Long id, Model model) {
-        Category cat = categoryService.getById(id);
-        CreateCategoryDTO dto = new CreateCategoryDTO();
-        dto.setCategoryId(cat.getCategoryId());
-        dto.setName(cat.getName());
-
+    public String editCategory(@PathVariable Long id, Model model) {
+        CreateCategoryDTO dto = categoryService.getCategoryDTO(id);
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("categoria", dto); 
         return "categories"; 
     }
 
     @PostMapping("/create")
-    public String guardarCategoria(@ModelAttribute("categoria") CreateCategoryDTO dto) {
+    public String saveCategory(@ModelAttribute("categoria") CreateCategoryDTO dto) {
         categoryService.saveCategory(dto);
         return "redirect:/categories";
     }
 
     @GetMapping("/delete/{id}")
-    public String eliminarCategoria(@PathVariable Long id) {
+    public String deleteCategory(@PathVariable Long id) {
         try {
             categoryService.deleteCategory(id);
             return "redirect:/categories?exito";
