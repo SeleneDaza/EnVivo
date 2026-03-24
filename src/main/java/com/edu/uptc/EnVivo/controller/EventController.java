@@ -67,8 +67,7 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("categorias", categoryService.getCategories());
-        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+        cargarDatosComunes(model);
 
         return "main";
     }
@@ -96,8 +95,7 @@ public class EventController {
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("evento", new CreateEventDTO());
-        model.addAttribute("categorias", categoryService.getCategories());
-        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+        cargarDatosComunes(model);
 
         return "admin";
     }
@@ -128,25 +126,14 @@ public class EventController {
         int pageSize = 50;
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
 
-        Event evento = eventoService.obtenerPorId(id);
-        CreateEventDTO dto = new CreateEventDTO();
-        dto.setEvent_id(evento.getEvent_id());
-        dto.setName(evento.getName());
-        dto.setDescription(evento.getDescription());
-        dto.setDate(evento.getDate());
-        dto.setPrice(evento.getPrice());
-        dto.setImage(evento.getImage());
-
-        if (evento.getCategory() != null) {
-            dto.setCategory(evento.getCategory().getName());
-        }
-
+        CreateEventDTO dto = eventoService.obtenerEventoParaEdicion(id);
         model.addAttribute("evento", dto);
-        model.addAttribute("categorias", categoryService.getCategories());
-        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+     
+        cargarDatosComunes(model);
 
         return "admin";
     }
@@ -215,5 +202,10 @@ public class EventController {
         List<EventReporteDTO> top10 = eventoService.getTop10EventosPorInteres();
         model.addAttribute("top10", top10);
         return "reports";
+    }
+
+    private void cargarDatosComunes(Model model) {
+        model.addAttribute("categorias", categoryService.getCategories());
+        model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
     }
 }
