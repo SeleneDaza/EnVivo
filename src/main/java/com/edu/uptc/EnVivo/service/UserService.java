@@ -20,33 +20,45 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Registra un nuevo usuario con rol CLIENTE.
-     * @return true si el registro fue exitoso, false si el usuario ya existe o las contraseñas no coinciden.
-     */
-    public boolean registrar(RegisterDTO dto) {
-        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+    public boolean registerUser(RegisterDTO dto) {
+        if (!arePasswordsMatching(dto)) {
             return false;
         }
 
-        if (userRepository.existsByEmail(dto.getNewUsername())) {
+        if (userExists(dto.getNewUsername())) {
             return false;
         }
 
-        Role rolCliente = roleRepository.findByName("CLIENTE")
-                .orElseGet(() -> {
-                    Role nuevoRol = new Role();
-                    nuevoRol.setName("CLIENTE");
-                    return roleRepository.save(nuevoRol);
-                });
-
-        User usuario = new User();
-        usuario.setEmail(dto.getNewUsername());
-        usuario.setPassword(passwordEncoder.encode(dto.getNewPassword()));
-        usuario.setRoles(Set.of(rolCliente));
-
-        userRepository.save(usuario);
+        Role rolCliente = getOrCreateClientRole();
+        saveNewUser(dto, rolCliente);
         return true;
+    }
+
+    private boolean arePasswordsMatching(RegisterDTO dto) {
+        return dto.getNewPassword().equals(dto.getConfirmPassword());
+    }
+
+    private boolean userExists(String username) {
+        return userRepository.existsByEmail(username);
+    }
+
+    private Role getOrCreateClientRole() {
+        return roleRepository.findByName("CLIENTE")
+                .orElseGet(this::createClientRole);
+    }
+
+    private Role createClientRole() {
+        Role nuevoRol = new Role();
+        nuevoRol.setName("CLIENTE");
+        return roleRepository.save(nuevoRol);
+    }
+
+    private void saveNewUser(RegisterDTO dto, Role role) {
+        User user = new User();
+        user.setEmail(dto.getNewUsername());
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        user.setRoles(Set.of(role));
+        userRepository.save(user);
     }
     
     public List<User> getClientUsers() {
@@ -56,4 +68,3 @@ public class UserService {
                 .collect(java.util.stream.Collectors.toList());
     }
 }
-

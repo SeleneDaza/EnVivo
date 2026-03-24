@@ -21,6 +21,14 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
 
+    public CreateCategoryDTO getCategoryDTO(Long id) {
+        Category cat = getById(id);
+        CreateCategoryDTO dto = new CreateCategoryDTO();
+        dto.setCategoryId(cat.getCategoryId());
+        dto.setName(cat.getName());
+        return dto;
+    }
+
     public List<Category> getCategories() {
         return categoryRepository.findAll();
     }
