@@ -15,9 +15,13 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    private void cargarListaCategorias(Model model) {
+        model.addAttribute("categorias", categoryService.getCategories());
+    }
+
     @GetMapping
     public String listCategories(Model model) {
-        model.addAttribute("categorias", categoryService.getCategories());
+        cargarListaCategorias(model);
         model.addAttribute("categoria", new CreateCategoryDTO()); 
         return "categories"; 
     }
@@ -25,7 +29,7 @@ public class CategoryController {
     @GetMapping("/edit/{id}")
     public String editCategory(@PathVariable Long id, Model model) {
         CreateCategoryDTO dto = categoryService.getCategoryDTO(id);
-        model.addAttribute("categorias", categoryService.getCategories());
+        cargarListaCategorias(model);
         model.addAttribute("categoria", dto); 
         return "categories"; 
     }
