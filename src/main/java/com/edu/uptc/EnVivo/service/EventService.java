@@ -189,4 +189,20 @@ public class EventService {
         );
         return eventRepository.findFavoritosByUsuarioEmailPaginated(userEmail, ordenado);
     }
+
+    public CreateEventDTO obtenerEventoParaEdicion(Long id) {
+        Event evento = obtenerPorId(id);
+        CreateEventDTO dto = new CreateEventDTO();
+        dto.setEvent_id(evento.getEvent_id());
+        dto.setName(evento.getName());
+        dto.setDescription(evento.getDescription());
+        dto.setDate(evento.getDate());
+        dto.setPrice(evento.getPrice());
+        dto.setImage(evento.getImage());
+
+        if (evento.getCategory() != null) {
+            dto.setCategory(evento.getCategory().getName());
+        }
+        return dto;
+    }
 }
