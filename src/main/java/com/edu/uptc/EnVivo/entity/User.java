@@ -49,4 +49,7 @@ public class User {
         this.favoriteEvents.remove(event);
         event.getFavoritedByUsers().remove(this);
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Purchase> purchases = new HashSet<>();
 }

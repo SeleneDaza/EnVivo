@@ -39,7 +39,6 @@ public class EventService {
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
-        event.setPrice(dto.getPrice());
         
         if (file != null && !file.isEmpty()) {
             String imageUrl = cloudinaryService.uploadImage(file);
@@ -101,7 +100,6 @@ public class EventService {
         event.setName(dto.getName());
         event.setDescription(dto.getDescription());
         event.setDate(dto.getDate());
-        event.setPrice(dto.getPrice());
 
         if (file != null && !file.isEmpty()) {
             String imageUrl = cloudinaryService.uploadImage(file);
@@ -197,7 +195,6 @@ public class EventService {
         dto.setName(evento.getName());
         dto.setDescription(evento.getDescription());
         dto.setDate(evento.getDate());
-        dto.setPrice(evento.getPrice());
         dto.setImage(evento.getImage());
 
         if (evento.getCategory() != null) {

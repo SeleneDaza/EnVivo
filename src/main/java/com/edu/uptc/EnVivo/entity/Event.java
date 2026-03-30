@@ -24,8 +24,6 @@ public class Event {
 
     private LocalDate date;
 
-    private Integer price;
-
     @Column(length = 5000)
     private String description;
 

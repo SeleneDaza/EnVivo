@@ -12,7 +12,6 @@ public class CreateEventDTO {
     private String description;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
-    private Integer price;
     private String image;
     private String category;
 }
