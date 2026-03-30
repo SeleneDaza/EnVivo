@@ -40,4 +40,7 @@ public class Event {
 
     @ManyToMany(mappedBy = "favoriteEvents")
     private Set<User> favoritedByUsers = new HashSet<>();
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Ticket> tickets = new HashSet<>();
 }
