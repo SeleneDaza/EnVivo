@@ -71,6 +71,8 @@
                                class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-lighter outline-none">
                     </div>
                     <div class="space-y-1">
+                        <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">Precio</label>
+
                     </div>
                 </div>
 
@@ -110,6 +112,7 @@
                 <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
                     <th class="px-8 py-6 font-black">Evento</th>
                     <th class="px-6 py-6 font-black">Fecha</th>
+                    <th class="px-6 py-6 font-black text-center">Precio</th>
                     <th class="px-8 py-6 font-black text-right">Acciones</th>
                 </tr>
             </thead>
@@ -130,7 +133,7 @@
                         <span class="text-xs font-bold text-gray-500" th:text="${e.date}">2024-10-10</span>
                     </td>
                     <td class="px-6 py-5 text-center">
-                        <span class="text-sm font-black text-gray-700" th:text="${'$' + (e.price != null ? e.price : '0')}">$0</span>
+
                     </td>
                     <td class="px-8 py-5 text-right">
                         <a th:href="@{/admin/editar/{id}(id=${e.event_id})}"

@@ -53,7 +53,7 @@
                 gap-6 sm:gap-8">
 
         <div th:each="evento : ${eventos.content}"
-             th:onclick="openModal([[${evento.name}]], [[${evento.image}]], [[${#temporals.format(evento.date, 'dd MMM yyyy')}]], [[${evento.price}]], [[${evento.category?.name}]], [[${evento.description}]])"
+             th:onclick="openModal([[${evento.name}]], [[${evento.image}]], [[${#temporals.format(evento.date, 'dd MMM yyyy')}]], [[${evento.category?.name}]], [[${evento.description}]])"
              class="relative group 
                     aspect-[3/4] sm:aspect-[3/4.2] 
                     rounded-[2rem] sm:rounded-[2.5rem] 
@@ -95,7 +95,7 @@
                     <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
                     <div class="flex items-center gap-1">
                         <span class="text-lg font-light opacity-70">$</span>
-                        <span class="text-base font-bold" th:text="${evento.price}">0</span>
+
                     </div>
                 </div>
             </div>
