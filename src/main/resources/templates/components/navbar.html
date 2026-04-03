@@ -29,6 +29,11 @@
                    class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
                    Categorías
                 </a>
+                <a th:href="@{/ticket-types}"
+                   th:classappend="${active == 'ticket-types'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
+                   class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
+                   Entradas
+                </a>
                 <a th:href="@{/reports}"
                    th:classappend="${active == 'reports'} ? 'bg-main text-white shadow-md' : 'border border-main text-main hover:bg-subtle'"
                    class="px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-200">
