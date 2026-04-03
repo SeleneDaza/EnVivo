@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EnVivo | Administracion de Tipos de Entrada</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                main: '#FF6F28',
+                darker: '#BF371C',
+                lighter: '#FFCA99',
+                subtle: '#E3EDFF',
+                error: '#FF3B3B',
+                warning: '#FFCC00',
+                info: '#0063F7',
+                success: '#06C270',
+              }
+            }
+          }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+
+<body class="bg-[#f8f9fa] min-h-screen">
+
+<div th:replace="~{components/navbar :: navbar('admin','ticket-types')}"></div>
+
+<main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <div class="lg:col-span-4">
+        <section class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-50 sticky top-8">
+
+            <h2 class="font-black text-2xl mb-8 tracking-tight uppercase"
+                th:classappend="${tipoEntrada.id == null ? 'text-main' : 'text-info'}"
+                th:text="${tipoEntrada.id == null ? 'Nuevo Tipo de Entrada' : 'Editar Tipo de Entrada'}">
+            </h2>
+
+            <form th:action="@{/ticket-types/create}" th:object="${tipoEntrada}" method="POST" class="space-y-6">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">
+                        Nombre del tipo
+                    </label>
+                    <input type="text"
+                           th:field="*{name}"
+                           required
+                           placeholder="Ej: General, VIP, Platino..."
+                           class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-lighter transition-all text-sm font-medium">
+                </div>
+
+                <button type="submit"
+                        th:classappend="${tipoEntrada.id == null ? 'bg-main shadow-main/20 hover:bg-darker' : 'bg-info shadow-info/20 hover:bg-blue-700'}"
+                        class="w-full text-white font-black py-4 rounded-2xl transition-all shadow-lg transform hover:-translate-y-1 mt-4">
+                    <span th:text="${tipoEntrada.id == null ? 'Anadir Tipo de Entrada' : 'Actualizar Tipo de Entrada'}"></span>
+                </button>
+
+                <a th:if="${tipoEntrada.id != null}"
+                   th:href="@{/ticket-types}"
+                   class="block text-center text-xs font-black text-gray-400 hover:text-error uppercase tracking-widest transition-colors">
+                    Cancelar Edicion
+                </a>
+            </form>
+        </section>
+    </div>
+
+    <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="font-black text-gray-700 uppercase tracking-wide text-sm">
+                Tipos de Entrada Actuales
+            </h3>
+
+            <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
+                  th:text="${#lists.size(tiposEntrada) + ' total'}"></span>
+        </div>
+
+        <div class="p-8">
+            <div th:if="${param.exito != null}"
+                 class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-check"></i>
+                Tipo de entrada procesado correctamente.
+            </div>
+
+            <div th:if="${param.error_validacion != null or param.error_general != null}"
+                 class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${param.error_validacion != null ? 'Verifica el nombre del tipo de entrada.' : 'Ha ocurrido un error inesperado.'}"></span>
+            </div>
+
+            <div class="divide-y divide-gray-50">
+                <div th:each="t : ${tiposEntrada}"
+                     class="flex items-center justify-between py-5 group hover:bg-subtle/20 transition-all px-4 rounded-2xl">
+
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
+                            <i class="fa-solid fa-ticket text-sm"></i>
+                        </div>
+
+                        <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
+                              th:text="${t.name}">
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <a th:href="@{/ticket-types/edit/{id}(id=${t.id})}"
+                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
+                            <i class="fa-solid fa-pencil text-xs"></i>
+                        </a>
+
+                        <a th:href="@{/ticket-types/delete/{id}(id=${t.id})}"
+                           onclick="return confirm('¿Eliminar este tipo de entrada?')"
+                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(tiposEntrada)}" class="text-center py-16">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                        <i class="fa-solid fa-ticket text-2xl"></i>
+                    </div>
+                    <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
+                        No hay tipos de entrada registrados
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>
+
