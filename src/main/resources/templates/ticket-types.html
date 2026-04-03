@@ -118,15 +118,21 @@
 
                     <div class="flex items-center gap-2">
                         <a th:href="@{/ticket-types/edit/{id}(id=${t.id})}"
+                           aria-label="Editar tipo de entrada"
                            class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
                             <i class="fa-solid fa-pencil text-xs"></i>
                         </a>
 
-                        <a th:href="@{/ticket-types/delete/{id}(id=${t.id})}"
-                           onclick="return confirm('¿Eliminar este tipo de entrada?')"
-                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </a>
+                        <form th:action="@{/ticket-types/delete/{id}(id=${t.id})}"
+                              method="post"
+                              onsubmit="return confirm('¿Eliminar este tipo de entrada?')"
+                              class="inline-flex">
+                            <button type="submit"
+                                    aria-label="Eliminar tipo de entrada"
+                                    class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
 

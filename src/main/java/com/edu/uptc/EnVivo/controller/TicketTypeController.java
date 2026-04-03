@@ -46,7 +46,7 @@ public class TicketTypeController {
         }
     }
 
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteTicketType(@PathVariable Long id) {
         try {
             ticketTypeService.deleteTicketType(id);
