@@ -36,8 +36,12 @@ public class CategoryController {
 
     @PostMapping("/create")
     public String saveCategory(@ModelAttribute("categoria") CreateCategoryDTO dto) {
-        categoryService.saveCategory(dto);
-        return "redirect:/categories";
+        try {
+            categoryService.saveCategory(dto);
+            return "redirect:/categories?exito";
+        } catch (Exception e) {
+            return "redirect:/categories?error_general";
+        }
     }
 
     @GetMapping("/delete/{id}")
