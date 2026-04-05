@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class CreateEventDTO {
@@ -14,4 +15,5 @@ public class CreateEventDTO {
     private LocalDate date;
     private String image;
     private String category;
+    private List<CreateTicketDTO> tickets;
 }
