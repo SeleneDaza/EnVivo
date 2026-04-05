@@ -92,12 +92,12 @@
         <!-- MENSAJES -->
         <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null}" class="px-8 pt-6">
             <div th:if="${param.exito != null}"
-                 class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                 class="alert-success">
                 <i class="fa-solid fa-circle-check"></i>
                 Categoría procesada correctamente.
             </div>
             <div th:if="${param.error_en_uso != null or param.error_general != null}"
-                 class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+                 class="alert-error">
                 <i class="fa-solid fa-circle-exclamation"></i>
                 <span th:text="${param.error_en_uso != null ? 'No es posible eliminar: Tiene eventos asociados.' : 'Ha ocurrido un error inesperado.'}"></span>
             </div>

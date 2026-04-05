@@ -109,7 +109,7 @@ public class EventController {
                                      @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             eventoService.createEvent(dto, file);
-            return "redirect:/admin";
+            return "redirect:/admin?exito";
         } catch (IOException e) {
             e.printStackTrace();
             return "redirect:/admin?error_imagen";
@@ -148,7 +148,7 @@ public class EventController {
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             eventoService.actualizarEvento(id, dto, file);
-            return "redirect:/admin";
+            return "redirect:/admin?exito";
         } catch (IOException e) {
             e.printStackTrace();
             return "redirect:/admin?error_imagen";

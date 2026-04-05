@@ -113,6 +113,20 @@
                   th:text="${#lists.size(eventos.content) + ' total'}"></span>
         </div>
 
+        <!-- MENSAJES -->
+        <div th:if="${param.exito != null or param.error != null}" class="px-8 pt-6">
+            <div th:if="${param.exito != null}"
+                 class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-check"></i>
+                Evento procesado correctamente.
+            </div>
+            <div th:if="${param.error != null}"
+                 class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${param.error}">Error al procesar el evento.</span>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead class="bg-gray-50/50 border-b border-gray-100">
