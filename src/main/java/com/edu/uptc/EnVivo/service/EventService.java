@@ -1,9 +1,11 @@
 package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
+import com.edu.uptc.EnVivo.dto.CreateTicketDTO;
 import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.entity.Event;
+import com.edu.uptc.EnVivo.entity.Ticket;
 import com.edu.uptc.EnVivo.repository.CategoryRepository;
 import com.edu.uptc.EnVivo.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final TicketService ticketService;
 
     public Event createEvent(CreateEventDTO dto, MultipartFile file) throws IOException {
         Event event = new Event();
@@ -53,7 +56,17 @@ public class EventService {
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
             event.setCategory(category);
         }
-        return eventRepository.save(event);
+        
+        Event savedEvent = eventRepository.save(event);
+        
+        // Crear los tickets asociados al evento si existen en el DTO
+        if (dto.getTickets() != null && !dto.getTickets().isEmpty()) {
+            ticketService.createTicketsForEvent(savedEvent, dto.getTickets());
+            savedEvent.setTickets(ticketService.getTicketsByEvent(savedEvent.getEvent_id()).stream()
+                    .collect(java.util.stream.Collectors.toSet()));
+        }
+        
+        return eventRepository.save(savedEvent);
     }
 
     public List<Event> findAll() {
@@ -117,7 +130,20 @@ public class EventService {
             event.setCategory(null);
         }
 
-        return eventRepository.save(event);
+        Event updatedEvent = eventRepository.save(event);
+        
+        // Actualizar tickets si existen en el DTO
+        if (dto.getTickets() != null && !dto.getTickets().isEmpty()) {
+            // Eliminar tickets existentes
+            ticketService.deleteTicketsByEvent(updatedEvent.getEvent_id());
+            
+            // Crear nuevos tickets
+            ticketService.createTicketsForEvent(updatedEvent, dto.getTickets());
+            updatedEvent.setTickets(ticketService.getTicketsByEvent(updatedEvent.getEvent_id()).stream()
+                    .collect(java.util.stream.Collectors.toSet()));
+        }
+
+        return eventRepository.save(updatedEvent);
     }
 
     @Transactional
@@ -200,6 +226,21 @@ public class EventService {
         if (evento.getCategory() != null) {
             dto.setCategory(evento.getCategory().getName());
         }
+        
+        // Obtener los tickets asociados al evento
+        List<Ticket> ticketsExistentes = ticketService.getTicketsByEvent(id);
+        if (ticketsExistentes != null && !ticketsExistentes.isEmpty()) {
+            dto.setTickets(ticketsExistentes.stream()
+                    .map(ticket -> {
+                        CreateTicketDTO ticketDTO = new CreateTicketDTO();
+                        ticketDTO.setTicketTypeId(ticket.getTicketType().getId());
+                        ticketDTO.setPrice(ticket.getPrice());
+                        ticketDTO.setAvailableQuantity(ticket.getAvailableQuantity());
+                        return ticketDTO;
+                    })
+                    .collect(java.util.stream.Collectors.toList()));
+        }
+        
         return dto;
     }
 }

@@ -6,6 +6,8 @@ import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.service.CategoryService;
 import com.edu.uptc.EnVivo.service.CloudinaryService;
 import com.edu.uptc.EnVivo.service.EventService;
+import com.edu.uptc.EnVivo.service.TicketService;
+import com.edu.uptc.EnVivo.service.TicketTypeService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,8 @@ public class EventController {
 
     private final EventService eventoService;
     private final CategoryService categoryService;
+    private final TicketService ticketService;
+    private final TicketTypeService ticketTypeService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -207,5 +211,44 @@ public class EventController {
     private void cargarDatosComunes(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
+    }
+
+    // --- ENDPOINTS REST PARA GESTIONAR TICKETS ---
+
+    /**
+     * Obtiene todos los tickets de un evento como JSON
+     */
+    @GetMapping("/api/eventos/{eventId}/tickets")
+    @ResponseBody
+    public ResponseEntity<?> getEventTickets(@PathVariable Long eventId) {
+        try {
+            List<com.edu.uptc.EnVivo.dto.TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "tickets", tickets,
+                    "count", tickets.size()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error al obtener tickets: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtiene todos los tipos de entrada disponibles
+     */
+    @GetMapping("/api/ticket-types")
+    @ResponseBody
+    public ResponseEntity<?> getTicketTypes() {
+        try {
+            var types = ticketTypeService.getTicketTypes();
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "ticketTypes", types
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error al obtener tipos de entrada: " + e.getMessage()));
+        }
     }
 }
