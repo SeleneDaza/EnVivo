@@ -4,6 +4,8 @@ import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/categories")
 public class CategoryController {
 
+    private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService categoryService;
 
     private void cargarListaCategorias(Model model) {
@@ -40,6 +43,7 @@ public class CategoryController {
             categoryService.saveCategory(dto);
             return "redirect:/categories?exito";
         } catch (Exception e) {
+            logger.error("Error saving category", e);
             return "redirect:/categories?error_general";
         }
     }

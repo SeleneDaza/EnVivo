@@ -9,6 +9,8 @@ import com.edu.uptc.EnVivo.service.EventService;
 import com.edu.uptc.EnVivo.service.TicketService;
 import com.edu.uptc.EnVivo.service.TicketTypeService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +42,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
 
+    private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     private final EventService eventoService;
     private final CategoryService categoryService;
     private final TicketService ticketService;
@@ -81,7 +84,7 @@ public class EventController {
         try {
             eventoService.createEvent(dto, null); 
         } catch(IOException e) {
-             e.printStackTrace();
+            logger.error("Error creating event", e);
         }
         return "redirect:/main";
     }
@@ -111,7 +114,7 @@ public class EventController {
             eventoService.createEvent(dto, file);
             return "redirect:/admin?exito";
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error saving event", e);
             return "redirect:/admin?error_imagen";
         }
     }
@@ -150,7 +153,7 @@ public class EventController {
             eventoService.actualizarEvento(id, dto, file);
             return "redirect:/admin?exito";
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error updating event", e);
             return "redirect:/admin?error_imagen";
         }
     }
@@ -174,9 +177,9 @@ public class EventController {
             return ResponseEntity.ok(Map.of("interested", newState, "message", mensaje));
             
         } catch (Exception e) {
-            // Manejo de errores en caso de que el evento no exista
+            logger.error("Error toggling interest", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error al procesar tu solicitud: " + e.getMessage()));
+                    .body(Map.of("message", "Error al procesar tu solicitud."));
         }
     }
 
@@ -229,8 +232,9 @@ public class EventController {
                     "count", tickets.size()
             ));
         } catch (Exception e) {
+            logger.error("Error fetching event tickets", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al obtener tickets: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error al obtener tickets."));
         }
     }
 
@@ -247,8 +251,9 @@ public class EventController {
                     "ticketTypes", types
             ));
         } catch (Exception e) {
+            logger.error("Error fetching ticket types", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al obtener tipos de entrada: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error al obtener tipos de entrada."));
         }
     }
 }
