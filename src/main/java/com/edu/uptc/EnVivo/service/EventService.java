@@ -2,7 +2,9 @@ package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
 import com.edu.uptc.EnVivo.dto.CreateTicketDTO;
+import com.edu.uptc.EnVivo.dto.EventDetailDTO;
 import com.edu.uptc.EnVivo.dto.EventReporteDTO;
+import com.edu.uptc.EnVivo.dto.TicketDTO;
 import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.entity.Event;
 import com.edu.uptc.EnVivo.entity.Ticket;
@@ -239,5 +241,21 @@ public class EventService {
         }
         
         return dto;
+    }
+
+    public EventDetailDTO obtenerDetalleEvento(Long eventId) {
+        Event event = obtenerPorId(eventId);
+        List<TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
+
+        EventDetailDTO detail = new EventDetailDTO();
+        detail.setEventId(event.getEvent_id());
+        detail.setName(event.getName());
+        detail.setDescription(event.getDescription());
+        detail.setDate(event.getDate());
+        detail.setImage(event.getImage());
+        detail.setCategory(event.getCategory() != null ? event.getCategory().getName() : null);
+        detail.setTickets(tickets);
+
+        return detail;
     }
 }

@@ -1,15 +1,87 @@
-function openModal(name, image, date, category, description) {
-    document.getElementById('modalName').innerText = name;
-    document.getElementById('modalImg').src = image;
-    document.getElementById('modalDate').innerText = date;
-    document.getElementById('modalPrice').innerText = '0';
-    document.getElementById('modalCat').innerText = category || 'GENERAL';
-    document.getElementById('modalDesc').innerText = description || 
+function formatDate(value) {
+    if (!value) return 'Fecha no disponible';
+    const date = new Date(`${value}T00:00:00`);
+    return date.toLocaleDateString('es-CO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    });
+}
+
+function renderTickets(tickets) {
+    const container = document.getElementById('modalTickets');
+    if (!container) return;
+
+    if (!Array.isArray(tickets) || tickets.length === 0) {
+        container.innerHTML = '<p class="text-gray-400">Este evento no tiene entradas configuradas.</p>';
+        return;
+    }
+
+    container.innerHTML = tickets.map((ticket) => {
+        const type = ticket.ticketTypeName || 'Tipo no definido';
+        const price = Number.isFinite(ticket.price) ? ticket.price : 0;
+        const available = Number.isFinite(ticket.availableQuantity) ? ticket.availableQuantity : 0;
+
+        return `
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="font-bold text-gray-800">${type}</span>
+                    <span class="text-main font-black">$${price.toLocaleString('es-CO')}</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Disponibles: ${available}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+function openModal(detail) {
+    document.getElementById('modalName').innerText = detail.name || 'Evento';
+    document.getElementById('modalImg').src = detail.image || '';
+    document.getElementById('modalDate').innerText = formatDate(detail.date);
+    document.getElementById('modalCat').innerText = detail.category || 'GENERAL';
+    document.getElementById('modalDesc').innerText = detail.description ||
         'No hay descripción disponible para este evento.';
+    renderTickets(detail.tickets);
 
     const modal = document.getElementById('eventModal');
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
+}
+
+function showLoadingState() {
+    const ticketsContainer = document.getElementById('modalTickets');
+    if (ticketsContainer) {
+        ticketsContainer.innerHTML = '<p class="text-gray-400">Cargando entradas...</p>';
+    }
+}
+
+function openEventDetail(eventId) {
+    showLoadingState();
+
+    fetch(`/api/eventos/${eventId}/detalle`)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('No fue posible obtener el detalle del evento.');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (!data.success || !data.event) {
+                throw new Error(data.message || 'Evento no disponible.');
+            }
+            openModal(data.event);
+        })
+        .catch((error) => {
+            console.error('Error loading event detail:', error);
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'error',
+                title: 'No pudimos cargar la información del evento.',
+                showConfirmButton: false,
+                timer: 3500
+            });
+        });
 }
 
 function closeModal() {
