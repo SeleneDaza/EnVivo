@@ -2,6 +2,7 @@ package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.dto.CreateEventDTO;
+import com.edu.uptc.EnVivo.dto.EventDetailDTO;
 import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.service.CategoryService;
 import com.edu.uptc.EnVivo.service.CloudinaryService;
@@ -238,16 +239,40 @@ public class EventController {
     @ResponseBody
     public ResponseEntity<?> getEventTickets(@PathVariable Long eventId) {
         try {
+            eventoService.obtenerPorId(eventId);
             List<com.edu.uptc.EnVivo.dto.TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "tickets", tickets,
                     "count", tickets.size()
             ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Evento no encontrado."));
         } catch (Exception e) {
             logger.error("Error fetching event tickets", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error al obtener tickets."));
+        }
+    }
+
+    @GetMapping("/api/eventos/{eventId}/detalle")
+    @ResponseBody
+    public ResponseEntity<?> getEventDetail(@PathVariable Long eventId) {
+        try {
+            EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "event", detalle,
+                    "countTickets", detalle.getTickets() != null ? detalle.getTickets().size() : 0
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Evento no encontrado."));
+        } catch (Exception e) {
+            logger.error("Error fetching event detail for id {}", eventId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error al obtener detalle del evento."));
         }
     }
 
