@@ -1,8 +1,8 @@
-function openModal(name, image, date, price, category, description) {
+function openModal(name, image, date, category, description) {
     document.getElementById('modalName').innerText = name;
     document.getElementById('modalImg').src = image;
     document.getElementById('modalDate').innerText = date;
-    document.getElementById('modalPrice').innerText = price;
+    document.getElementById('modalPrice').innerText = '0';
     document.getElementById('modalCat').innerText = category || 'GENERAL';
     document.getElementById('modalDesc').innerText = description || 
         'No hay descripción disponible para este evento.';
