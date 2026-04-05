@@ -23,9 +23,9 @@
           }
         }
     </script>
-    <!-- FORM 1-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -81,69 +81,73 @@
     <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
 
         <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 class="font-black text-gray-700 uppercase tracking-wide text-sm">
+            <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
+                <i class="fa-solid fa-tag text-main"></i>
                 Categorías Actuales
             </h3>
-
             <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
                   th:text="${#lists.size(categorias) + ' total'}"></span>
         </div>
 
-        <div class="p-8">
-
-            <!-- MENSAJE SUCCESS -->
+        <!-- MENSAJES -->
+        <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null}" class="px-8 pt-6">
             <div th:if="${param.exito != null}"
                  class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
                 <i class="fa-solid fa-circle-check"></i>
                 Categoría procesada correctamente.
             </div>
-
-            <!-- MENSAJE ERROR -->
             <div th:if="${param.error_en_uso != null or param.error_general != null}"
                  class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
                 <i class="fa-solid fa-circle-exclamation"></i>
                 <span th:text="${param.error_en_uso != null ? 'No es posible eliminar: Tiene eventos asociados.' : 'Ha ocurrido un error inesperado.'}"></span>
             </div>
+        </div>
 
-            <div class="divide-y divide-gray-50">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50/50 border-b border-gray-100">
+                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                        <th class="px-8 py-6 font-black">Nombre</th>
+                        <th class="px-8 py-6 font-black text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    <tr th:each="c : ${categorias}" class="group hover:bg-subtle/20 transition-all">
+                        <td class="px-8 py-5 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
+                                <i class="fa-solid fa-tag text-sm"></i>
+                            </div>
+                            <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
+                                  th:text="${c.name}">
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
+                                   class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-pencil text-xs"></i>
+                                </a>
+                                <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
+                                   onclick="return confirm('¿Eliminar esta categoría?')"
+                                   class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
 
-                <div th:each="c : ${categorias}"
-                     class="flex items-center justify-between py-5 group hover:bg-subtle/20 transition-all px-4 rounded-2xl">
-
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
-                            <i class="fa-solid fa-tag text-sm"></i>
-                        </div>
-
-                        <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
-                              th:text="${c.name}">
-                        </span>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
-                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-pencil text-xs"></i>
-                        </a>
-
-                        <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
-                           onclick="return confirm('¿Eliminar esta categoría?')"
-                           class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
-                            <i class="fa-solid fa-trash-can text-xs"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div th:if="${#lists.isEmpty(categorias)}" class="text-center py-16">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                        <i class="fa-solid fa-folder-open text-2xl"></i>
-                    </div>
-                    <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
-                        No hay categorías registradas
-                    </p>
-                </div>
-
-            </div>
+                    <tr th:if="${#lists.isEmpty(categorias)}">
+                        <td colspan="2" class="text-center py-16">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <i class="fa-solid fa-folder-open text-2xl"></i>
+                            </div>
+                            <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
+                                No hay categorías registradas
+                            </p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </section>
 

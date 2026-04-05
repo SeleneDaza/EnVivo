@@ -27,6 +27,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
     </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-[#f8f9fa] 
              min-h-screen 
@@ -61,7 +62,7 @@
             <p class="text-gray-400 text-sm font-medium">Ingresa a tu cuenta para continuar.</p>
         </div>
 
-        <form th:action="@{/login}" method="POST" class="space-y-5">
+        <form th:action="@{/login}" method="POST" class="space-y-5 auth-form">
             
             <div th:if="${param.error}" class="bg-red-50 border border-error/20 text-error px-4 py-3 rounded-xl text-sm font-bold text-center">
                 Usuario o contraseña incorrectos.
@@ -137,7 +138,7 @@
             <h2 class="text-3xl font-black text-gray-800 mb-2">Regístrate</h2>
             <p class="text-gray-400 text-sm mb-6">Únete a la comunidad de EnVivo.</p>
 
-            <form th:action="@{/register}" method="POST" class="space-y-4" id="formRegistro">
+            <form th:action="@{/register}" method="POST" class="space-y-4 auth-form" id="formRegistro">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1 ml-2">Usuario nuevo</label>
                     <input type="text" name="newUsername" required
