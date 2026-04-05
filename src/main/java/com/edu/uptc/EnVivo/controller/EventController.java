@@ -113,9 +113,15 @@ public class EventController {
         try {
             eventoService.createEvent(dto, file);
             return "redirect:/admin?exito";
+        } catch (IllegalArgumentException e) {
+            logger.warn("Validation error saving event: {}", e.getMessage());
+            return "redirect:/admin?error=datos_invalidos";
         } catch (IOException e) {
             logger.error("Error saving event", e);
             return "redirect:/admin?error_imagen";
+        } catch (Exception e) {
+            logger.error("Unexpected error saving event", e);
+            return "redirect:/admin?error=error_general";
         }
     }
 
@@ -152,9 +158,15 @@ public class EventController {
         try {
             eventoService.actualizarEvento(id, dto, file);
             return "redirect:/admin?exito";
+        } catch (IllegalArgumentException e) {
+            logger.warn("Validation error updating event {}: {}", id, e.getMessage());
+            return "redirect:/admin?error=datos_invalidos";
         } catch (IOException e) {
             logger.error("Error updating event", e);
             return "redirect:/admin?error_imagen";
+        } catch (Exception e) {
+            logger.error("Unexpected error updating event {}", id, e);
+            return "redirect:/admin?error=error_general";
         }
     }
 
@@ -213,6 +225,7 @@ public class EventController {
 
     private void cargarDatosComunes(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
+        model.addAttribute("tiposEntrada", ticketTypeService.getTicketTypes());
         model.addAttribute("nuevaCategoria", new CreateCategoryDTO());
     }
 
