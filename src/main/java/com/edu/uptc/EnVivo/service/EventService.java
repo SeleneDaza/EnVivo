@@ -58,15 +58,13 @@ public class EventService {
         }
         
         Event savedEvent = eventRepository.save(event);
-        
+
         // Crear los tickets asociados al evento si existen en el DTO
         if (dto.getTickets() != null && !dto.getTickets().isEmpty()) {
             ticketService.createTicketsForEvent(savedEvent, dto.getTickets());
-            savedEvent.setTickets(ticketService.getTicketsByEvent(savedEvent.getEvent_id()).stream()
-                    .collect(java.util.stream.Collectors.toSet()));
         }
-        
-        return eventRepository.save(savedEvent);
+
+        return savedEvent;
     }
 
     public List<Event> findAll() {
@@ -107,6 +105,7 @@ public class EventService {
                 .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
     }
 
+    @Transactional
     public Event actualizarEvento(Long id, CreateEventDTO dto, MultipartFile file) throws IOException {
         Event event = obtenerPorId(id);
 
@@ -131,19 +130,17 @@ public class EventService {
         }
 
         Event updatedEvent = eventRepository.save(event);
-        
-        // Actualizar tickets si existen en el DTO
-        if (dto.getTickets() != null && !dto.getTickets().isEmpty()) {
-            // Eliminar tickets existentes
+
+        // Reemplaza los tickets sin re-asignar la colección administrada por Hibernate.
+        if (dto.getTickets() != null) {
             ticketService.deleteTicketsByEvent(updatedEvent.getEvent_id());
-            
-            // Crear nuevos tickets
-            ticketService.createTicketsForEvent(updatedEvent, dto.getTickets());
-            updatedEvent.setTickets(ticketService.getTicketsByEvent(updatedEvent.getEvent_id()).stream()
-                    .collect(java.util.stream.Collectors.toSet()));
+
+            if (!dto.getTickets().isEmpty()) {
+                ticketService.createTicketsForEvent(updatedEvent, dto.getTickets());
+            }
         }
 
-        return eventRepository.save(updatedEvent);
+        return updatedEvent;
     }
 
     @Transactional
