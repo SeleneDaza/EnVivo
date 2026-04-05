@@ -63,7 +63,9 @@
 
             <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" class="m-0">
                 <button type="submit"
-                        class="text-xs sm:text-sm font-bold text-gray-400 hover:text-error transition-colors whitespace-nowrap">
+                        style="width: auto; padding: 0; background: transparent; font-weight: bold; color: #FF3B3B; font-size: 0.875rem; transition: color 0.2s;"
+                        onmouseover="this.style.color='#BF371C'"
+                        onmouseout="this.style.color='#FF3B3B'">
                     Cerrar sesión
                 </button>
             </form>
