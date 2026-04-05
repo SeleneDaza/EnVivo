@@ -59,8 +59,8 @@
                 </div>
 
                 <button type="submit"
-                        th:classappend="${categoria.categoryId == null ? 'bg-main shadow-main/20 hover:bg-darker' : 'bg-info shadow-info/20 hover:bg-blue-700'}"
-                        class="w-full text-white font-black py-4 rounded-2xl transition-all shadow-lg transform hover:-translate-y-1 mt-4">
+                        th:classappend="${categoria.categoryId == null ? 'bg-main hover:bg-darker shadow-main/20' : 'bg-info hover:bg-blue-700 shadow-info/20'}"
+                        class="mt-4 shadow-lg">
                     <span th:text="${categoria.categoryId == null ? 'Añadir Categoría' : 'Actualizar Categoría'}"></span>
                 </button>
 
@@ -120,12 +120,12 @@
                         <td class="px-8 py-5 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
-                                   class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-info/5 text-info hover:bg-info hover:text-white transition-all shadow-sm">
+                                   class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
                                     <i class="fa-solid fa-pencil text-xs"></i>
                                 </a>
                                 <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
                                    onclick="return confirm('¿Eliminar esta categoría?')"
-                                   class="w-9 h-9 inline-flex items-center justify-center rounded-xl bg-error/5 text-error hover:bg-error hover:text-white transition-all shadow-sm">
+                                   class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                 </a>
                             </div>
