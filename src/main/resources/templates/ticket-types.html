@@ -32,21 +32,24 @@
 
 <div th:replace="~{components/navbar :: navbar('admin','ticket-types')}"></div>
 
-<main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+<main class="max-w-[1400px] mx-auto p-8">
 
-    <div class="lg:col-span-4">
-        <section th:replace="~{components/forms :: ticketTypeForm}"></section>
-    </div>
-
-    <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
 
         <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
                 <i class="fa-solid fa-ticket text-main"></i>
                 Tipos de Entrada Actuales
             </h3>
-            <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
-                  th:text="${#lists.size(tiposEntrada) + ' total'}"></span>
+            <div class="flex items-center gap-3">
+                <button type="button"
+                        id="open-ticket-type-modal"
+                        class="px-4 py-2 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors">
+                    Añadir
+                </button>
+                <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
+                      th:text="${#lists.size(tiposEntrada) + ' total'}"></span>
+            </div>
         </div>
 
         <!-- MENSAJES -->
@@ -117,6 +120,58 @@
     </section>
 
 </main>
+
+<div id="ticket-type-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
+     th:attr="data-edit-open=${tipoEntrada.id != null}">
+    <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <button type="button"
+                id="close-ticket-type-modal"
+                aria-label="Cerrar formulario"
+                class="absolute right-4 top-4 z-10 btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+        <section th:replace="~{components/forms :: ticketTypeForm}"></section>
+    </div>
+</div>
+
+<script>
+    const ticketTypeModal = document.getElementById('ticket-type-modal');
+    const openTicketTypeModal = document.getElementById('open-ticket-type-modal');
+    const closeTicketTypeModal = document.getElementById('close-ticket-type-modal');
+
+    function showTicketTypeModal() {
+        if (!ticketTypeModal) return;
+        ticketTypeModal.classList.remove('hidden');
+        ticketTypeModal.classList.add('flex');
+    }
+
+    function hideTicketTypeModal() {
+        if (!ticketTypeModal) return;
+        ticketTypeModal.classList.remove('flex');
+        ticketTypeModal.classList.add('hidden');
+    }
+
+    if (openTicketTypeModal) {
+        openTicketTypeModal.addEventListener('click', showTicketTypeModal);
+    }
+
+    if (closeTicketTypeModal) {
+        closeTicketTypeModal.addEventListener('click', hideTicketTypeModal);
+    }
+
+    if (ticketTypeModal) {
+        ticketTypeModal.addEventListener('click', (event) => {
+            if (event.target === ticketTypeModal) {
+                hideTicketTypeModal();
+            }
+        });
+
+        if (ticketTypeModal.dataset.editOpen === 'true') {
+            showTicketTypeModal();
+        }
+    }
+</script>
 </body>
 </html>
 
