@@ -40,14 +40,14 @@ function openModal(detail) {
     document.getElementById('modalDate').innerText = formatDate(detail.date);
     document.getElementById('modalCat').innerText = detail.category || 'GENERAL';
     document.getElementById('modalDesc').innerText = detail.description ||
-        'No hay descripción disponible para este evento.';
+    document.getElementById('modalName').innerText = name;
     renderTickets(detail.tickets);
-
-    const modal = document.getElementById('eventModal');
-    modal.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-}
-
+    document.getElementById('modalImg').src = image;
+    document.getElementById('modalDate').innerText = date;
+    document.getElementById('modalPrice').innerText = '0';
+    document.getElementById('modalCat').innerText = category || 'GENERAL';
+    document.getElementById('modalDesc').innerText = description || 
+        'No hay descripción disponible para este evento.';
 function showLoadingState() {
     const ticketsContainer = document.getElementById('modalTickets');
     if (ticketsContainer) {
@@ -84,6 +84,10 @@ function openEventDetail(eventId) {
         });
 }
 
+
+    const modal = document.getElementById('eventModal');
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
 function closeModal() {
     const modal = document.getElementById('eventModal');
     modal.classList.add('hidden');
