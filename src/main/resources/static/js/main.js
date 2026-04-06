@@ -8,6 +8,11 @@ function formatDate(value) {
     });
 }
 
+function formatPrice(value) {
+    const price = Number(value);
+    return Number.isFinite(price) ? `$${price.toLocaleString('es-CO')}` : '$0';
+}
+
 function renderTickets(tickets) {
     const container = document.getElementById('modalTickets');
     if (!container) return;
@@ -19,14 +24,14 @@ function renderTickets(tickets) {
 
     container.innerHTML = tickets.map((ticket) => {
         const type = ticket.ticketTypeName || 'Tipo no definido';
-        const price = Number.isFinite(ticket.price) ? ticket.price : 0;
+        const price = formatPrice(ticket.price);
         const available = Number.isFinite(ticket.availableQuantity) ? ticket.availableQuantity : 0;
 
         return `
             <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
                 <div class="flex items-center justify-between gap-2">
                     <span class="font-bold text-gray-800">${type}</span>
-                    <span class="text-main font-black">$${price.toLocaleString('es-CO')}</span>
+                    <span class="text-main font-black">${price}</span>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">Disponibles: ${available}</p>
             </div>
@@ -34,25 +39,63 @@ function renderTickets(tickets) {
     }).join('');
 }
 
+function setBuyTicketLink(eventId) {
+    const buyButton = document.getElementById('buyTicketButton');
+    if (!buyButton) return;
+
+    if (!eventId) {
+        buyButton.setAttribute('href', '#');
+        buyButton.setAttribute('aria-disabled', 'true');
+        buyButton.classList.add('opacity-50', 'pointer-events-none');
+        return;
+    }
+
+    buyButton.setAttribute('href', `/buy-ticket/${eventId}`);
+    buyButton.removeAttribute('aria-disabled');
+    buyButton.classList.remove('opacity-50', 'pointer-events-none');
+}
+
 function openModal(detail) {
-    document.getElementById('modalName').innerText = detail.name || 'Evento';
-    document.getElementById('modalImg').src = detail.image || '';
-    document.getElementById('modalDate').innerText = formatDate(detail.date);
-    document.getElementById('modalCat').innerText = detail.category || 'GENERAL';
-    document.getElementById('modalDesc').innerText = detail.description ||
-    document.getElementById('modalName').innerText = name;
+    const modal = document.getElementById('eventModal');
+    if (!modal) return;
+
+    const eventId = detail && detail.eventId ? detail.eventId : null;
+
+    const modalName = document.getElementById('modalName');
+    const modalImg = document.getElementById('modalImg');
+    const modalDate = document.getElementById('modalDate');
+    const modalCat = document.getElementById('modalCat');
+    const modalDesc = document.getElementById('modalDesc');
+
+    if (modalName) modalName.innerText = detail.name || 'Evento';
+    if (modalImg) modalImg.src = detail.image || '';
+    if (modalDate) modalDate.innerText = formatDate(detail.date);
+    if (modalCat) modalCat.innerText = detail.category || 'GENERAL';
+    if (modalDesc) {
+        modalDesc.innerText = detail.description || 'No hay descripcion disponible para este evento.';
+    }
+
     renderTickets(detail.tickets);
-    document.getElementById('modalImg').src = image;
-    document.getElementById('modalDate').innerText = date;
-    document.getElementById('modalPrice').innerText = '0';
-    document.getElementById('modalCat').innerText = category || 'GENERAL';
-    document.getElementById('modalDesc').innerText = description || 
-        'No hay descripción disponible para este evento.';
+    setBuyTicketLink(eventId);
+
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+}
+
+function closeModal() {
+    const modal = document.getElementById('eventModal');
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+}
+
 function showLoadingState() {
     const ticketsContainer = document.getElementById('modalTickets');
     if (ticketsContainer) {
         ticketsContainer.innerHTML = '<p class="text-gray-400">Cargando entradas...</p>';
     }
+    setBuyTicketLink(null);
 }
 
 function openEventDetail(eventId) {
@@ -77,21 +120,11 @@ function openEventDetail(eventId) {
                 toast: true,
                 position: 'bottom-end',
                 icon: 'error',
-                title: 'No pudimos cargar la información del evento.',
+                title: 'No pudimos cargar la informacion del evento.',
                 showConfirmButton: false,
                 timer: 3500
             });
         });
-}
-
-
-    const modal = document.getElementById('eventModal');
-    modal.classList.remove('hidden');
-    document.body.classList.add('modal-open');
-function closeModal() {
-    const modal = document.getElementById('eventModal');
-    modal.classList.add('hidden');
-    document.body.classList.remove('modal-open');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -104,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
@@ -127,53 +159,53 @@ function toggleInterest(buttonElement) {
         method: 'POST',
         headers: headers
     })
-    .then(response => {
-        if (!response.ok && response.status !== 401) {
-            throw new Error('Error de servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.message) {
-            const Toast = Swal.mixin({
+        .then((response) => {
+            if (!response.ok && response.status !== 401) {
+                throw new Error('Error de servidor');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.message) {
+                const toast = Swal.mixin({
+                    toast: true,
+                    position: 'bottom-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#ffffff',
+                    color: '#333333',
+                    didOpen: (toastElement) => {
+                        toastElement.onmouseenter = Swal.stopTimer;
+                        toastElement.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+
+                toast.fire({
+                    icon: data.interested ? 'success' : 'info',
+                    title: data.message
+                });
+            }
+
+            if (data.interested) {
+                buttonElement.classList.remove('text-white');
+                buttonElement.classList.add('text-red-500');
+                if (svgElement) svgElement.setAttribute('fill', 'currentColor');
+            } else {
+                buttonElement.classList.add('text-white');
+                buttonElement.classList.remove('text-red-500');
+                if (svgElement) svgElement.setAttribute('fill', 'none');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            Swal.fire({
                 toast: true,
-                position: 'bottom-end', 
+                position: 'bottom-end',
+                icon: 'error',
+                title: 'No pudimos procesar tu solicitud en este momento.',
                 showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                background: '#ffffff',
-                color: '#333333',
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
+                timer: 3500
             });
-
-            Toast.fire({
-                icon: data.interested ? 'success' : 'info',
-                title: data.message
-            });
-        }
-
-        if (data.interested) {
-            buttonElement.classList.remove('text-white');
-            buttonElement.classList.add('text-red-500');
-            if (svgElement) svgElement.setAttribute('fill', 'currentColor');
-        } else {
-            buttonElement.classList.add('text-white');
-            buttonElement.classList.remove('text-red-500');
-            if (svgElement) svgElement.setAttribute('fill', 'none');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            toast: true,
-            position: 'bottom-end',
-            icon: 'error',
-            title: 'No pudimos procesar tu solicitud en este momento.',
-            showConfirmButton: false,
-            timer: 3500
         });
-    });
 }

@@ -224,6 +224,17 @@ public class EventController {
         return "reports";
     }
 
+    @GetMapping("/buy-ticket/{eventId}")
+    public String viewBuyTicket(@PathVariable Long eventId, Model model) {
+        try {
+            EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
+            model.addAttribute("evento", detalle);
+            return "buy-ticket";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/?error=evento_no_encontrado";
+        }
+    }
+
     private void cargarDatosComunes(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
         model.addAttribute("tiposEntrada", ticketTypeService.getTicketTypes());
