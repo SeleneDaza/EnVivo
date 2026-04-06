@@ -130,6 +130,72 @@ button[type="submit"]:hover {
     cursor: pointer;
 }
 
+/* Botones globales reutilizables para acciones de flujo */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 12px 20px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-ghost {
+    background: white;
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+
+.btn-ghost:hover {
+    border-color: #d1d5db;
+}
+
+.btn-neutral {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-neutral:hover {
+    background: #d1d5db;
+}
+
+.btn-primary {
+    background: #FF6F28;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #BF371C;
+}
+
+.btn-success {
+    background: #06C270;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #05945a;
+}
+
 /* ========================================
    UTILIDADES LEGADO - COMPATIBILIDAD
    ======================================== */
