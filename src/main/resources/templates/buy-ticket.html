@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnVivo | Compra de Boletas</title>
+
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#FF6F28',
+                        darker: '#BF371C',
+                        lighter: '#FFCA99',
+                        subtle: '#E3EDFF',
+                        error: '#FF3B3B',
+                        warning: '#FFCC00',
+                        info: '#0063F7',
+                        success: '#06C270'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-[#f8f9fa] min-h-screen text-gray-800">
+
+<div th:replace="~{components/navbar :: navbar('user','')}"></div>
+
+<main class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-14">
+
+    <section class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+        <header class="px-8 md:px-10 py-8 border-b border-gray-100 bg-gray-50/50">
+            <p class="text-[10px] uppercase tracking-[0.25em] font-black text-main">Proceso de compra</p>
+            <h1 class="text-2xl md:text-3xl font-black mt-2" th:text="${evento.name}">Nombre del evento</h1>
+            <p class="text-sm text-gray-500 mt-2">
+                Completa los 4 pasos para finalizar tu compra de forma segura.
+            </p>
+        </header>
+
+        <div class="px-8 md:px-10 pt-8 md:pt-10 pb-7 md:pb-8 border-b border-gray-100">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div data-step-indicator="1" class="font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-ticket"></i>
+                    Tipo de boleta
+                </div>
+                <div data-step-indicator="2" class="font-bold text-gray-400 flex items-center gap-2">
+                    <i class="fa-solid fa-id-card"></i>
+                    Datos personales
+                </div>
+                <div data-step-indicator="3" class="font-bold text-gray-400 flex items-center gap-2">
+                    <i class="fa-regular fa-credit-card"></i>
+                    Pago
+                </div>
+                <div data-step-indicator="4" class="font-bold text-gray-400 flex items-center gap-2">
+                    <i class="fa-solid fa-check"></i>
+                    Confirmacion
+                </div>
+            </div>
+            <div class="mt-4 h-2 rounded-full bg-subtle/70 overflow-hidden">
+                <div id="step-progress" class="h-full bg-gray-800 transition-all duration-300" style="width:25%"></div>
+            </div>
+        </div>
+
+        <div class="p-8 md:p-12 lg:p-14">
+
+            <section data-step="1" class="space-y-8">
+                <div class="grid lg:grid-cols-3 gap-10">
+                    <article class="lg:col-span-2">
+                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-5">Selecciona tu boleta</h2>
+                        <div class="space-y-4" id="ticket-options">
+                            <label th:each="ticket : ${evento.tickets}"
+                                   class="block border border-gray-100 rounded-2xl p-5 hover:border-main transition-colors cursor-pointer has-[:checked]:border-main has-[:checked]:bg-main/5">
+                                <input type="radio"
+                                       name="ticketType"
+                                       class="mr-3"
+                                       th:value="${ticket.id}"
+                                       th:attr="data-ticket-name=${ticket.ticketTypeName},data-ticket-price=${ticket.price},data-ticket-available=${ticket.availableQuantity}">
+                                <span class="font-black text-gray-800" th:text="${ticket.ticketTypeName}">General</span>
+                                <span class="float-right text-main font-black" th:text="${'$' + #numbers.formatInteger(ticket.price, 3, 'POINT')}">$0</span>
+                                <span class="block text-xs text-gray-500 mt-2">Disponibles: <span th:text="${ticket.availableQuantity}">0</span></span>
+                            </label>
+
+                            <div th:if="${#lists.isEmpty(evento.tickets)}" class="p-4 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold">
+                                El evento no tiene boletas disponibles en este momento.
+                            </div>
+                        </div>
+                    </article>
+
+                    <aside class="bg-gray-50 rounded-3xl border border-gray-100 p-8 h-fit space-y-4">
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Cantidad</h3>
+                        <label for="ticketQuantity">Numero de boletas</label>
+                        <input id="ticketQuantity" type="number" min="1" value="1" class="w-full rounded-2xl" required>
+                        <p class="text-xs text-gray-500">La cantidad maxima depende de la disponibilidad del tipo de boleta.</p>
+                    </aside>
+                </div>
+            </section>
+
+            <section data-step="2" class="space-y-8 hidden">
+                <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos personales</h2>
+                <form id="personal-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
+                    <div class="space-y-2">
+                        <label for="fullName">Nombre completo</label>
+                        <input id="fullName" type="text" class="w-full rounded-2xl" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="document">Documento</label>
+                        <input id="document" type="text" class="w-full rounded-2xl" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="email">Correo electronico</label>
+                        <input id="email" type="email" class="w-full rounded-2xl" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="phone">Telefono</label>
+                        <input id="phone" type="tel" class="w-full rounded-2xl" required>
+                    </div>
+                </form>
+            </section>
+
+            <section data-step="3" class="space-y-8 hidden">
+                <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos bancarios</h2>
+                <form id="bank-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
+                    <div class="md:col-span-2 space-y-2">
+                        <label for="cardHolder">Titular de la tarjeta</label>
+                        <input id="cardHolder" type="text" class="w-full rounded-2xl" required>
+                    </div>
+                    <div class="md:col-span-2 space-y-2">
+                        <label for="cardNumber">Numero de tarjeta</label>
+                        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" class="w-full rounded-2xl" placeholder="0000 0000 0000 0000" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="expiry">Vencimiento</label>
+                        <input id="expiry" type="month" class="w-full rounded-2xl" required>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="cvv">CVV</label>
+                        <input id="cvv" type="password" inputmode="numeric" maxlength="4" class="w-full rounded-2xl" required>
+                    </div>
+                </form>
+            </section>
+
+            <section data-step="4" class="space-y-8 hidden">
+                <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Verifica la informacion</h2>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50">
+                        <h3 class="text-xs text-gray-400 uppercase tracking-[0.2em] font-black mb-3">Compra</h3>
+                        <p class="text-sm"><span class="font-black">Evento:</span> <span th:text="${evento.name}"></span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Tipo:</span> <span id="summaryTicketType">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Cantidad:</span> <span id="summaryQuantity">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Total:</span> <span id="summaryTotal" class="text-main font-black">$0</span></p>
+                    </div>
+
+                    <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50">
+                        <h3 class="text-xs text-gray-400 uppercase tracking-[0.2em] font-black mb-3">Cliente y pago</h3>
+                        <p class="text-sm"><span class="font-black">Nombre:</span> <span id="summaryName">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Correo:</span> <span id="summaryEmail">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Documento:</span> <span id="summaryDocument">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Tarjeta:</span> <span id="summaryCard">**** **** **** 0000</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">CVV:</span> <span id="summaryCvv">***</span></p>
+                    </div>
+                </div>
+
+                <div class="p-5 rounded-2xl border border-info/20 bg-info/5 text-info text-sm font-bold">
+                    Revisa los datos. La informacion bancaria se muestra censurada por seguridad.
+                </div>
+            </section>
+
+            <div id="step-error" class="hidden mt-8 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
+
+            <footer class="mt-10 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
+                <a href="/" class="btn btn-ghost">
+                    Cancelar
+                </a>
+
+                <div class="flex gap-3">
+                    <button id="prev-step" type="button" class="btn btn-neutral hidden">Anterior</button>
+                    <button id="next-step" type="button" class="btn btn-primary">Siguiente</button>
+                    <button id="confirm-step" type="button" class="btn btn-success hidden">Confirmar compra</button>
+                </div>
+            </footer>
+        </div>
+    </section>
+</main>
+
+<script>
+    const steps = Array.from(document.querySelectorAll('[data-step]'));
+    const indicators = Array.from(document.querySelectorAll('[data-step-indicator]'));
+    const progress = document.getElementById('step-progress');
+
+    const prevStepButton = document.getElementById('prev-step');
+    const nextStepButton = document.getElementById('next-step');
+    const confirmStepButton = document.getElementById('confirm-step');
+    const errorBox = document.getElementById('step-error');
+
+    const ticketQuantity = document.getElementById('ticketQuantity');
+    const personalForm = document.getElementById('personal-form');
+    const bankForm = document.getElementById('bank-form');
+
+    let currentStep = 1;
+
+    function showError(message) {
+        errorBox.textContent = message;
+        errorBox.classList.remove('hidden');
+    }
+
+    function hideError() {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+    }
+
+    function getSelectedTicketInput() {
+        return document.querySelector('input[name="ticketType"]:checked');
+    }
+
+    function getTicketPrice(input) {
+        return Number(input ? input.dataset.ticketPrice : 0);
+    }
+
+    function getTicketAvailable(input) {
+        return Number(input ? input.dataset.ticketAvailable : 0);
+    }
+
+    function getQuantity() {
+        return Number(ticketQuantity.value || 0);
+    }
+
+    function updateStepUI() {
+        steps.forEach((section) => {
+            const sectionStep = Number(section.dataset.step);
+            section.classList.toggle('hidden', sectionStep !== currentStep);
+        });
+
+        indicators.forEach((indicator) => {
+            const indicatorStep = Number(indicator.dataset.stepIndicator);
+            if (indicatorStep === currentStep) {
+                indicator.classList.remove('text-gray-400', 'font-bold');
+                indicator.classList.add('text-gray-900', 'font-black');
+            } else {
+                indicator.classList.remove('text-gray-900', 'font-black');
+                indicator.classList.add('text-gray-400', 'font-bold');
+            }
+        });
+
+        progress.style.width = `${currentStep * 25}%`;
+
+        prevStepButton.classList.toggle('hidden', currentStep === 1);
+        nextStepButton.classList.toggle('hidden', currentStep === 4);
+        confirmStepButton.classList.toggle('hidden', currentStep !== 4);
+
+        hideError();
+
+        if (currentStep === 4) {
+            fillSummary();
+        }
+    }
+
+    function validateStep(step) {
+        if (step === 1) {
+            const selectedTicket = getSelectedTicketInput();
+            if (!selectedTicket) {
+                showError('Debes seleccionar un tipo de boleta para continuar.');
+                return false;
+            }
+
+            const quantity = getQuantity();
+            const available = getTicketAvailable(selectedTicket);
+
+            if (!Number.isInteger(quantity) || quantity <= 0) {
+                showError('La cantidad de boletas debe ser mayor a cero.');
+                return false;
+            }
+
+            if (quantity > available) {
+                showError('La cantidad supera la disponibilidad del tipo de boleta seleccionado.');
+                return false;
+            }
+
+            return true;
+        }
+
+        if (step === 2) {
+            if (!personalForm.reportValidity()) {
+                showError('Completa todos los datos personales obligatorios.');
+                return false;
+            }
+            return true;
+        }
+
+        if (step === 3) {
+            if (!bankForm.reportValidity()) {
+                showError('Completa los datos bancarios requeridos.');
+                return false;
+            }
+
+            const cardDigits = document.getElementById('cardNumber').value.replace(/\D/g, '');
+            const cvv = document.getElementById('cvv').value.replace(/\D/g, '');
+
+            if (cardDigits.length < 13 || cardDigits.length > 19) {
+                showError('El numero de tarjeta debe tener entre 13 y 19 digitos.');
+                return false;
+            }
+
+            if (cvv.length < 3 || cvv.length > 4) {
+                showError('El CVV debe tener 3 o 4 digitos.');
+                return false;
+            }
+
+            return true;
+        }
+
+        return true;
+    }
+
+    function maskCardNumber(rawCard) {
+        const digits = (rawCard || '').replace(/\D/g, '');
+        if (digits.length <= 4) {
+            return `**** ${digits || '0000'}`;
+        }
+        const lastFour = digits.slice(-4);
+        return `**** **** **** ${lastFour}`;
+    }
+
+    function fillSummary() {
+        const selectedTicket = getSelectedTicketInput();
+        const quantity = getQuantity();
+        const ticketName = selectedTicket ? selectedTicket.dataset.ticketName : '-';
+        const unitPrice = getTicketPrice(selectedTicket);
+
+        document.getElementById('summaryTicketType').textContent = ticketName;
+        document.getElementById('summaryQuantity').textContent = String(quantity);
+        document.getElementById('summaryTotal').textContent = `$${(unitPrice * quantity).toLocaleString('es-CO')}`;
+
+        document.getElementById('summaryName').textContent = document.getElementById('fullName').value || '-';
+        document.getElementById('summaryEmail').textContent = document.getElementById('email').value || '-';
+        document.getElementById('summaryDocument').textContent = document.getElementById('document').value || '-';
+        document.getElementById('summaryCard').textContent = maskCardNumber(document.getElementById('cardNumber').value);
+        document.getElementById('summaryCvv').textContent = '***';
+    }
+
+    nextStepButton.addEventListener('click', () => {
+        if (!validateStep(currentStep)) return;
+        if (currentStep < 4) {
+            currentStep += 1;
+            updateStepUI();
+        }
+    });
+
+    prevStepButton.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep -= 1;
+            updateStepUI();
+        }
+    });
+
+    confirmStepButton.addEventListener('click', () => {
+        if (!validateStep(3)) return;
+
+        confirmStepButton.disabled = true;
+        confirmStepButton.textContent = 'Compra confirmada';
+        showError('Compra registrada exitosamente. En una siguiente iteracion se integrara con el backend de pagos.');
+        errorBox.classList.remove('bg-error/5', 'border-error/20', 'text-error');
+        errorBox.classList.add('bg-success/10', 'border-success/30', 'text-success');
+    });
+
+    document.querySelectorAll('input[name="ticketType"]').forEach((option) => {
+        option.addEventListener('change', () => {
+            const available = getTicketAvailable(option);
+            ticketQuantity.max = String(available);
+        });
+    });
+
+    updateStepUI();
+</script>
+
+</body>
+</html>
+
+

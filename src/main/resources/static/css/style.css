@@ -44,10 +44,17 @@ label {
 input[type="text"],
 input[type="password"],
 input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="month"],
 input[type="date"],
 textarea,
 select {
     @apply bg-gray-50 border-gray-100 px-4 py-3 outline-none focus:ring-2 transition-all text-sm font-medium;
+    /* Fallback explicito para asegurar separacion texto-borde sin depender de @apply */
+    padding: 0.75rem 1rem;
+    line-height: 1.35;
+    min-height: 46px;
     border-width: 1px;
 }
 
@@ -55,6 +62,9 @@ select {
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="month"]:focus,
 input[type="date"]:focus,
 textarea:focus,
 select:focus {
@@ -122,6 +132,72 @@ button[type="submit"]:hover {
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
+}
+
+/* Botones globales reutilizables para acciones de flujo */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 12px 20px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-ghost {
+    background: white;
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+
+.btn-ghost:hover {
+    border-color: #d1d5db;
+}
+
+.btn-neutral {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.btn-neutral:hover {
+    background: #d1d5db;
+}
+
+.btn-primary {
+    background: #FF6F28;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #BF371C;
+}
+
+.btn-success {
+    background: #06C270;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #05945a;
 }
 
 /* ========================================
