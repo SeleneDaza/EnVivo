@@ -35,43 +35,7 @@
 <main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
     <div class="lg:col-span-4">
-        <section class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-50 sticky top-8">
-
-            <h2 class="font-black text-2xl mb-8 tracking-tight uppercase"
-                th:classappend="${tipoEntrada.id == null ? 'text-main' : 'text-info'}"
-                th:text="${tipoEntrada.id == null ? 'Nuevo Tipo de Entrada' : 'Editar Tipo de Entrada'}">
-                Nuevo Tipo de Entrada
-            </h2>
-
-            <form th:action="@{/ticket-types/create}" th:object="${tipoEntrada}" method="POST" class="space-y-6">
-
-                <input type="hidden" th:field="*{id}" />
-
-                <div class="space-y-1">
-                    <label for="ticket-type-name" class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">
-                        Nombre del tipo
-                    </label>
-                    <input type="text"
-                           id="ticket-type-name"
-                           th:field="*{name}"
-                           required
-                           placeholder="Ej: General, VIP, Platino..."
-                           class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-lighter transition-all text-sm font-medium">
-                </div>
-
-                <button type="submit"
-                        th:classappend="${tipoEntrada.id == null ? 'bg-main hover:bg-darker shadow-main/20' : 'bg-info hover:bg-blue-700 shadow-info/20'}"
-                        class="mt-4 shadow-lg">
-                    <span th:text="${tipoEntrada.id == null ? 'Añadir Tipo de Entrada' : 'Actualizar Tipo de Entrada'}"></span>
-                </button>
-
-                <a th:if="${tipoEntrada.id != null}"
-                   th:href="@{/ticket-types}"
-                   class="block text-center text-xs font-black text-gray-400 hover:text-error uppercase tracking-widest transition-colors">
-                    Cancelar Edicion
-                </a>
-            </form>
-        </section>
+        <section th:replace="~{components/forms :: ticketTypeForm}"></section>
     </div>
 
     <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
