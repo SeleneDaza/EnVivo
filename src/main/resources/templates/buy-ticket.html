@@ -32,10 +32,10 @@
 
 <div th:replace="~{components/navbar :: navbar('user','')}"></div>
 
-<main class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<main class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-14">
 
     <section class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
-        <header class="px-8 py-7 border-b border-gray-100 bg-gray-50/50">
+        <header class="px-8 md:px-10 py-8 border-b border-gray-100 bg-gray-50/50">
             <p class="text-[10px] uppercase tracking-[0.25em] font-black text-main">Proceso de compra</p>
             <h1 class="text-2xl md:text-3xl font-black mt-2" th:text="${evento.name}">Nombre del evento</h1>
             <p class="text-sm text-gray-500 mt-2">
@@ -43,7 +43,7 @@
             </p>
         </header>
 
-        <div class="px-8 pt-8 pb-6 border-b border-gray-100">
+        <div class="px-8 md:px-10 pt-8 md:pt-10 pb-7 md:pb-8 border-b border-gray-100">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div data-step-indicator="1" class="font-black text-gray-900 flex items-center gap-2">
                     <i class="fa-solid fa-ticket"></i>
@@ -67,15 +67,15 @@
             </div>
         </div>
 
-        <div class="p-8 md:p-10">
+        <div class="p-8 md:p-12 lg:p-14">
 
-            <section data-step="1" class="space-y-6">
-                <div class="grid lg:grid-cols-3 gap-8">
+            <section data-step="1" class="space-y-8">
+                <div class="grid lg:grid-cols-3 gap-10">
                     <article class="lg:col-span-2">
-                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-4">Selecciona tu boleta</h2>
-                        <div class="space-y-3" id="ticket-options">
+                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-5">Selecciona tu boleta</h2>
+                        <div class="space-y-4" id="ticket-options">
                             <label th:each="ticket : ${evento.tickets}"
-                                   class="block border border-gray-100 rounded-2xl p-4 hover:border-main transition-colors cursor-pointer has-[:checked]:border-main has-[:checked]:bg-main/5">
+                                   class="block border border-gray-100 rounded-2xl p-5 hover:border-main transition-colors cursor-pointer has-[:checked]:border-main has-[:checked]:bg-main/5">
                                 <input type="radio"
                                        name="ticketType"
                                        class="mr-3"
@@ -92,64 +92,64 @@
                         </div>
                     </article>
 
-                    <aside class="bg-gray-50 rounded-3xl border border-gray-100 p-6 h-fit">
-                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-4">Cantidad</h3>
+                    <aside class="bg-gray-50 rounded-3xl border border-gray-100 p-8 h-fit space-y-4">
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Cantidad</h3>
                         <label for="ticketQuantity">Numero de boletas</label>
-                        <input id="ticketQuantity" type="number" min="1" value="1" class="w-full rounded-2xl mt-2" required>
-                        <p class="text-xs text-gray-500 mt-3">La cantidad maxima depende de la disponibilidad del tipo de boleta.</p>
+                        <input id="ticketQuantity" type="number" min="1" value="1" class="w-full rounded-2xl" required>
+                        <p class="text-xs text-gray-500">La cantidad maxima depende de la disponibilidad del tipo de boleta.</p>
                     </aside>
                 </div>
             </section>
 
-            <section data-step="2" class="space-y-6 hidden">
+            <section data-step="2" class="space-y-8 hidden">
                 <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos personales</h2>
-                <form id="personal-form" class="grid md:grid-cols-2 gap-5">
-                    <div>
+                <form id="personal-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
+                    <div class="space-y-2">
                         <label for="fullName">Nombre completo</label>
-                        <input id="fullName" type="text" class="w-full rounded-2xl mt-2" required>
+                        <input id="fullName" type="text" class="w-full rounded-2xl" required>
                     </div>
-                    <div>
+                    <div class="space-y-2">
                         <label for="document">Documento</label>
-                        <input id="document" type="text" class="w-full rounded-2xl mt-2" required>
+                        <input id="document" type="text" class="w-full rounded-2xl" required>
                     </div>
-                    <div>
+                    <div class="space-y-2">
                         <label for="email">Correo electronico</label>
-                        <input id="email" type="email" class="w-full rounded-2xl mt-2" required>
+                        <input id="email" type="email" class="w-full rounded-2xl" required>
                     </div>
-                    <div>
+                    <div class="space-y-2">
                         <label for="phone">Telefono</label>
-                        <input id="phone" type="tel" class="w-full rounded-2xl mt-2" required>
+                        <input id="phone" type="tel" class="w-full rounded-2xl" required>
                     </div>
                 </form>
             </section>
 
-            <section data-step="3" class="space-y-6 hidden">
+            <section data-step="3" class="space-y-8 hidden">
                 <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos bancarios</h2>
-                <form id="bank-form" class="grid md:grid-cols-2 gap-5">
-                    <div class="md:col-span-2">
+                <form id="bank-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
+                    <div class="md:col-span-2 space-y-2">
                         <label for="cardHolder">Titular de la tarjeta</label>
-                        <input id="cardHolder" type="text" class="w-full rounded-2xl mt-2" required>
+                        <input id="cardHolder" type="text" class="w-full rounded-2xl" required>
                     </div>
-                    <div class="md:col-span-2">
+                    <div class="md:col-span-2 space-y-2">
                         <label for="cardNumber">Numero de tarjeta</label>
-                        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" class="w-full rounded-2xl mt-2" placeholder="0000 0000 0000 0000" required>
+                        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" class="w-full rounded-2xl" placeholder="0000 0000 0000 0000" required>
                     </div>
-                    <div>
+                    <div class="space-y-2">
                         <label for="expiry">Vencimiento</label>
-                        <input id="expiry" type="month" class="w-full rounded-2xl mt-2" required>
+                        <input id="expiry" type="month" class="w-full rounded-2xl" required>
                     </div>
-                    <div>
+                    <div class="space-y-2">
                         <label for="cvv">CVV</label>
-                        <input id="cvv" type="password" inputmode="numeric" maxlength="4" class="w-full rounded-2xl mt-2" required>
+                        <input id="cvv" type="password" inputmode="numeric" maxlength="4" class="w-full rounded-2xl" required>
                     </div>
                 </form>
             </section>
 
-            <section data-step="4" class="space-y-6 hidden">
+            <section data-step="4" class="space-y-8 hidden">
                 <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Verifica la informacion</h2>
 
-                <div class="grid lg:grid-cols-2 gap-5">
-                    <div class="border border-gray-100 rounded-2xl p-5 bg-gray-50">
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50">
                         <h3 class="text-xs text-gray-400 uppercase tracking-[0.2em] font-black mb-3">Compra</h3>
                         <p class="text-sm"><span class="font-black">Evento:</span> <span th:text="${evento.name}"></span></p>
                         <p class="text-sm mt-2"><span class="font-black">Tipo:</span> <span id="summaryTicketType">-</span></p>
@@ -157,7 +157,7 @@
                         <p class="text-sm mt-2"><span class="font-black">Total:</span> <span id="summaryTotal" class="text-main font-black">$0</span></p>
                     </div>
 
-                    <div class="border border-gray-100 rounded-2xl p-5 bg-gray-50">
+                    <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50">
                         <h3 class="text-xs text-gray-400 uppercase tracking-[0.2em] font-black mb-3">Cliente y pago</h3>
                         <p class="text-sm"><span class="font-black">Nombre:</span> <span id="summaryName">-</span></p>
                         <p class="text-sm mt-2"><span class="font-black">Correo:</span> <span id="summaryEmail">-</span></p>
@@ -167,14 +167,14 @@
                     </div>
                 </div>
 
-                <div class="p-4 rounded-2xl border border-info/20 bg-info/5 text-info text-sm font-bold">
+                <div class="p-5 rounded-2xl border border-info/20 bg-info/5 text-info text-sm font-bold">
                     Revisa los datos. La informacion bancaria se muestra censurada por seguridad.
                 </div>
             </section>
 
-            <div id="step-error" class="hidden mt-6 p-4 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
+            <div id="step-error" class="hidden mt-8 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
 
-            <footer class="mt-8 flex flex-col sm:flex-row gap-3 sm:justify-between">
+            <footer class="mt-10 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
                 <a href="/" class="btn btn-ghost">
                     Cancelar
                 </a>
