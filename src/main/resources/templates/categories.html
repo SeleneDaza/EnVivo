@@ -32,57 +32,25 @@
 
 <div th:replace="~{components/navbar :: navbar('admin','categories')}"></div>
 
-<main class="max-w-[1400px] mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-    <!-- FORM -->
-    <div class="lg:col-span-4">
-        <section class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-gray-200/50 border border-gray-50 sticky top-8">
-
-            <h2 class="font-black text-2xl mb-8 tracking-tight uppercase"
-                th:classappend="${categoria.categoryId == null ? 'text-main' : 'text-info'}"
-                th:text="${categoria.categoryId == null ? 'Nueva Categoría' : 'Editar Categoría'}">
-            </h2>
-
-            <form th:action="@{/categories/create}" th:object="${categoria}" method="POST" class="space-y-6">
-
-                <input type="hidden" th:field="*{categoryId}" />
-
-                <div class="space-y-1">
-                    <label class="text-xs font-black text-gray-400 uppercase ml-1 tracking-widest">
-                        Nombre de categoría
-                    </label>
-                    <input type="text"
-                           th:field="*{name}"
-                           required
-                           placeholder="Ej: Teatro, Rock, Stand Up..."
-                           class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-lighter transition-all text-sm font-medium">
-                </div>
-
-                <button type="submit"
-                        th:classappend="${categoria.categoryId == null ? 'bg-main hover:bg-darker shadow-main/20' : 'bg-info hover:bg-blue-700 shadow-info/20'}"
-                        class="mt-4 shadow-lg">
-                    <span th:text="${categoria.categoryId == null ? 'Añadir Categoría' : 'Actualizar Categoría'}"></span>
-                </button>
-
-                <a th:if="${categoria.categoryId != null}"
-                   th:href="@{/categories}"
-                   class="block text-center text-xs font-black text-gray-400 hover:text-error uppercase tracking-widest transition-colors">
-                    Cancelar Edición
-                </a>
-            </form>
-        </section>
-    </div>
+<main class="max-w-[1400px] mx-auto p-8">
 
     <!-- LISTADO -->
-    <section class="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
 
         <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
                 <i class="fa-solid fa-tag text-main"></i>
                 Categorías Actuales
             </h3>
-            <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
-                  th:text="${#lists.size(categorias) + ' total'}"></span>
+            <div class="flex items-center gap-3">
+                <button type="button"
+                        id="open-category-modal"
+                        class="px-4 py-2 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors">
+                    Añadir
+                </button>
+                <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
+                      th:text="${#lists.size(categorias) + ' total'}"></span>
+            </div>
         </div>
 
         <!-- MENSAJES -->
@@ -148,5 +116,57 @@
     </section>
 
 </main>
+
+<div id="category-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
+     th:attr="data-edit-open=${categoria.categoryId != null}">
+    <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <button type="button"
+                id="close-category-modal"
+                aria-label="Cerrar formulario"
+                class="absolute right-4 top-4 z-10 btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+        <section th:replace="~{components/forms :: categoryForm}"></section>
+    </div>
+</div>
+
+<script>
+    const categoryModal = document.getElementById('category-modal');
+    const openCategoryModal = document.getElementById('open-category-modal');
+    const closeCategoryModal = document.getElementById('close-category-modal');
+
+    function showCategoryModal() {
+        if (!categoryModal) return;
+        categoryModal.classList.remove('hidden');
+        categoryModal.classList.add('flex');
+    }
+
+    function hideCategoryModal() {
+        if (!categoryModal) return;
+        categoryModal.classList.remove('flex');
+        categoryModal.classList.add('hidden');
+    }
+
+    if (openCategoryModal) {
+        openCategoryModal.addEventListener('click', showCategoryModal);
+    }
+
+    if (closeCategoryModal) {
+        closeCategoryModal.addEventListener('click', hideCategoryModal);
+    }
+
+    if (categoryModal) {
+        categoryModal.addEventListener('click', (event) => {
+            if (event.target === categoryModal) {
+                hideCategoryModal();
+            }
+        });
+
+        if (categoryModal.dataset.editOpen === 'true') {
+            showCategoryModal();
+        }
+    }
+</script>
 </body>
 </html>
