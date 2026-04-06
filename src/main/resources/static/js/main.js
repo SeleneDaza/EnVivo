@@ -90,6 +90,17 @@ function closeModal() {
     document.body.classList.remove('modal-open');
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.js-event-card[data-event-id]');
+    cards.forEach((card) => {
+        card.addEventListener('click', () => {
+            const eventId = card.getAttribute('data-event-id');
+            if (!eventId) return;
+            openEventDetail(eventId);
+        });
+    });
+});
+
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();

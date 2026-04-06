@@ -53,9 +53,10 @@
                 gap-6 sm:gap-8">
 
         <div th:each="evento : ${eventos.content}"
-             th:onclick="openEventDetail([[${evento.event_id}]])"
+             th:data-event-id="${evento.event_id}"
              class="relative group
-                    aspect-[3/4] sm:aspect-[3/4.2] 
+                    js-event-card
+                    aspect-[3/4] sm:aspect-[3/4.2]
                     rounded-[2rem] sm:rounded-[2.5rem] 
                     overflow-hidden shadow-xl bg-white 
                     hover:scale-[1.02] 
