@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE NOT EXISTS (SELECT r FROM u.roles r WHERE UPPER(r.name) = 'ADMIN')")
     List<User> findUsersWithoutAdminRole();
+
+
 }

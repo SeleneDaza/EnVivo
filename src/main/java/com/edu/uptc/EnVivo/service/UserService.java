@@ -22,16 +22,21 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public boolean registerUser(RegisterDTO dto) {
+        String login = normalizeLogin(dto.getNewUsername());
+        if (login == null) {
+            return false;
+        }
+
         if (!arePasswordsMatching(dto)) {
             return false;
         }
 
-        if (userExists(dto.getNewUsername())) {
+        if (userExists(login)) {
             return false;
         }
 
         Role rolCliente = getOrCreateClientRole();
-        saveNewUser(dto, rolCliente);
+        saveNewUser(login, dto.getNewPassword(), rolCliente);
         return true;
     }
 
@@ -39,8 +44,16 @@ public class UserService {
         return dto.getNewPassword().equals(dto.getConfirmPassword());
     }
 
-    private boolean userExists(String username) {
-        return userRepository.existsByUserName(username);
+    private String normalizeLogin(String login) {
+        if (login == null) {
+            return null;
+        }
+        String normalized = login.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
+
+    private boolean userExists(String login) {
+        return userRepository.existsByUserName(login) || userRepository.existsByEmail(login);
     }
 
     private Role getOrCreateClientRole() {
@@ -54,10 +67,12 @@ public class UserService {
         return roleRepository.save(nuevoRol);
     }
 
-    private void saveNewUser(RegisterDTO dto, Role role) {
+    private void saveNewUser(String login, String rawPassword, Role role) {
         User user = new User();
-        user.setUserName(dto.getNewUsername());
-        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        user.setUserName(login);
+        // Mantiene compatibilidad con esquemas antiguos donde email es requerido.
+        user.setEmail(login);
+        user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRoles(Set.of(role));
         userRepository.save(user);
     }
@@ -69,6 +84,7 @@ public class UserService {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }

@@ -35,7 +35,9 @@ public class AuthController {
             return "redirect:/login";
         }
 
-        User user = userService.getUserByEmail(principal.getName()).orElse(null);
+        User user = userService.findByUserName(principal.getName())
+                .or(() -> userService.findByEmail(principal.getName()))
+                .orElse(null);
         model.addAttribute("user", user);
         return "profile";
     }
