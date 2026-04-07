@@ -9,6 +9,7 @@ import com.edu.uptc.EnVivo.service.CloudinaryService;
 import com.edu.uptc.EnVivo.service.EventService;
 import com.edu.uptc.EnVivo.service.TicketService;
 import com.edu.uptc.EnVivo.service.TicketTypeService;
+import com.edu.uptc.EnVivo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class EventController {
     private final CategoryService categoryService;
     private final TicketService ticketService;
     private final TicketTypeService ticketTypeService;
+    private final UserService userService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -225,10 +227,22 @@ public class EventController {
     }
 
     @GetMapping("/buy-ticket/{eventId}")
-    public String viewBuyTicket(@PathVariable Long eventId, Model model) {
+    public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model) {
         try {
             EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
             model.addAttribute("evento", detalle);
+
+            if (principal != null) {
+                userService.findByUserName(principal.getName())
+                        .or(() -> userService.findByEmail(principal.getName()))
+                        .ifPresent(user -> {
+                    model.addAttribute("buyerFullName", user.getFullName());
+                    model.addAttribute("buyerDocument", user.getDocument());
+                    model.addAttribute("buyerEmail", user.getEmail());
+                    model.addAttribute("buyerPhone", user.getPhone());
+                });
+            }
+
             return "buy-ticket";
         } catch (IllegalArgumentException e) {
             return "redirect:/?error=evento_no_encontrado";

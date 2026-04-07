@@ -106,19 +106,19 @@
                 <form id="personal-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
                     <div class="space-y-2">
                         <label for="fullName">Nombre completo</label>
-                        <input id="fullName" type="text" class="w-full rounded-2xl" required>
+                        <input id="fullName" type="text" class="w-full rounded-2xl" th:value="${buyerFullName}" autocomplete="name" required>
                     </div>
                     <div class="space-y-2">
                         <label for="document">Documento</label>
-                        <input id="document" type="text" class="w-full rounded-2xl" required>
+                        <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}" required>
                     </div>
                     <div class="space-y-2">
                         <label for="email">Correo electronico</label>
-                        <input id="email" type="email" class="w-full rounded-2xl" required>
+                        <input id="email" type="email" class="w-full rounded-2xl" th:value="${buyerEmail}" autocomplete="email" required>
                     </div>
                     <div class="space-y-2">
                         <label for="phone">Telefono</label>
-                        <input id="phone" type="tel" class="w-full rounded-2xl" required>
+                        <input id="phone" type="tel" class="w-full rounded-2xl" th:value="${buyerPhone}" autocomplete="tel" required>
                     </div>
                 </form>
             </section>
