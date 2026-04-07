@@ -40,7 +40,7 @@ public class UserService {
     }
 
     private boolean userExists(String username) {
-        return userRepository.existsByEmail(username);
+        return userRepository.existsByUserName(username);
     }
 
     private Role getOrCreateClientRole() {
@@ -56,7 +56,7 @@ public class UserService {
 
     private void saveNewUser(RegisterDTO dto, Role role) {
         User user = new User();
-        user.setEmail(dto.getNewUsername());
+        user.setUserName(dto.getNewUsername());
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setRoles(Set.of(role));
         userRepository.save(user);
@@ -68,6 +68,13 @@ public class UserService {
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> findByUserName(String userName) {
+        return userRepository.findByUserName(userName);
     }
 }
 

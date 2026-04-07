@@ -32,7 +32,7 @@
 
 <div th:replace="~{components/navbar :: navbar('user','')}"></div>
 
-<main class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-14">
+<main class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-14" th:attr="data-event-id=${evento.eventId}">
 
     <section class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
         <header class="px-8 md:px-10 py-8 border-b border-gray-100 bg-gray-50/50">
@@ -106,19 +106,19 @@
                 <form id="personal-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
                     <div class="space-y-2">
                         <label for="fullName">Nombre completo</label>
-                        <input id="fullName" type="text" class="w-full rounded-2xl" required>
+                        <input id="fullName" type="text" class="w-full rounded-2xl" th:value="${buyerFullName}" autocomplete="name" required>
                     </div>
                     <div class="space-y-2">
                         <label for="document">Documento</label>
-                        <input id="document" type="text" class="w-full rounded-2xl" required>
+                        <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}" required>
                     </div>
                     <div class="space-y-2">
                         <label for="email">Correo electronico</label>
-                        <input id="email" type="email" class="w-full rounded-2xl" required>
+                        <input id="email" type="email" class="w-full rounded-2xl" th:value="${buyerEmail}" autocomplete="email" required>
                     </div>
                     <div class="space-y-2">
                         <label for="phone">Telefono</label>
-                        <input id="phone" type="tel" class="w-full rounded-2xl" required>
+                        <input id="phone" type="tel" class="w-full rounded-2xl" th:value="${buyerPhone}" autocomplete="tel" required>
                     </div>
                 </form>
             </section>
@@ -190,6 +190,9 @@
 </main>
 
 <script>
+    const pageMain = document.querySelector('main[data-event-id]');
+    const eventId = Number(pageMain ? pageMain.dataset.eventId : 0);
+
     const steps = Array.from(document.querySelectorAll('[data-step]'));
     const indicators = Array.from(document.querySelectorAll('[data-step-indicator]'));
     const progress = document.getElementById('step-progress');
@@ -206,7 +209,16 @@
     let currentStep = 1;
 
     function showError(message) {
+        errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
+        errorBox.classList.add('bg-error/5', 'border-error/20', 'text-error');
         errorBox.textContent = message;
+        errorBox.classList.remove('hidden');
+    }
+
+    function showSuccess(htmlContent) {
+        errorBox.classList.remove('bg-error/5', 'border-error/20', 'text-error');
+        errorBox.classList.add('bg-success/10', 'border-success/30', 'text-success');
+        errorBox.innerHTML = htmlContent; 
         errorBox.classList.remove('hidden');
     }
 
@@ -344,6 +356,46 @@
         document.getElementById('summaryCvv').textContent = '***';
     }
 
+    async function submitCheckout() {
+        const selectedTicket = getSelectedTicketInput();
+        if (!selectedTicket) {
+            throw new Error('Debes seleccionar un tipo de boleta.');
+        }
+
+        const payload = {
+            eventId,
+            ticketId: Number(selectedTicket.value),
+            quantity: getQuantity(),
+            buyer: {
+                fullName: document.getElementById('fullName').value,
+                document: document.getElementById('document').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value
+            },
+            payment: {
+                cardHolder: document.getElementById('cardHolder').value,
+                cardNumber: document.getElementById('cardNumber').value,
+                expiry: document.getElementById('expiry').value,
+                cvv: document.getElementById('cvv').value
+            }
+        };
+
+        const response = await fetch('/api/purchases/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'No fue posible registrar la compra.');
+        }
+
+        return result.purchase;
+    }
+
     nextStepButton.addEventListener('click', () => {
         if (!validateStep(currentStep)) return;
         if (currentStep < 4) {
@@ -359,14 +411,43 @@
         }
     });
 
-    confirmStepButton.addEventListener('click', () => {
+    confirmStepButton.addEventListener('click', async () => {
         if (!validateStep(3)) return;
 
+        if (!eventId || eventId <= 0) {
+            showError('No se pudo identificar el evento para registrar la compra.');
+            return;
+        }
+
         confirmStepButton.disabled = true;
-        confirmStepButton.textContent = 'Compra confirmada';
-        showError('Compra registrada exitosamente. En una siguiente iteracion se integrara con el backend de pagos.');
-        errorBox.classList.remove('bg-error/5', 'border-error/20', 'text-error');
-        errorBox.classList.add('bg-success/10', 'border-success/30', 'text-success');
+        confirmStepButton.textContent = 'Procesando...';
+
+        try {
+            const purchase = await submitCheckout();
+            
+            confirmStepButton.classList.add('hidden');
+            prevStepButton.classList.add('hidden');
+            
+            const successMsg = `
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <p class="font-black">¡Compra registrada exitosamente!</p>
+                        <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
+                    </div>
+                    <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas" target="_blank" 
+                       class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-download"></i>
+                        Descargar Entradas (PDF)
+                    </a>
+                </div>
+            `;
+            
+            showSuccess(successMsg);
+        } catch (error) {
+            confirmStepButton.disabled = false;
+            confirmStepButton.textContent = 'Confirmar compra';
+            showError(error.message || 'No fue posible confirmar la compra.');
+        }
     });
 
     document.querySelectorAll('input[name="ticketType"]').forEach((option) => {

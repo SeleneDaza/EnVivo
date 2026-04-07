@@ -75,8 +75,11 @@
                                 <div class="w-12 h-12 rounded-2xl bg-info/10 flex items-center justify-center text-info font-bold group-hover:bg-info group-hover:text-white transition-all shadow-sm">
                                     <i class="fa-solid fa-user text-sm"></i>
                                 </div>
-                                <span class="font-black text-gray-800 text-sm group-hover:text-info transition-colors"
-                                      th:text="${u.email}">Email</span>
+                                <div>
+                                    <p class="font-black text-gray-800 text-sm group-hover:text-info transition-colors"
+                                       th:text="${u.userName}">usuario</p>
+                                    <p class="text-xs text-gray-500" th:text="${u.email != null ? u.email : 'Sin email'}">email</p>
+                                </div>
                             </div>
                         </td>
 

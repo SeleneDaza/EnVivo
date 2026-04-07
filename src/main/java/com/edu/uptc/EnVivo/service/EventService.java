@@ -146,9 +146,8 @@ public class EventService {
     }
 
     @Transactional
-    public boolean toggleInterest(Long eventId, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public boolean toggleInterest(Long eventId, String loginIdentifier) {
+        User user = findUserByLoginIdentifier(loginIdentifier);
         Event event = obtenerPorId(eventId);
         if (event.getInterestCount() == null) {
             event.setInterestCount(0);
@@ -170,13 +169,16 @@ public class EventService {
         return !isInterested; 
     }
 
-    public Set<Long> obtenerFavoritosUsuario(String userEmail) {
-        if (userEmail == null) return Collections.emptySet();
-        return userRepository.findByEmail(userEmail)
-                .map(user -> user.getFavoriteEvents().stream()
-                        .map(Event::getEvent_id)
-                        .collect(Collectors.toSet()))
-                .orElse(Collections.emptySet());
+    public Set<Long> obtenerFavoritosUsuario(String loginIdentifier) {
+        if (loginIdentifier == null) return Collections.emptySet();
+        try {
+            User user = findUserByLoginIdentifier(loginIdentifier);
+            return user.getFavoriteEvents().stream()
+                    .map(Event::getEvent_id)
+                    .collect(Collectors.toSet());
+        } catch (RuntimeException ex) {
+            return Collections.emptySet();
+        }
     }
 
     // --- LÓGICA PARA Top 10 eventos más atractivos (reporte admin) ---
@@ -188,9 +190,8 @@ public class EventService {
     }
 
     // --- LÓGICA PARA Lista de favoritos ordenada ---
-    public List<Event> obtenerEventosFavoritosOrdenados(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public List<Event> obtenerEventosFavoritosOrdenados(String loginIdentifier) {
+        User user = findUserByLoginIdentifier(loginIdentifier);
                 
         return user.getFavoriteEvents().stream()
                 .sorted((e1, e2) -> {
@@ -203,14 +204,20 @@ public class EventService {
     }
 
     // --- LÓGICA PARA Lista de favoritos paginada ---
-    public Page<Event> obtenerEventosFavoritosPaginados(String userEmail, Pageable pageable) {
+    public Page<Event> obtenerEventosFavoritosPaginados(String loginIdentifier, Pageable pageable) {
         // Le inyectamos el ordenamiento por fecha al Pageable
         Pageable ordenado = PageRequest.of(
                 pageable.getPageNumber(), 
                 pageable.getPageSize(), 
                 Sort.by(Sort.Direction.ASC, "date")
         );
-        return eventRepository.findFavoritosByUsuarioEmailPaginated(userEmail, ordenado);
+        return eventRepository.findFavoritosByUsuarioLoginPaginated(loginIdentifier, ordenado);
+    }
+
+    private User findUserByLoginIdentifier(String loginIdentifier) {
+        return userRepository.findByUserName(loginIdentifier)
+                .or(() -> userRepository.findByEmail(loginIdentifier))
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
     public CreateEventDTO obtenerEventoParaEdicion(Long id) {
