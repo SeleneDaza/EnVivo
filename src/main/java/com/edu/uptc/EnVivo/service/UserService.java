@@ -66,6 +66,9 @@ public class UserService {
         return userRepository.findUsersWithoutAdminRole();
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -74,3 +77,4 @@ public class UserService {
         return userRepository.findByUserName(userName);
     }
 }
+

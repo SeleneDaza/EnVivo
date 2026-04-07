@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil | EnVivo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#f97316', // Tu naranja corporativo
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <div th:replace="~{components/navbar :: navbar('user', 'profile')}"></div>
+
+    <main class="max-w-5xl mx-auto py-10 px-4">
+        
+        <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+            <div class="bg-main h-32 w-full relative">
+                <div class="absolute -bottom-12 left-10">
+                    <div class="w-24 h-24 bg-white rounded-full p-1 shadow-md">
+                        <div class="w-full h-full bg-orange-100 rounded-full flex items-center justify-center text-main">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-16 pb-10 px-10">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-black text-gray-900" th:text="${user != null ? user.fullName : 'Usuario'}">Nombre Completo</h1>
+                        <p class="text-gray-500 font-medium" th:text="${user != null ? user.email : 'correo@ejemplo.com'}">correo@ejemplo.com</p>
+                    </div>
+                    <!-- <button class="px-6 py-2 border-2 border-main text-main font-bold rounded-full hover:bg-orange-50 transition-all">
+                        Editar Perfil
+                    </button> -->
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-12">
+                    
+                    <div class="md:col-span-2 space-y-8">
+                        <section>
+                            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <span class="w-2 h-6 bg-main rounded-full mr-3"></span>
+                                Información Personal
+                            </h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl">
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Documento</p>
+                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user != null ? user.document : '-'}">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Teléfono</p>
+                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user != null and user.phone != null ? user.phone : 'No registrado'}">-</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <span class="w-2 h-6 bg-main rounded-full mr-3"></span>
+                                Historial de Compras
+                            </h2>
+                            <div th:if="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="bg-gray-50 rounded-2xl p-10 text-center text-gray-400">
+                                <p>Aún no has realizado ninguna compra.</p>
+                            </div>
+                            <div th:unless="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="overflow-x-auto">
+                                </div>
+                        </section>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-br from-gray-900 to-slate-800 p-8 rounded-[2rem] text-white shadow-xl">
+                            <h3 class="text-sm font-bold opacity-60 uppercase tracking-tighter">Eventos Favoritos</h3>
+                            <div class="flex items-baseline gap-2 mt-2">
+                                <span class="text-5xl font-black" th:text="${user != null and user.favoriteEvents != null ? #sets.size(user.favoriteEvents) : 0}">0</span>
+                                <span class="text-main font-bold">Eventos</span>
+                            </div>
+                            <p class="text-xs mt-4 opacity-70 leading-relaxed">Guarda los eventos que más te gustan para no perderte ninguna actualización.</p>
+                            <a th:href="@{/favorites}" class="block mt-6 w-full py-3 bg-white text-gray-900 text-center font-black rounded-xl hover:bg-orange-50 transition-all">
+                                Ver todos
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
