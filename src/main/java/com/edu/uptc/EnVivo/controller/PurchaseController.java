@@ -47,20 +47,17 @@ public class PurchaseController {
         }
     }
 
-    @GetMapping("/api/compras/{purchaseId}/descargar-entradas")
+    @GetMapping("/{purchaseId}/descargar-entradas")
     public ResponseEntity<byte[]> downloadTicketsPdf(@PathVariable Long purchaseId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         try {
-            // Llamamos al servicio que acabamos de crear en el Paso 1
             byte[] pdfBytes = purchaseService.downloadPurchasePdf(purchaseId, principal.getName());
 
-            // Configuramos las cabeceras para que el navegador sepa que es un PDF descargable
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            // El nombre del archivo que se descargará:
             headers.setContentDispositionFormData("attachment", "Entradas_EnVivo_" + purchaseId + ".pdf");
 
             return ResponseEntity.ok()
