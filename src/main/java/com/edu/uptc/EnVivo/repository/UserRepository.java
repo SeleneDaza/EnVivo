@@ -17,6 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    //TODO: Eliminar metodos sin uso
     boolean existsByEmail(String email);
 
     @Query("SELECT u FROM User u WHERE NOT EXISTS (SELECT r FROM u.roles r WHERE UPPER(r.name) = 'ADMIN')")
