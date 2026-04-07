@@ -5,7 +5,11 @@ import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
 import com.edu.uptc.EnVivo.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity; 
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +44,35 @@ public class PurchaseController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/api/compras/{purchaseId}/descargar-entradas")
+    public ResponseEntity<byte[]> downloadTicketsPdf(@PathVariable Long purchaseId, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            // Llamamos al servicio que acabamos de crear en el Paso 1
+            byte[] pdfBytes = purchaseService.downloadPurchasePdf(purchaseId, principal.getName());
+
+            // Configuramos las cabeceras para que el navegador sepa que es un PDF descargable
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            // El nombre del archivo que se descargará:
+            headers.setContentDispositionFormData("attachment", "Entradas_EnVivo_" + purchaseId + ".pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
