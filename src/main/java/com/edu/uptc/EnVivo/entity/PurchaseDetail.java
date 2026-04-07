@@ -26,4 +26,10 @@ public class PurchaseDetail {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Column(name = "unit_price")
+    private Integer unitPrice;
+
+    @Column(name = "subtotal")
+    private Integer subtotal;
 }
