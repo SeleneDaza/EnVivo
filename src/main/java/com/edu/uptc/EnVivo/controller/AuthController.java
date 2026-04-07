@@ -1,8 +1,10 @@
 package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.RegisterDTO;
+import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import java.security.Principal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +30,13 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public String viewProfile(Model model) {
-        // Seguimos usando el mismo servicio para obtener los datos
-        model.addAttribute("usuarios", userService.getClientUsers());
-        
-        // Esto buscará el archivo src/main/resources/templates/profile.html
+    public String viewProfile(Model model, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        User user = userService.getUserByEmail(principal.getName()).orElse(null);
+        model.addAttribute("user", user);
         return "profile";
     }
 }

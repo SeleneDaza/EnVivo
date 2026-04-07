@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Mi Perfil | EnVivo</title>
@@ -18,7 +18,7 @@
 </head>
 <body class="bg-gray-50 font-sans">
     
-    <div th:replace="~{fragments/navbar :: navbar('user', 'profile')}"></div>
+    <div th:replace="~{components/navbar :: navbar('user', 'profile')}"></div>
 
     <main class="max-w-5xl mx-auto py-10 px-4">
         
@@ -36,8 +36,8 @@
             <div class="pt-16 pb-10 px-10">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h1 class="text-3xl font-black text-gray-900" th:text="${user.fullName}">Nombre Completo</h1>
-                        <p class="text-gray-500 font-medium" th:text="${user.email}">correo@ejemplo.com</p>
+                        <h1 class="text-3xl font-black text-gray-900" th:text="${user != null ? user.fullName : 'Usuario'}">Nombre Completo</h1>
+                        <p class="text-gray-500 font-medium" th:text="${user != null ? user.email : 'correo@ejemplo.com'}">correo@ejemplo.com</p>
                     </div>
                     <button class="px-6 py-2 border-2 border-main text-main font-bold rounded-full hover:bg-orange-50 transition-all">
                         Editar Perfil
@@ -55,11 +55,11 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl">
                                 <div>
                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Documento</p>
-                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user.document}">-</p>
+                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user != null ? user.document : '-'}">-</p>
                                 </div>
                                 <div>
                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Teléfono</p>
-                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user.phone ?: 'No registrado'}">-</p>
+                                    <p class="text-gray-700 font-semibold text-lg" th:text="${user != null and user.phone != null ? user.phone : 'No registrado'}">-</p>
                                 </div>
                             </div>
                         </section>
@@ -69,10 +69,10 @@
                                 <span class="w-2 h-6 bg-main rounded-full mr-3"></span>
                                 Historial de Compras
                             </h2>
-                            <div th:if="${#lists.isEmpty(user.purchases)}" class="bg-gray-50 rounded-2xl p-10 text-center text-gray-400">
+                            <div th:if="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="bg-gray-50 rounded-2xl p-10 text-center text-gray-400">
                                 <p>Aún no has realizado ninguna compra.</p>
                             </div>
-                            <div th:unless="${#lists.isEmpty(user.purchases)}" class="overflow-x-auto">
+                            <div th:unless="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="overflow-x-auto">
                                 </div>
                         </section>
                     </div>
@@ -81,7 +81,7 @@
                         <div class="bg-gradient-to-br from-gray-900 to-slate-800 p-8 rounded-[2rem] text-white shadow-xl">
                             <h3 class="text-sm font-bold opacity-60 uppercase tracking-tighter">Eventos Favoritos</h3>
                             <div class="flex items-baseline gap-2 mt-2">
-                                <span class="text-5xl font-black" th:text="${#sets.size(user.favoriteEvents)}">0</span>
+                                <span class="text-5xl font-black" th:text="${user != null and user.favoriteEvents != null ? #sets.size(user.favoriteEvents) : 0}">0</span>
                                 <span class="text-main font-bold">Eventos</span>
                             </div>
                             <p class="text-xs mt-4 opacity-70 leading-relaxed">Guarda los eventos que más te gustan para no perderte ninguna actualización.</p>
