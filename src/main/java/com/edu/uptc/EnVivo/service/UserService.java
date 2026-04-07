@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -39,7 +40,7 @@ public class UserService {
     }
 
     private boolean userExists(String username) {
-        return userRepository.existsByEmail(username);
+        return userRepository.existsByUserName(username);
     }
 
     private Role getOrCreateClientRole() {
@@ -55,7 +56,7 @@ public class UserService {
 
     private void saveNewUser(RegisterDTO dto, Role role) {
         User user = new User();
-        user.setEmail(dto.getNewUsername());
+        user.setUserName(dto.getNewUsername());
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         user.setRoles(Set.of(role));
         userRepository.save(user);
@@ -63,5 +64,13 @@ public class UserService {
     
     public List<User> getClientUsers() {
         return userRepository.findUsersWithoutAdminRole();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> findByUserName(String userName) {
+        return userRepository.findByUserName(userName);
     }
 }

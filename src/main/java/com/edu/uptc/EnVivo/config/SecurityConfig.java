@@ -55,11 +55,16 @@ public class SecurityConfig {
     }
 
     private UserDetails loadUserFromDatabase(String username) {
-        com.edu.uptc.EnVivo.entity.User user = userRepository.findByEmail(username)
+        com.edu.uptc.EnVivo.entity.User user = userRepository.findByUserName(username)
+                .or(() -> userRepository.findByEmail(username))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
+        String principalName = user.getUserName() != null && !user.getUserName().isBlank()
+                ? user.getUserName()
+                : user.getEmail();
+
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                principalName,
                 user.getPassword(),
                 mapRolesToAuthorities(user.getRoles())
         );

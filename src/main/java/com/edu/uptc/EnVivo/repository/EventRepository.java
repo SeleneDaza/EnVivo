@@ -25,7 +25,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e LEFT JOIN e.favoritedByUsers u GROUP BY e ORDER BY COUNT(u) DESC")
     List<Event> findTop10ByFavoritesCount(Pageable pageable);
     
-    @Query(value = "SELECT e FROM Event e JOIN e.favoritedByUsers u WHERE u.email = :email",
-           countQuery = "SELECT count(e) FROM Event e JOIN e.favoritedByUsers u WHERE u.email = :email")
-    Page<Event> findFavoritosByUsuarioEmailPaginated(@Param("email") String email, Pageable pageable);
+    @Query(value = "SELECT e FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login",
+           countQuery = "SELECT count(e) FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login")
+    Page<Event> findFavoritosByUsuarioLoginPaginated(@Param("login") String login, Pageable pageable);
 }
