@@ -26,4 +26,13 @@ public class AuthController {
         boolean exito = userService.registerUser(dto);
         return "redirect:/login?" + (exito ? "registered=true" : "registerError=true");
     }
+
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+        // Seguimos usando el mismo servicio para obtener los datos
+        model.addAttribute("usuarios", userService.getClientUsers());
+        
+        // Esto buscará el archivo src/main/resources/templates/profile.html
+        return "profile";
+    }
 }
