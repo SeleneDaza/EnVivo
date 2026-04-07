@@ -215,10 +215,10 @@
         errorBox.classList.remove('hidden');
     }
 
-    function showSuccess(message) {
+    function showSuccess(htmlContent) {
         errorBox.classList.remove('bg-error/5', 'border-error/20', 'text-error');
         errorBox.classList.add('bg-success/10', 'border-success/30', 'text-success');
-        errorBox.textContent = message;
+        errorBox.innerHTML = htmlContent; 
         errorBox.classList.remove('hidden');
     }
 
@@ -424,8 +424,25 @@
 
         try {
             const purchase = await submitCheckout();
-            confirmStepButton.textContent = 'Compra confirmada';
-            showSuccess(`Compra registrada exitosamente. ID de compra: ${purchase.purchaseId}.`);
+            
+            confirmStepButton.classList.add('hidden');
+            prevStepButton.classList.add('hidden');
+            
+            const successMsg = `
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <p class="font-black">¡Compra registrada exitosamente!</p>
+                        <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
+                    </div>
+                    <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas" target="_blank" 
+                       class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-download"></i>
+                        Descargar Entradas (PDF)
+                    </a>
+                </div>
+            `;
+            
+            showSuccess(successMsg);
         } catch (error) {
             confirmStepButton.disabled = false;
             confirmStepButton.textContent = 'Confirmar compra';

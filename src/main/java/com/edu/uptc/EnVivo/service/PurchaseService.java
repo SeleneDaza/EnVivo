@@ -23,6 +23,7 @@ public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final TicketRepository ticketRepository;
     private final UserService userService;
+    private final PdfTicketService pdfTicketService;
 
     @Transactional
     public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request) {
@@ -138,6 +139,19 @@ public class PurchaseService {
             return "**** " + (digits.isEmpty() ? "0000" : digits);
         }
         return "**** **** **** " + digits.substring(digits.length() - 4);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] downloadPurchasePdf(Long purchaseId, String principalName) {
+        Purchase purchase = purchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new IllegalArgumentException("Compra no encontrada."));
+        User user = userService.findByUserName(principalName)
+                .or(() -> userService.findByEmail(principalName))
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+        if (!purchase.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("No tienes permiso para descargar estas entradas.");
+        }
+        return pdfTicketService.generateTicketsPdf(purchase);
     }
 }
 
