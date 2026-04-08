@@ -26,6 +26,8 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
@@ -85,16 +87,17 @@
                                        class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
                                         <i class="fa-solid fa-pencil text-xs"></i>
                                     </a>
+                                    
                                     <form th:action="@{/ticket-types/delete/{id}(id=${t.id})}"
                                           method="post"
-                                          onsubmit="return confirm('¿Eliminar este tipo de entrada?')"
-                                          class="inline-flex">
+                                          class="inline-flex form-eliminar">
                                         <button type="submit"
                                                 aria-label="Eliminar tipo de entrada"
                                                 class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white border-none">
                                             <i class="fa-solid fa-trash-can text-xs"></i>
                                         </button>
                                     </form>
+                                    
                                 </div>
                             </td>
                         </tr>
@@ -129,6 +132,66 @@
         <section th:replace="~{components/forms :: ticketTypeForm}"></section>
     </div>
 </div>
+
 <script th:src="@{/js/ticket-types.js}" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 1. Lógica para SweetAlert2 (Eliminar) ---
+        const formsEliminar = document.querySelectorAll('.form-eliminar');
+        
+        formsEliminar.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); 
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "No podrás revertir esto. ¿Deseas eliminar este tipo de entrada?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FF3B3B',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: { popup: 'rounded-[2.5rem]' }
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit(); 
+                });
+            });
+        });
+
+        // --- 2. Lógica de Modal Segura (Corregida) ---
+        const modal = document.getElementById('ticket-type-modal');
+        const btnOpen = document.getElementById('open-ticket-type-modal');
+        const btnClose = document.getElementById('close-ticket-type-modal');
+
+        // Detectar si la vista actual fue cargada para editar
+        const isEditMode = window.location.pathname.includes('/edit/');
+        const baseUrl = '/ticket-types';
+
+        if (btnOpen && modal) {
+            btnOpen.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Pide un formulario limpio
+                } else {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        }
+
+        if (btnClose && modal) {
+            btnClose.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Limpia la URL al cerrar
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
