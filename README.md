@@ -49,68 +49,19 @@
 
 ---
 
-## Arquitectura y Estructura de Carpetas
+## Modelo C4
 
-El proyecto sigue una arquitectura en capas:
+**Contexto:**
 
-```
-EnVivo/
-├── src/
-│   ├── main/
-│   │   ├── java/com/edu/uptc/EnVivo/
-│   │   │   ├── config/
-│   │   │   │   └── SecurityConfig.java        # Configuración de Spring Security
-│   │   │   ├── controller/
-│   │   │   │   ├── AuthController.java        # Registro de usuarios
-│   │   │   │   ├── CategoryController.java    # CRUD de categorías
-│   │   │   │   └── EventController.java       # CRUD de eventos, favoritos, reportes
-│   │   │   ├── dto/
-│   │   │   │   ├── CreateCategoryDTO.java
-│   │   │   │   ├── CreateEventDTO.java
-│   │   │   │   ├── EventReporteDTO.java
-│   │   │   │   └── RegisterDTO.java
-│   │   │   ├── entity/
-│   │   │   │   ├── Category.java
-│   │   │   │   ├── Event.java
-│   │   │   │   ├── Role.java
-│   │   │   │   └── User.java
-│   │   │   ├── repository/
-│   │   │   │   ├── CategoryRepository.java
-│   │   │   │   ├── EventRepository.java
-│   │   │   │   ├── RoleRepository.java
-│   │   │   │   └── UserRepository.java
-│   │   │   └── service/
-│   │   │       ├── CategoryService.java
-│   │   │       ├── CloudinaryService.java
-│   │   │       ├── EventService.java
-│   │   │       └── UserService.java
-│   │   └── resources/
-│   │       ├── application.yaml               # Configuración de la aplicación
-│   │       └── templates/
-│   │           ├── index.html                 # Página de login / inicio
-│   │           ├── main.html                  # Vista principal de eventos
-│   │           ├── admin.html                 # Panel de administración
-│   │           ├── categories.html            # Gestión de categorías
-│   │           ├── favorites.html             # Favoritos del usuario
-│   │           └── reports.html              # Reporte Top 10 eventos
-│   └── test/
-│       └── java/com/edu/uptc/EnVivo/
-│           └── EnVivoApplicationTests.java
-├── pom.xml
-└── README.md
-```
+<img width="842" height="441" alt="Modelo C4-Contexto" src="https://github.com/user-attachments/assets/161275a8-8696-42d2-8b1a-dc1e235055ea" />
 
-### Modelo de Datos (Entidades principales)
+**Contenedor:**
 
-<img width="1216" height="243" alt="modelo" src="https://github.com/user-attachments/assets/5d46e3ad-82f6-4327-9120-1ac6474fd7e5" />
+<img width="867" height="1030" alt="Modelo C4-Contendo" src="https://github.com/user-attachments/assets/3bb32f82-b34b-48b3-8e19-3fa0b39092cb" />
 
+**Componente:**
 
-- **`usuarios`**: Almacena los usuarios registrados (usuario + contraseña cifrada).
-- **`roles`**: `ADMIN` o `CLIENTE`.
-- **`eventos`**: Catálogo de eventos con nombre, fecha, precio, descripción, imagen y categoría.
-- **`categorias`**: Clasificación de los eventos.
-- **`favoritos`**: Tabla pivote que registra los eventos marcados como *"Me interesa"*.
-- **`usuarios_roles`**: Tabla relacional entre eventos y usuarios
+<img width="1462" height="1058" alt="Modelo C4-Componente" src="https://github.com/user-attachments/assets/1672b3e0-fafc-4b00-87b1-749be6c31c19" />
 
 ---
 
