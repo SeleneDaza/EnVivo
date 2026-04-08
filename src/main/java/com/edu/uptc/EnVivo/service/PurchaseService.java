@@ -2,6 +2,7 @@ package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
+import com.edu.uptc.EnVivo.dto.ProfilePurchaseDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
 import com.edu.uptc.EnVivo.entity.Purchase;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -152,6 +155,40 @@ public class PurchaseService {
             throw new SecurityException("No tienes permiso para descargar estas entradas.");
         }
         return pdfTicketService.generateTicketsPdf(purchase);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfilePurchaseDTO> getProfilePurchaseHistory(Long userId) {
+        if (userId == null) {
+            return Collections.emptyList();
+        }
+
+        return purchaseRepository.findByUserIdOrderByPurchaseDateDesc(userId)
+                .stream()
+                .map(this::toProfilePurchase)
+                .toList();
+    }
+
+    private ProfilePurchaseDTO toProfilePurchase(Purchase purchase) {
+        String eventName = "Evento no disponible";
+        java.time.LocalDate eventDate = null;
+        int totalTickets = 0;
+
+        if (purchase.getDetails() != null && !purchase.getDetails().isEmpty()) {
+            PurchaseDetail firstDetail = purchase.getDetails().get(0);
+            if (firstDetail.getTicket() != null && firstDetail.getTicket().getEvent() != null) {
+                eventName = firstDetail.getTicket().getEvent().getName();
+                eventDate = firstDetail.getTicket().getEvent().getDate();
+            }
+
+            totalTickets = purchase.getDetails().stream()
+                    .map(PurchaseDetail::getQuantity)
+                    .filter(java.util.Objects::nonNull)
+                    .mapToInt(Integer::intValue)
+                    .sum();
+        }
+
+        return new ProfilePurchaseDTO(purchase.getId(), eventName, eventDate, totalTickets);
     }
 }
 
