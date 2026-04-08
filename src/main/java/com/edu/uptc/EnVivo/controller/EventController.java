@@ -5,7 +5,6 @@ import com.edu.uptc.EnVivo.dto.CreateEventDTO;
 import com.edu.uptc.EnVivo.dto.EventDetailDTO;
 import com.edu.uptc.EnVivo.dto.EventReporteDTO;
 import com.edu.uptc.EnVivo.service.CategoryService;
-import com.edu.uptc.EnVivo.service.CloudinaryService;
 import com.edu.uptc.EnVivo.service.EventService;
 import com.edu.uptc.EnVivo.service.TicketService;
 import com.edu.uptc.EnVivo.service.TicketTypeService;
@@ -45,8 +44,9 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class EventController {
 
+    public static final int PAGESIZE = 10;
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
-    private final EventService eventoService;
+    private final EventService eventService;
     private final CategoryService categoryService;
     private final TicketService ticketService;
     private final TicketTypeService ticketTypeService;
@@ -64,14 +64,13 @@ public class EventController {
             Principal principal,
             Model model) {
 
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(page, PAGESIZE);
 
         // Se listan eventos vigentes e historicos; las acciones se bloquean para historicos.
-        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
 
         Set<Long> misFavoritos = (principal != null)
-            ? eventoService.obtenerFavoritosUsuario(principal.getName())
+            ? eventService.obtenerFavoritosUsuario(principal.getName())
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
@@ -87,7 +86,7 @@ public class EventController {
     @PostMapping("/evento/crear")
     public String createEvent(@ModelAttribute CreateEventDTO dto) {
         try {
-            eventoService.createEvent(dto, null); 
+            eventService.createEvent(dto, null);
         } catch(IOException e) {
             logger.error("Error creating event", e);
         }
@@ -102,7 +101,7 @@ public class EventController {
 
         int pageSize = 50;
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
@@ -114,10 +113,10 @@ public class EventController {
     }
 
     @PostMapping("/admin/guardar")
-    public String guardarEventoAdmin(@ModelAttribute("evento") CreateEventDTO dto,
+    public String saveEventAdmin(@ModelAttribute("evento") CreateEventDTO dto,
                                      @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            eventoService.createEvent(dto, file);
+            eventService.createEvent(dto, file);
             return "redirect:/admin?exito";
         } catch (IllegalArgumentException e) {
             logger.warn("Validation error saving event: {}", e.getMessage());
@@ -132,24 +131,24 @@ public class EventController {
     }
 
     @GetMapping("/admin/eliminar/{id}")
-    public String eliminarEventoAdmin(@PathVariable Long id) {
-        eventoService.eliminarEvento(id);
+    public String deleteEventAdmin(@PathVariable Long id) {
+        eventService.eliminarEvento(id);
         return "redirect:/admin";
     }
 
     @GetMapping("/admin/editar/{id}")
-    public String editarEventoAdmin(@PathVariable Long id,
+    public String editEventAdmin(@PathVariable Long id,
                                     @RequestParam(name = "keyword", required = false) String keyword,
                                     @RequestParam(name = "page", defaultValue = "0") int page,
                                     Model model) {
         int pageSize = 50;
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
+        Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
         
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
 
-        CreateEventDTO dto = eventoService.obtenerEventoParaEdicion(id);
+        CreateEventDTO dto = eventService.obtenerEventoParaEdicion(id);
         model.addAttribute("evento", dto);
      
         cargarDatosComunes(model);
@@ -158,11 +157,11 @@ public class EventController {
     }
 
     @PostMapping("/admin/editar/{id}")
-    public String guardarEdicionAdmin(@PathVariable Long id,
+    public String saveEditionAdmin(@PathVariable Long id,
                                       @ModelAttribute("evento") CreateEventDTO dto,
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
-            eventoService.actualizarEvento(id, dto, file);
+            eventService.actualizarEvento(id, dto, file);
             return "redirect:/admin?exito";
         } catch (IllegalArgumentException e) {
             logger.warn("Validation error updating event {}: {}", id, e.getMessage());
@@ -186,7 +185,7 @@ public class EventController {
         
         try {
             // 2. Llamamos al servicio pasando el ID del evento y el email del usuario logueado (principal.getName())
-            boolean newState = eventoService.toggleInterest(eventId, principal.getName());
+            boolean newState = eventService.toggleInterest(eventId, principal.getName());
             
             // 3. Cumpliendo el RF09: Preparamos un mensaje de éxito para el cliente
             String mensaje = newState ? "¡Añadido a tus intereses!" : "Eliminado de tus intereses";
@@ -207,7 +206,7 @@ public class EventController {
 
     // --- ENDPOINT PARA Ver panel de favoritos
     @GetMapping("/favorites")
-    public String verFavoritos(
+    public String getFavorites(
             @RequestParam(name = "page", defaultValue = "0") int page,
             Principal principal, 
             Model model) {
@@ -215,11 +214,10 @@ public class EventController {
         if (principal == null) {
             return "redirect:/";
         }
+
+        Pageable pageable = PageRequest.of(page, PAGESIZE);
         
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(page, pageSize);
-        
-        Page<Event> misFavoritos = eventoService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
+        Page<Event> misFavoritos = eventService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
         
         model.addAttribute("eventos", misFavoritos);
         model.addAttribute("today", LocalDate.now());
@@ -228,8 +226,8 @@ public class EventController {
     }
 
     @GetMapping("/reports")
-    public String verReporte(Model model) {
-        List<EventReporteDTO> top10 = eventoService.getTop10EventosPorInteres();
+    public String getReport(Model model) {
+        List<EventReporteDTO> top10 = eventService.getTop10EventosPorInteres();
         model.addAttribute("top10", top10);
         return "reports";
     }
@@ -237,11 +235,11 @@ public class EventController {
     @GetMapping("/buy-ticket/{eventId}")
     public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model) {
         try {
-            EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
-            if (detalle.isHistorical()) {
+            EventDetailDTO detailDTO = eventService.obtenerDetalleEvento(eventId);
+            if (detailDTO.isHistorical()) {
                 return "redirect:/?error=evento_historico";
             }
-            model.addAttribute("evento", detalle);
+            model.addAttribute("evento", detailDTO);
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())
@@ -275,7 +273,7 @@ public class EventController {
     @ResponseBody
     public ResponseEntity<?> getEventTickets(@PathVariable Long eventId) {
         try {
-            eventoService.obtenerPorId(eventId);
+            eventService.obtenerPorId(eventId);
             List<com.edu.uptc.EnVivo.dto.TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -296,7 +294,7 @@ public class EventController {
     @ResponseBody
     public ResponseEntity<?> getEventDetail(@PathVariable Long eventId) {
         try {
-            EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
+            EventDetailDTO detalle = eventService.obtenerDetalleEvento(eventId);
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "event", detalle,

@@ -18,13 +18,13 @@ public class CategoryController {
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService categoryService;
 
-    private void cargarListaCategorias(Model model) {
+    private void getCategoriesList(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
     }
 
     @GetMapping
     public String listCategories(Model model) {
-        cargarListaCategorias(model);
+        getCategoriesList(model);
         model.addAttribute("categoria", new CreateCategoryDTO()); 
         return "categories"; 
     }
@@ -32,7 +32,7 @@ public class CategoryController {
     @GetMapping("/edit/{id}")
     public String editCategory(@PathVariable Long id, Model model) {
         CreateCategoryDTO dto = categoryService.getCategoryDTO(id);
-        cargarListaCategorias(model);
+        getCategoriesList(model);
         model.addAttribute("categoria", dto); 
         return "categories"; 
     }
