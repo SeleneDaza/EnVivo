@@ -82,7 +82,7 @@ class PurchaseServiceTest {
         validRequest = new PurchaseCheckoutRequestDTO();
         validRequest.setEventId(100L);
         validRequest.setTicketId(10L);
-        validRequest.setQuantity(2); // Quiere comprar 2 boletas
+        validRequest.setQuantity(2);
         validRequest.setBuyer(buyer);
         validRequest.setPayment(payment);
     }
@@ -93,7 +93,12 @@ class PurchaseServiceTest {
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
         
         Purchase savedPurchase = new Purchase();
-        savedPurchase.setId(999L);
+        savedPurchase.setId(999L); 
+        savedPurchase.setPurchaseDate(java.time.LocalDateTime.now()); 
+        savedPurchase.setBuyerFullName(validRequest.getBuyer().getFullName());
+        savedPurchase.setBuyerEmail(validRequest.getBuyer().getEmail());
+        savedPurchase.setBuyerDocument(validRequest.getBuyer().getDocument());
+        
         when(purchaseRepository.save(any(Purchase.class))).thenReturn(savedPurchase);
 
         PurchaseConfirmationDTO result = purchaseService.checkout("test@correo.com", validRequest);
@@ -101,8 +106,8 @@ class PurchaseServiceTest {
         assertNotNull(result);
         assertEquals(999L, result.getPurchaseId());
         assertEquals("Concierto Rock", result.getEventName());
-        assertEquals(100000, result.getTotal());
-        assertEquals(48, mockTicket.getAvailableQuantity()); 
+        assertEquals(100000, result.getTotal()); 
+        assertEquals(48, mockTicket.getAvailableQuantity());
         
         verify(purchaseRepository, times(1)).save(any(Purchase.class));
     }
