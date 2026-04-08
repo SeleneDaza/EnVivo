@@ -215,11 +215,37 @@
         updateTicketEmptyMessage();
     }
 
+    function updateDisabledTicketOptions() {
+        if (!ticketContainer) return;
+        
+        const allSelects = Array.from(ticketContainer.querySelectorAll('.js-ticket-type'));
+        
+        // 1. Recopilar todos los valores que ya están seleccionados
+        const selectedValues = allSelects
+            .map(select => select.value)
+            .filter(value => value !== ""); // Ignorar los vacíos
+
+        // 2. Recorrer cada select para bloquear las opciones usadas en otros
+        allSelects.forEach(select => {
+            Array.from(select.options).forEach(option => {
+                if (!option.value) return; // Ignorar la opción por defecto (ej: "Seleccione...")
+                
+                // Si la opción está en el array de seleccionados Y no es la que este select tiene elegida
+                if (selectedValues.includes(option.value) && select.value !== option.value) {
+                    option.disabled = true; // La bloqueamos
+                } else {
+                    option.disabled = false; // La liberamos
+                }
+            });
+        });
+    }
+
     function addTicketRow() {
         if (!ticketContainer || !ticketTemplate) return;
         const row = ticketTemplate.content.firstElementChild.cloneNode(true);
         ticketContainer.appendChild(row);
         reindexTicketRows();
+        updateDisabledTicketOptions(); // <-- NUEVO
     }
 
     function isTicketRowEmpty(row) {
@@ -239,6 +265,14 @@
             if (!removeButton) return;
             removeButton.closest('.ticket-row')?.remove();
             reindexTicketRows();
+            updateDisabledTicketOptions(); // <-- NUEVO
+        });
+
+        // <-- NUEVO EVENTO: Detectar cuando cambian la selección de una boleta -->
+        ticketContainer.addEventListener('change', (event) => {
+            if (event.target.classList.contains('js-ticket-type')) {
+                updateDisabledTicketOptions();
+            }
         });
     }
 

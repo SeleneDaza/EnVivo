@@ -40,11 +40,17 @@ public class CategoryController {
     @PostMapping("/create")
     public String saveCategory(@ModelAttribute("categoria") CreateCategoryDTO dto) {
         try {
+            if (categoryService.existsByName(dto.getName())) {
+                
+                if (dto.getCategoryId() == null) {
+                    return "redirect:/categories?error_duplicado=true";
+                }
+            }
             categoryService.saveCategory(dto);
-            return "redirect:/categories?exito";
+            return "redirect:/categories?exito=true";
         } catch (Exception e) {
             logger.error("Error saving category", e);
-            return "redirect:/categories?error_general";
+            return "redirect:/categories?error_general=true";
         }
     }
 
