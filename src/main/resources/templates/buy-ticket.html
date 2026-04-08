@@ -458,6 +458,15 @@
     });
 
     updateStepUI();
+
+    const input = document.getElementById('expiry');
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    // Los meses en JS van de 0 a 11, sumamos 1 y rellenamos con un cero si es necesario
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0'); 
+    
+    // Establece el valor mínimo como el mes actual (Ej: "2026-04")
+    input.min = `${anio}-${mes}`;
 </script>
 
 </body>
