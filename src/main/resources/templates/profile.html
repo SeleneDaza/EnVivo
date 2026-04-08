@@ -139,14 +139,20 @@
                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Fecha del evento</p>
                                     <p class="text-sm font-semibold text-gray-700 mt-1"
                                        th:text="${purchase.eventDate != null ? #temporals.format(purchase.eventDate, 'dd/MM/yyyy') : 'Fecha no disponible'}">01/01/2026</p>
+                                    <p th:if="${purchase.historical}" class="text-xs font-black text-gray-500 mt-2 uppercase tracking-widest">
+                                        Evento historico
+                                    </p>
 
                                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Entradas compradas</p>
                                     <p class="text-sm font-semibold text-gray-700 mt-1" th:text="${purchase.totalTickets}">0</p>
 
-                                    <a th:href="@{/api/purchases/{id}/descargar-entradas(id=${purchase.purchaseId})}"
+                                    <a th:if="${!purchase.historical}" th:href="@{/api/purchases/{id}/descargar-entradas(id=${purchase.purchaseId})}"
                                        class="inline-block mt-5 px-4 py-2 rounded-xl bg-main text-white text-sm font-bold hover:opacity-90 transition-all">
                                         Descargar comprobante PDF
                                     </a>
+                                    <span th:if="${purchase.historical}" class="inline-block mt-5 px-4 py-2 rounded-xl bg-gray-200 text-gray-500 text-sm font-bold">
+                                        Descarga no disponible
+                                    </span>
                                 </article>
                             </div>
                         </section>

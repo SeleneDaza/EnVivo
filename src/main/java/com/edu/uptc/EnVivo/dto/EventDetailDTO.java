@@ -15,6 +15,7 @@ public class EventDetailDTO {
     private String name;
     private String description;
     private LocalDate date;
+    private boolean historical;
     private String image;
     private String category;
     private List<TicketDTO> tickets;

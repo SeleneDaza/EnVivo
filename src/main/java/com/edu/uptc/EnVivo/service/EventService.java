@@ -149,6 +149,9 @@ public class EventService {
     public boolean toggleInterest(Long eventId, String loginIdentifier) {
         User user = findUserByLoginIdentifier(loginIdentifier);
         Event event = obtenerPorId(eventId);
+        if (isHistorical(event)) {
+            throw new IllegalStateException("No puedes marcar favoritos en eventos historicos.");
+        }
         if (event.getInterestCount() == null) {
             event.setInterestCount(0);
         }
@@ -259,10 +262,21 @@ public class EventService {
         detail.setName(event.getName());
         detail.setDescription(event.getDescription());
         detail.setDate(event.getDate());
+        detail.setHistorical(isHistorical(event));
         detail.setImage(event.getImage());
         detail.setCategory(event.getCategory() != null ? event.getCategory().getName() : null);
         detail.setTickets(tickets);
 
         return detail;
+    }
+
+    public boolean isEventHistorical(Long eventId) {
+        return isHistorical(obtenerPorId(eventId));
+    }
+
+    private boolean isHistorical(Event event) {
+        return event != null
+                && event.getDate() != null
+                && event.getDate().isBefore(LocalDate.now());
     }
 }

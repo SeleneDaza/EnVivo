@@ -39,20 +39,22 @@ function renderTickets(tickets) {
     }).join('');
 }
 
-function setBuyTicketLink(eventId) {
+function setBuyTicketLink(eventId, isHistorical) {
     const buyButton = document.getElementById('buyTicketButton');
     if (!buyButton) return;
 
-    if (!eventId) {
+    if (!eventId || isHistorical) {
         buyButton.setAttribute('href', '#');
         buyButton.setAttribute('aria-disabled', 'true');
         buyButton.classList.add('opacity-50', 'pointer-events-none');
+        buyButton.textContent = isHistorical ? 'Evento historico (solo visualizacion)' : 'Comprar entradas';
         return;
     }
 
     buyButton.setAttribute('href', `/buy-ticket/${eventId}`);
     buyButton.removeAttribute('aria-disabled');
     buyButton.classList.remove('opacity-50', 'pointer-events-none');
+    buyButton.textContent = 'Comprar entradas';
 }
 
 function openModal(detail) {
@@ -76,7 +78,7 @@ function openModal(detail) {
     }
 
     renderTickets(detail.tickets);
-    setBuyTicketLink(eventId);
+    setBuyTicketLink(eventId, !!detail.historical);
 
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -95,7 +97,7 @@ function showLoadingState() {
     if (ticketsContainer) {
         ticketsContainer.innerHTML = '<p class="text-gray-400">Cargando entradas...</p>';
     }
-    setBuyTicketLink(null);
+    setBuyTicketLink(null, false);
 }
 
 function openEventDetail(eventId) {
