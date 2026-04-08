@@ -93,7 +93,7 @@ class PurchaseServiceTest {
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
         
         Purchase savedPurchase = new Purchase();
-        savedPurchase.setId(999L); 
+        savedPurchase.setId(999L);
         when(purchaseRepository.save(any(Purchase.class))).thenReturn(savedPurchase);
 
         PurchaseConfirmationDTO result = purchaseService.checkout("test@correo.com", validRequest);
@@ -109,7 +109,7 @@ class PurchaseServiceTest {
 
     @Test
     void checkout_FallaPorCantidadInsuficiente() {
-        validRequest.setQuantity(100); 
+        validRequest.setQuantity(100);
         
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
