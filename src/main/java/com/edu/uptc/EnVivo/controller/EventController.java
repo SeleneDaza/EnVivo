@@ -159,6 +159,12 @@ public class EventController {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
         
+        model.addAttribute("totalGanancias", purchaseService.getTotalGanancias());
+        model.addAttribute("eventosActivos", eventService.getEventosActivosCount());
+        model.addAttribute("eventosPasados", eventService.getEventosPasadosCount());
+        model.addAttribute("usuariosRegistrados", userService.getUsuariosRegistradosCount());
+        model.addAttribute("today", LocalDate.now()); 
+
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
 
