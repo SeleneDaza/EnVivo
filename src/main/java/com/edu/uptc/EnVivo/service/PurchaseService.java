@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,10 @@ public class PurchaseService {
 
         if (!ticket.getEvent().getEvent_id().equals(request.getEventId())) {
             throw new IllegalArgumentException("La boleta no pertenece al evento seleccionado.");
+        }
+
+        if (isHistoricalEvent(ticket.getEvent().getDate())) {
+            throw new IllegalStateException("No puedes comprar boletas para eventos historicos.");
         }
 
         int quantity = request.getQuantity();
@@ -154,6 +159,9 @@ public class PurchaseService {
         if (!purchase.getUser().getId().equals(user.getId())) {
             throw new SecurityException("No tienes permiso para descargar estas entradas.");
         }
+        if (purchaseHasHistoricalEvent(purchase)) {
+            throw new IllegalStateException("No puedes descargar comprobantes de eventos historicos.");
+        }
         return pdfTicketService.generateTicketsPdf(purchase);
     }
 
@@ -173,12 +181,14 @@ public class PurchaseService {
         String eventName = "Evento no disponible";
         java.time.LocalDate eventDate = null;
         int totalTickets = 0;
+        boolean historical = false;
 
         if (purchase.getDetails() != null && !purchase.getDetails().isEmpty()) {
             PurchaseDetail firstDetail = purchase.getDetails().get(0);
             if (firstDetail.getTicket() != null && firstDetail.getTicket().getEvent() != null) {
                 eventName = firstDetail.getTicket().getEvent().getName();
                 eventDate = firstDetail.getTicket().getEvent().getDate();
+                historical = isHistoricalEvent(eventDate);
             }
 
             totalTickets = purchase.getDetails().stream()
@@ -188,7 +198,24 @@ public class PurchaseService {
                     .sum();
         }
 
-        return new ProfilePurchaseDTO(purchase.getId(), eventName, eventDate, totalTickets);
+        return new ProfilePurchaseDTO(purchase.getId(), eventName, eventDate, totalTickets, historical);
+    }
+
+    private boolean purchaseHasHistoricalEvent(Purchase purchase) {
+        if (purchase.getDetails() == null || purchase.getDetails().isEmpty()) {
+            return false;
+        }
+
+        return purchase.getDetails().stream().anyMatch(detail -> {
+            if (detail == null || detail.getTicket() == null || detail.getTicket().getEvent() == null) {
+                return false;
+            }
+            return isHistoricalEvent(detail.getTicket().getEvent().getDate());
+        });
+    }
+
+    private boolean isHistoricalEvent(LocalDate eventDate) {
+        return eventDate != null && eventDate.isBefore(LocalDate.now());
     }
 }
 

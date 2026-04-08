@@ -13,9 +13,14 @@ function formatPrice(value) {
     return Number.isFinite(price) ? `$${price.toLocaleString('es-CO')}` : '$0';
 }
 
-function renderTickets(tickets) {
+function renderTickets(tickets, isHistorical) {
     const container = document.getElementById('modalTickets');
     if (!container) return;
+
+    if (isHistorical) {
+        container.innerHTML = '';
+        return;
+    }
 
     if (!Array.isArray(tickets) || tickets.length === 0) {
         container.innerHTML = '<p class="text-gray-400">Este evento no tiene entradas configuradas.</p>';
@@ -39,20 +44,36 @@ function renderTickets(tickets) {
     }).join('');
 }
 
-function setBuyTicketLink(eventId) {
+function setBuyTicketLink(eventId, isHistorical) {
     const buyButton = document.getElementById('buyTicketButton');
     if (!buyButton) return;
 
-    if (!eventId) {
+    if (!eventId || isHistorical) {
         buyButton.setAttribute('href', '#');
         buyButton.setAttribute('aria-disabled', 'true');
         buyButton.classList.add('opacity-50', 'pointer-events-none');
+        buyButton.classList.toggle('hidden', !!isHistorical);
+        buyButton.textContent = 'Comprar entradas';
         return;
     }
 
     buyButton.setAttribute('href', `/buy-ticket/${eventId}`);
     buyButton.removeAttribute('aria-disabled');
     buyButton.classList.remove('opacity-50', 'pointer-events-none');
+    buyButton.classList.remove('hidden');
+    buyButton.textContent = 'Comprar entradas';
+}
+
+function setHistoricalBadge(isHistorical) {
+    const badge = document.getElementById('modalHistoricalBadge');
+    if (!badge) return;
+    badge.classList.toggle('hidden', !isHistorical);
+}
+
+function setTicketsSectionVisibility(isHistorical) {
+    const section = document.getElementById('modalTicketsSection');
+    if (!section) return;
+    section.classList.toggle('hidden', !!isHistorical);
 }
 
 function openModal(detail) {
@@ -75,8 +96,12 @@ function openModal(detail) {
         modalDesc.innerText = detail.description || 'No hay descripcion disponible para este evento.';
     }
 
-    renderTickets(detail.tickets);
-    setBuyTicketLink(eventId);
+    const isHistorical = !!detail.historical;
+
+    renderTickets(detail.tickets, isHistorical);
+    setHistoricalBadge(isHistorical);
+    setTicketsSectionVisibility(isHistorical);
+    setBuyTicketLink(eventId, isHistorical);
 
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -95,7 +120,9 @@ function showLoadingState() {
     if (ticketsContainer) {
         ticketsContainer.innerHTML = '<p class="text-gray-400">Cargando entradas...</p>';
     }
-    setBuyTicketLink(null);
+    setHistoricalBadge(false);
+    setTicketsSectionVisibility(false);
+    setBuyTicketLink(null, false);
 }
 
 function openEventDetail(eventId) {
@@ -160,10 +187,12 @@ function toggleInterest(buttonElement) {
         headers: headers
     })
         .then((response) => {
-            if (!response.ok && response.status !== 401) {
-                throw new Error('Error de servidor');
-            }
-            return response.json();
+            return response.json().then((data) => {
+                if (!response.ok) {
+                    throw new Error(data.message || 'No se pudo actualizar tu favorito.');
+                }
+                return data;
+            });
         })
         .then((data) => {
             if (data.message) {
@@ -203,7 +232,7 @@ function toggleInterest(buttonElement) {
                 toast: true,
                 position: 'bottom-end',
                 icon: 'error',
-                title: 'No pudimos procesar tu solicitud en este momento.',
+                title: error.message || 'No pudimos procesar tu solicitud en este momento.',
                 showConfirmButton: false,
                 timer: 3500
             });

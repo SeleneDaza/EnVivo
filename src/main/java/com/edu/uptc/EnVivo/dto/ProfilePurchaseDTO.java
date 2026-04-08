@@ -11,6 +11,8 @@ public class ProfilePurchaseDTO {
     private String eventName;
     private LocalDate eventDate;
     private Integer totalTickets;
+    private boolean historical;
 }
+
 
 

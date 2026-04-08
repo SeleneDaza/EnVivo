@@ -40,7 +40,7 @@
 
 <body class="bg-[#f8f9fa]">
 
-<div th:replace="components/navbar :: navbar('user','')"></div>
+<div th:replace="~{components/navbar :: navbar('user','')}"></div>
 
 <main class="max-w-[1400px] mx-auto p-10">
 
@@ -67,7 +67,8 @@
 
             <img th:src="${evento.image}" alt="Poster del evento" class="w-full h-full object-cover">
 
-            <button th:data-event-id="${evento.event_id}"
+            <button th:if="${evento.date == null or !evento.date.isBefore(today)}"
+                    th:data-event-id="${evento.event_id}"
                     onclick="toggleInterest(this)"
                     class="absolute top-6 right-6 p-2 rounded-full glass-effect text-error opacity-100 hover:scale-110 transition-all duration-300">
                 <svg class="svg-heart w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,9 +84,10 @@
                     <div class="flex items-center gap-2">
                         <span th:text="${#temporals.format(evento.date, 'dd MMM yyyy')}">Fecha</span>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <span class="text-lg font-light opacity-70">$</span>
-                    </div>
+                    <span th:if="${evento.date != null and evento.date.isBefore(today)}"
+                          class="px-2 py-1 rounded-full text-[10px] font-black bg-warning/20 text-white">
+                        Historico
+                    </span>
                 </div>
             </div>
 
@@ -140,14 +142,22 @@
             method: 'POST',
             headers: headers
         })
-        .then(response => response.json())
+        .then(response => response.json().then(data => {
+            if (!response.ok) {
+                throw new Error(data.message || 'No se pudo actualizar tu favorito.');
+            }
+            return data;
+        }))
         .then(data => {
             if (!data.interested) {
                 buttonElement.closest('.relative').style.opacity = '0.5';
                 window.location.reload();
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'No se pudo actualizar tu favorito.');
+        });
     }
 </script>
 

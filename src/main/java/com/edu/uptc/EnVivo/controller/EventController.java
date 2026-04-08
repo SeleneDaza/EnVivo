@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.Collections;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -66,14 +67,15 @@ public class EventController {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        // Solo eventos vigentes (fecha >= hoy) para la página pública
-        Page<Event> eventPage = eventoService.buscarOPaginarVigentes(keyword, pageable);
+        // Se listan eventos vigentes e historicos; las acciones se bloquean para historicos.
+        Page<Event> eventPage = eventoService.buscarOPaginar(keyword, pageable);
 
         Set<Long> misFavoritos = (principal != null)
             ? eventoService.obtenerFavoritosUsuario(principal.getName())
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
+        model.addAttribute("today", LocalDate.now());
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
@@ -104,6 +106,7 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("today", LocalDate.now());
         model.addAttribute("evento", new CreateEventDTO());
         cargarDatosComunes(model);
 
@@ -190,7 +193,11 @@ public class EventController {
             
             // Devolvemos el nuevo estado y el mensaje en formato JSON
             return ResponseEntity.ok(Map.of("interested", newState, "message", mensaje));
-            
+
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", e.getMessage()));
+
         } catch (Exception e) {
             logger.error("Error toggling interest", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -215,6 +222,7 @@ public class EventController {
         Page<Event> misFavoritos = eventoService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
         
         model.addAttribute("eventos", misFavoritos);
+        model.addAttribute("today", LocalDate.now());
         
         return "favorites";
     }
@@ -230,6 +238,9 @@ public class EventController {
     public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model) {
         try {
             EventDetailDTO detalle = eventoService.obtenerDetalleEvento(eventId);
+            if (detalle.isHistorical()) {
+                return "redirect:/?error=evento_historico";
+            }
             model.addAttribute("evento", detalle);
 
             if (principal != null) {
