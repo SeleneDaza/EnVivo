@@ -178,25 +178,7 @@
 
     </main>
 
-    <script>
-    function toggleEditForm() {
-        const form = document.getElementById('editProfileForm');
-        if (form) {
-            form.classList.toggle('hidden');
-        }
-    }
-
-    // Si el backend retorna error, se deja abierto el formulario para corrección inmediata.
-    window.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('error')) {
-            const form = document.getElementById('editProfileForm');
-            if (form) {
-                form.classList.remove('hidden');
-            }
-        }
-    });
-    </script>
+    <script th:src="@{/js/profile.js}" defer></script>
 
 </body>
 </html>
