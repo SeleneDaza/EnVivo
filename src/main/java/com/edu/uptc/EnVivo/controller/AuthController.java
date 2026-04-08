@@ -1,6 +1,7 @@
 package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.RegisterDTO;
+import com.edu.uptc.EnVivo.dto.UpdateProfileDTO;
 import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,24 @@ public class AuthController {
                 .orElse(null);
         model.addAttribute("user", user);
         return "profile";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@ModelAttribute UpdateProfileDTO dto, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        UserService.UpdateProfileResult result = userService.updatePersonalInfo(principal.getName(), dto);
+        return switch (result) {
+            case SUCCESS -> "redirect:/profile?updated=true";
+            case INVALID_FULL_NAME -> "redirect:/profile?error=invalidFullName";
+            case INVALID_DOCUMENT -> "redirect:/profile?error=invalidDocument";
+            case INVALID_PHONE -> "redirect:/profile?error=invalidPhone";
+            case INVALID_EMAIL -> "redirect:/profile?error=invalidEmail";
+            case EMAIL_IN_USE -> "redirect:/profile?error=emailInUse";
+            case DOCUMENT_IN_USE -> "redirect:/profile?error=documentInUse";
+            default -> "redirect:/profile?error=userNotFound";
+        };
     }
 }
