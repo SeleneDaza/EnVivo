@@ -50,7 +50,10 @@
             
             <div class="flex items-center gap-3">
                 <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest">
-                    2 Eventos Activos
+                    <span th:text="${eventsCount}">0</span> eventos con ventas
+                </span>
+                <span class="text-[10px] bg-success/10 text-success px-3 py-1 rounded-full font-black uppercase tracking-widest">
+                    Total global: <span th:text="'$' + ${#numbers.formatInteger(salesReport.totalRevenueAllSales, 0, 'COMMA')}">$0</span>
                 </span>
             </div>
         </div>
@@ -65,119 +68,66 @@
                         <th class="px-8 py-6 font-black text-center w-16"></th> </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    
-                    <tr class="group hover:bg-subtle/10 transition-all cursor-pointer bg-white"
-                        onclick="toggleAccordion('detalles-evento-1', 'icono-evento-1')">
-                        <td class="px-8 py-5 flex items-center gap-4 border-l-4 border-transparent group-hover:border-main transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-main/10 flex items-center justify-center text-main font-bold">
-                                <i class="fa-solid fa-calendar-check text-sm"></i>
-                            </div>
-                            <span class="font-black text-gray-800 text-sm">
-                                Concierto Rock Fest 2024
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="font-bold text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-lg">
-                                19 vendidas
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-right font-black text-main tracking-wider">
-                            $1,450,000
-                        </td>
-                        <td class="px-8 py-5 text-center text-gray-400">
-                            <i id="icono-evento-1" class="fa-solid fa-chevron-down transition-transform"></i>
-                        </td>
-                    </tr>
+                    <th:block th:each="evento : ${eventSales}">
+                        <tr class="group hover:bg-subtle/10 transition-all cursor-pointer bg-white"
+                            th:onclick="|toggleAccordion('detalles-evento-${evento.eventId}', 'icono-evento-${evento.eventId}')|">
+                            <td class="px-8 py-5 flex items-center gap-4 border-l-4 border-transparent group-hover:border-main transition-all">
+                                <div class="w-10 h-10 rounded-xl bg-main/10 flex items-center justify-center text-main font-bold">
+                                    <i class="fa-solid fa-calendar-check text-sm"></i>
+                                </div>
+                                <span class="font-black text-gray-800 text-sm" th:text="${evento.eventName}">Evento</span>
+                            </td>
+                            <td class="px-8 py-5 text-center">
+                                <span class="font-bold text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-lg"
+                                      th:text="|${evento.totalTicketsSold} vendidas|">0 vendidas</span>
+                            </td>
+                            <td class="px-8 py-5 text-right font-black text-main tracking-wider"
+                                th:text="'$' + ${#numbers.formatInteger(evento.totalRevenue, 0, 'COMMA')}">$0</td>
+                            <td class="px-8 py-5 text-center text-gray-400">
+                                <i class="fa-solid fa-chevron-down transition-transform"
+                                   th:id="|icono-evento-${evento.eventId}|"></i>
+                            </td>
+                        </tr>
 
-                    <tr id="detalles-evento-1" class="hidden bg-gray-50/50 shadow-inner">
-                        <td colspan="4" class="px-16 py-6">
-                            
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
-                                Desglose por tipo de boleta
-                            </h4>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:shadow-md transition-shadow">
-                                <div class="flex flex-col gap-1">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-2 h-2 rounded-full bg-warning"></div>
-                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">
-                                            Oro
-                                        </span>
+                        <tr class="hidden bg-gray-50/50 shadow-inner" th:id="|detalles-evento-${evento.eventId}|">
+                            <td colspan="4" class="px-16 py-6">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
+                                    Desglose por tipo de boleta
+                                </h4>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" th:if="${!#lists.isEmpty(evento.ticketTypeBreakdown)}">
+                                    <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:shadow-md transition-shadow"
+                                         th:each="detalle, iter : ${evento.ticketTypeBreakdown}">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-2 h-2 rounded-full"
+                                                     th:classappend="${iter.index % 4 == 0} ? ' bg-warning' : (${iter.index % 4 == 1} ? ' bg-info' : (${iter.index % 4 == 2} ? ' bg-main' : ' bg-gray-400'))"></div>
+                                                <span class="font-bold text-gray-700 text-xs uppercase tracking-wider"
+                                                      th:text="${detalle.ticketTypeName}">Tipo</span>
+                                            </div>
+                                            <span class="text-[10px] text-gray-400 font-medium pl-5"
+                                                  th:text="'Precio: $' + ${#numbers.formatInteger(detalle.unitPrice, 0, 'COMMA')}">Precio: $0</span>
+                                        </div>
+
+                                        <div class="text-right">
+                                            <div class="font-black text-gray-900">
+                                                <span th:text="${detalle.soldQuantity}">0</span>
+                                                <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span>
+                                            </div>
+                                            <div class="text-[10px] font-bold text-main mt-0.5"
+                                                 th:text="'$' + ${#numbers.formatInteger(detalle.revenue, 0, 'COMMA')}">$0</div>
+                                        </div>
                                     </div>
-                                    <span class="text-[10px] text-gray-400 font-medium pl-5">
-                                        Precio: $150.000
-                                    </span>
                                 </div>
 
-                                <div class="text-right">
-                                    <div class="font-black text-gray-900">
-                                        10 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span>
-                                    </div>
-                                    <div class="text-[10px] font-bold text-main mt-0.5">
-                                        $1.500.000
-                                    </div>
-                                </div>
-                            </div>
+                                <p class="text-xs font-semibold text-gray-400" th:if="${#lists.isEmpty(evento.ticketTypeBreakdown)}">
+                                    Aun no hay ventas por tipo de boleta para este evento.
+                                </p>
+                            </td>
+                        </tr>
+                    </th:block>
 
-                            <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:shadow-md transition-shadow">
-                                <div class="flex flex-col gap-1">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-2 h-2 rounded-full bg-gray-400"></div>
-                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">Plata</span>
-                                    </div>
-                                    <span class="text-[10px] text-gray-400 font-medium pl-5">Precio: $80.000</span>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-black text-gray-900">
-                                        9 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span>
-                                    </div>
-                                    <div class="text-[10px] font-bold text-main mt-0.5">$720.000</div>
-                                </div>
-                            </div>
-
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="group hover:bg-subtle/10 transition-all cursor-pointer bg-white"
-                        onclick="toggleAccordion('detalles-evento-2', 'icono-evento-2')">
-                        <td class="px-8 py-5 flex items-center gap-4 border-l-4 border-transparent group-hover:border-main transition-all">
-                            <div class="w-10 h-10 rounded-xl bg-main/10 flex items-center justify-center text-main font-bold">
-                                <i class="fa-solid fa-calendar-check text-sm"></i>
-                            </div>
-                            <span class="font-black text-gray-800 text-sm">
-                                Obra de Teatro: El Fantasma
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="font-bold text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-lg">
-                                45 vendidas
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-right font-black text-main tracking-wider">
-                            $900,000
-                        </td>
-                        <td class="px-8 py-5 text-center text-gray-400">
-                            <i id="icono-evento-2" class="fa-solid fa-chevron-down transition-transform"></i>
-                        </td>
-                    </tr>
-                    <tr id="detalles-evento-2" class="hidden bg-gray-50/50 shadow-inner">
-                        <td colspan="4" class="px-16 py-6">
-                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
-                                Desglose por tipo de boleta
-                            </h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-2 h-2 rounded-full bg-info"></div>
-                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">General</span>
-                                    </div>
-                                    <span class="font-black text-gray-900">45 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span></span>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr class="hidden"> 
+                    <tr th:if="${#lists.isEmpty(eventSales)}">
                         <td colspan="4" class="text-center py-16">
                             <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                 <i class="fa-solid fa-ticket text-2xl"></i>
