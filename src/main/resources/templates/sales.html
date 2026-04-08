@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EnVivo | Reporte de Ventas</title>
+
+    <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                main: '#FF6F28',
+                darker: '#BF371C',
+                lighter: '#FFCA99',
+                subtle: '#E3EDFF',
+                error: '#FF3B3B',
+                warning: '#FFCC00',
+                info: '#0063F7',
+                success: '#06C270',
+              }
+            }
+          }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        /* Pequeña animación para la flecha del acordeón */
+        .rotate-180 { transform: rotate(180deg); }
+        .transition-transform { transition: transform 0.3s ease; }
+    </style>
+</head>
+
+<body class="bg-[#f8f9fa] min-h-screen">
+
+<div th:replace="~{components/navbar :: navbar('admin','ventas')}"></div>
+
+<main class="max-w-[1400px] mx-auto p-8">
+
+    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+
+        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
+                <i class="fa-solid fa-chart-line text-main"></i>
+                Reporte de Ventas por Evento
+            </h3>
+            
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest">
+                    2 Eventos Activos
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-50/50 border-b border-gray-100">
+                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                        <th class="px-8 py-6 font-black">Evento</th>
+                        <th class="px-8 py-6 font-black text-center">Total Entradas</th>
+                        <th class="px-8 py-6 font-black text-right">Ingresos Totales</th>
+                        <th class="px-8 py-6 font-black text-center w-16"></th> </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    
+                    <tr class="group hover:bg-subtle/10 transition-all cursor-pointer bg-white"
+                        onclick="toggleAccordion('detalles-evento-1', 'icono-evento-1')">
+                        <td class="px-8 py-5 flex items-center gap-4 border-l-4 border-transparent group-hover:border-main transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-main/10 flex items-center justify-center text-main font-bold">
+                                <i class="fa-solid fa-calendar-check text-sm"></i>
+                            </div>
+                            <span class="font-black text-gray-800 text-sm">
+                                Concierto Rock Fest 2024
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            <span class="font-bold text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-lg">
+                                19 vendidas
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right font-black text-main tracking-wider">
+                            $1,450,000
+                        </td>
+                        <td class="px-8 py-5 text-center text-gray-400">
+                            <i id="icono-evento-1" class="fa-solid fa-chevron-down transition-transform"></i>
+                        </td>
+                    </tr>
+
+                    <tr id="detalles-evento-1" class="hidden bg-gray-50/50 shadow-inner">
+                        <td colspan="4" class="px-16 py-6">
+                            
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
+                                Desglose por tipo de boleta
+                            </h4>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full bg-warning"></div>
+                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">
+                                            Oro
+                                        </span>
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 font-medium pl-5">
+                                        Precio: $150.000
+                                    </span>
+                                </div>
+
+                                <div class="text-right">
+                                    <div class="font-black text-gray-900">
+                                        10 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span>
+                                    </div>
+                                    <div class="text-[10px] font-bold text-main mt-0.5">
+                                        $1.500.000
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">Plata</span>
+                                    </div>
+                                    <span class="text-[10px] text-gray-400 font-medium pl-5">Precio: $80.000</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-black text-gray-900">
+                                        9 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span>
+                                    </div>
+                                    <div class="text-[10px] font-bold text-main mt-0.5">$720.000</div>
+                                </div>
+                            </div>
+
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="group hover:bg-subtle/10 transition-all cursor-pointer bg-white"
+                        onclick="toggleAccordion('detalles-evento-2', 'icono-evento-2')">
+                        <td class="px-8 py-5 flex items-center gap-4 border-l-4 border-transparent group-hover:border-main transition-all">
+                            <div class="w-10 h-10 rounded-xl bg-main/10 flex items-center justify-center text-main font-bold">
+                                <i class="fa-solid fa-calendar-check text-sm"></i>
+                            </div>
+                            <span class="font-black text-gray-800 text-sm">
+                                Obra de Teatro: El Fantasma
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            <span class="font-bold text-gray-600 text-sm bg-gray-100 px-3 py-1 rounded-lg">
+                                45 vendidas
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right font-black text-main tracking-wider">
+                            $900,000
+                        </td>
+                        <td class="px-8 py-5 text-center text-gray-400">
+                            <i id="icono-evento-2" class="fa-solid fa-chevron-down transition-transform"></i>
+                        </td>
+                    </tr>
+                    <tr id="detalles-evento-2" class="hidden bg-gray-50/50 shadow-inner">
+                        <td colspan="4" class="px-16 py-6">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
+                                Desglose por tipo de boleta
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-2 h-2 rounded-full bg-info"></div>
+                                        <span class="font-bold text-gray-700 text-xs uppercase tracking-wider">General</span>
+                                    </div>
+                                    <span class="font-black text-gray-900">45 <span class="text-[10px] text-gray-400 font-normal normal-case">uds.</span></span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="hidden"> 
+                        <td colspan="4" class="text-center py-16">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                <i class="fa-solid fa-ticket text-2xl"></i>
+                            </div>
+                            <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
+                                Aún no hay ventas registradas
+                            </p>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    /**
+     * Función para alternar la visibilidad de los detalles del evento
+     * @param {string} detailRowId - El ID de la fila (<tr>) que contiene los detalles
+     * @param {string} iconId - El ID del icono (<i>) de la flecha para rotarlo
+     */
+    function toggleAccordion(detailRowId, iconId) {
+        const detailRow = document.getElementById(detailRowId);
+        const icon = document.getElementById(iconId);
+
+        if (!detailRow || !icon) return;
+
+        // Alternar la clase 'hidden' en la fila de detalles
+        detailRow.classList.toggle('hidden');
+
+        // Rotar la flecha
+        icon.classList.toggle('rotate-180');
+    }
+</script>
+</body>
+</html>
