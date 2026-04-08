@@ -29,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import org.springframework.security.core.Authentication;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -63,16 +65,20 @@ public class EventController {
     public String index(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            Principal principal,
+            Authentication authentication,
             Model model) {
+
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ADMIN"))) {
+            return "redirect:/admin";
+        }
 
         Pageable pageable = PageRequest.of(page, PAGESIZE);
 
-        // Se listan eventos vigentes e historicos; las acciones se bloquean para historicos.
         Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
 
-        Set<Long> misFavoritos = (principal != null)
-            ? eventService.obtenerFavoritosUsuario(principal.getName())
+        Set<Long> misFavoritos = (authentication != null)
+            ? eventService.obtenerFavoritosUsuario(authentication.getName())
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
