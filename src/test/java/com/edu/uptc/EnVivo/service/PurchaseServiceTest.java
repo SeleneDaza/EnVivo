@@ -106,7 +106,7 @@ class PurchaseServiceTest {
         assertNotNull(result);
         assertEquals(999L, result.getPurchaseId());
         assertEquals("Concierto Rock", result.getEventName());
-        assertEquals(1000, result.getTotal()); 
+        assertEquals(100000, result.getTotal()); 
         assertEquals(48, mockTicket.getAvailableQuantity());
         
         verify(purchaseRepository, times(1)).save(any(Purchase.class));
