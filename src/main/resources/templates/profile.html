@@ -128,11 +128,27 @@
                                 <span class="w-2 h-6 bg-main rounded-full mr-3"></span>
                                 Historial de Compras
                             </h2>
-                            <div th:if="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="bg-gray-50 rounded-2xl p-10 text-center text-gray-400">
+                            <div th:if="${purchaseHistory == null or #lists.isEmpty(purchaseHistory)}" class="bg-gray-50 rounded-2xl p-10 text-center text-gray-400">
                                 <p>Aún no has realizado ninguna compra.</p>
                             </div>
-                            <div th:unless="${user == null or user.purchases == null or #sets.isEmpty(user.purchases)}" class="overflow-x-auto">
-                                </div>
+                            <div th:unless="${purchaseHistory == null or #lists.isEmpty(purchaseHistory)}" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <article th:each="purchase : ${purchaseHistory}" class="bg-gray-50 border border-gray-100 rounded-2xl p-5 shadow-sm">
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Evento</p>
+                                    <h3 class="text-lg font-extrabold text-gray-800 mt-1" th:text="${purchase.eventName}">Nombre del evento</h3>
+
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Fecha del evento</p>
+                                    <p class="text-sm font-semibold text-gray-700 mt-1"
+                                       th:text="${purchase.eventDate != null ? #temporals.format(purchase.eventDate, 'dd/MM/yyyy') : 'Fecha no disponible'}">01/01/2026</p>
+
+                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-4">Entradas compradas</p>
+                                    <p class="text-sm font-semibold text-gray-700 mt-1" th:text="${purchase.totalTickets}">0</p>
+
+                                    <a th:href="@{/api/purchases/{id}/descargar-entradas(id=${purchase.purchaseId})}"
+                                       class="inline-block mt-5 px-4 py-2 rounded-xl bg-main text-white text-sm font-bold hover:opacity-90 transition-all">
+                                        Descargar comprobante PDF
+                                    </a>
+                                </article>
+                            </div>
                         </section>
                     </div>
 

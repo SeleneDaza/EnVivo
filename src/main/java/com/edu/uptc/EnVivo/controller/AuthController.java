@@ -3,6 +3,7 @@ package com.edu.uptc.EnVivo.controller;
 import com.edu.uptc.EnVivo.dto.RegisterDTO;
 import com.edu.uptc.EnVivo.dto.UpdateProfileDTO;
 import com.edu.uptc.EnVivo.entity.User;
+import com.edu.uptc.EnVivo.service.PurchaseService;
 import com.edu.uptc.EnVivo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import java.security.Principal;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class AuthController {
 
     private final UserService userService;
+    private final PurchaseService purchaseService;
 
     @GetMapping("/users")
     public String listUsers(Model model) {
@@ -40,6 +42,9 @@ public class AuthController {
                 .or(() -> userService.findByEmail(principal.getName()))
                 .orElse(null);
         model.addAttribute("user", user);
+        model.addAttribute("purchaseHistory", user != null
+                ? purchaseService.getProfilePurchaseHistory(user.getId())
+                : java.util.Collections.emptyList());
         return "profile";
     }
 
