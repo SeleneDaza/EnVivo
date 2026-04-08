@@ -19,11 +19,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByDocument(String document);
 
-    //TODO: Eliminar metodos sin uso
     boolean existsByEmail(String email);
 
     @Query("SELECT u FROM User u WHERE NOT EXISTS (SELECT r FROM u.roles r WHERE UPPER(r.name) = 'ADMIN')")
     List<User> findUsersWithoutAdminRole();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE NOT EXISTS (SELECT r FROM u.roles r WHERE UPPER(r.name) = 'ADMIN')")
+    long countUsersWithoutAdminRole();
 
 
 }
