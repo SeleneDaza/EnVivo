@@ -49,13 +49,16 @@ public class EventController {
 
     public static final int PAGESIZE = 10;
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
+    private static final String DATE = "today";
+    private static final String ATRIBUTE_EVENTO = "evento";
+    private static final String ATRIBUTE_MESSAGE = "message";
+    private static final String SUCESS_PARAM = "success";
     private final EventService eventService;
     private final CategoryService categoryService;
     private final TicketService ticketService;
     private final TicketTypeService ticketTypeService;
     private final UserService userService;
     private final PurchaseService purchaseService;
-    private String date = "today";
 
     @GetMapping("/login")
     public String loginPage() {
@@ -83,7 +86,7 @@ public class EventController {
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
-        model.addAttribute(date, LocalDate.now());
+        model.addAttribute(DATE, LocalDate.now());
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
@@ -120,8 +123,8 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
-        model.addAttribute(date, LocalDate.now());
-        model.addAttribute("evento", new CreateEventDTO());
+        model.addAttribute(DATE, LocalDate.now());
+        model.addAttribute(ATRIBUTE_EVENTO, new CreateEventDTO());
         cargarDatosComunes(model);
 
         return "admin";
@@ -164,13 +167,13 @@ public class EventController {
         model.addAttribute("eventosActivos", eventService.getEventosActivosCount());
         model.addAttribute("eventosPasados", eventService.getEventosPasadosCount());
         model.addAttribute("usuariosRegistrados", userService.getUsuariosRegistradosCount());
-        model.addAttribute(date, LocalDate.now()); 
+        model.addAttribute(DATE, LocalDate.now()); 
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
 
         CreateEventDTO dto = eventService.obtenerEventoParaEdicion(id);
-        model.addAttribute("evento", dto);
+        model.addAttribute(ATRIBUTE_EVENTO, dto);
      
         cargarDatosComunes(model);
 
@@ -179,7 +182,7 @@ public class EventController {
 
     @PostMapping("/admin/editar/{id}")
     public String saveEditionAdmin(@PathVariable Long id,
-                                      @ModelAttribute("evento") CreateEventDTO dto,
+                                      @ModelAttribute(ATRIBUTE_EVENTO) CreateEventDTO dto,
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             eventService.actualizarEvento(id, dto, file);
@@ -198,10 +201,10 @@ public class EventController {
 
     @PostMapping("/evento/{id}/interest")
     @ResponseBody
-    public ResponseEntity<?> toggleInterest(@PathVariable("id") Long eventId, Principal principal) {
+    public ResponseEntity<Map<String, Object>> toggleInterest(@PathVariable("id") Long eventId, Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Debes iniciar sesión para marcar interés."));
+                    .body(Map.of(ATRIBUTE_MESSAGE, "Debes iniciar sesión para marcar interés."));
         }
         
         try {
@@ -216,12 +219,12 @@ public class EventController {
 
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("message", e.getMessage()));
+                    .body(Map.of(ATRIBUTE_MESSAGE, e.getMessage()));
 
         } catch (Exception e) {
             logger.error("Error toggling interest", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error al procesar tu solicitud."));
+                    .body(Map.of(ATRIBUTE_MESSAGE, "Error al procesar tu solicitud."));
         }
     }
 
@@ -241,7 +244,7 @@ public class EventController {
         Page<Event> misFavoritos = eventService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
         
         model.addAttribute("eventos", misFavoritos);
-        model.addAttribute(date, LocalDate.now());
+        model.addAttribute(DATE, LocalDate.now());
         
         return "favorites";
     }
@@ -260,7 +263,7 @@ public class EventController {
             if (detailDTO.isHistorical()) {
                 return "redirect:/?error=evento_historico";
             }
-            model.addAttribute("evento", detailDTO);
+            model.addAttribute(ATRIBUTE_EVENTO, detailDTO);
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())
@@ -292,42 +295,42 @@ public class EventController {
      */
     @GetMapping("/api/eventos/{eventId}/tickets")
     @ResponseBody
-    public ResponseEntity<?> getEventTickets(@PathVariable Long eventId) {
+    public ResponseEntity<Map<String, Object>> getEventTickets(@PathVariable Long eventId) {
         try {
             eventService.obtenerPorId(eventId);
             List<com.edu.uptc.EnVivo.dto.TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
             return ResponseEntity.ok(Map.of(
-                    "success", true,
+                    SUCESS_PARAM, true,
                     "tickets", tickets,
                     "count", tickets.size()
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Evento no encontrado."));
+                    .body(Map.of(SUCESS_PARAM, false, "message", "Evento no encontrado."));
         } catch (Exception e) {
             logger.error("Error fetching event tickets", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al obtener tickets."));
+                    .body(Map.of(SUCESS_PARAM, false, "message", "Error al obtener tickets."));
         }
     }
 
     @GetMapping("/api/eventos/{eventId}/detalle")
     @ResponseBody
-    public ResponseEntity<?> getEventDetail(@PathVariable Long eventId) {
+    public ResponseEntity<Map<String, Object>> getEventDetail(@PathVariable Long eventId) {
         try {
             EventDetailDTO detalle = eventService.obtenerDetalleEvento(eventId);
             return ResponseEntity.ok(Map.of(
-                    "success", true,
+                    SUCESS_PARAM, true,
                     "event", detalle,
                     "countTickets", detalle.getTickets() != null ? detalle.getTickets().size() : 0
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Evento no encontrado."));
+                    .body(Map.of(SUCESS_PARAM, false, "message", "Evento no encontrado."));
         } catch (Exception e) {
             logger.error("Error fetching event detail for id {}", eventId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al obtener detalle del evento."));
+                    .body(Map.of(SUCESS_PARAM, false, "message", "Error al obtener detalle del evento."));
         }
     }
 
@@ -336,17 +339,17 @@ public class EventController {
      */
     @GetMapping("/api/ticket-types")
     @ResponseBody
-    public ResponseEntity<?> getTicketTypes() {
+    public ResponseEntity<Map<String, Object>> getTicketTypes() {
         try {
             var types = ticketTypeService.getTicketTypes();
             return ResponseEntity.ok(Map.of(
-                    "success", true,
+                    SUCESS_PARAM, true,
                     "ticketTypes", types
             ));
         } catch (Exception e) {
             logger.error("Error fetching ticket types", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al obtener tipos de entrada."));
+                    .body(Map.of(SUCESS_PARAM, false, "message", "Error al obtener tipos de entrada."));
         }
     }
 }
