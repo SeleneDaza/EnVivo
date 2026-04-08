@@ -1,0 +1,48 @@
+<div th:fragment="sidebar(active)">
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col justify-between shrink-0 shadow-sm z-10 h-screen">
+        <div class="p-6 border-b border-gray-50 flex items-center gap-3">
+            <a th:href="@{/}" class="text-2xl font-black text-main tracking-tighter">EnVivo</a>
+            <span class="text-[10px] px-2 py-0.5 bg-error/10 text-error font-black uppercase rounded-md tracking-widest">Admin</span>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4 ml-2 mt-2">Menú Principal</p>
+            
+            <a th:href="@{/admin}" th:classappend="${active == 'admin'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-chart-pie w-5 text-center"></i> Dashboard
+            </a>
+            <a th:href="@{/categories}" th:classappend="${active == 'categories'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-tags w-5 text-center"></i> Categorías
+            </a>
+            <a th:href="@{/ticket-types}" th:classappend="${active == 'ticket-types'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-ticket w-5 text-center"></i> Tipos de Entrada
+            </a>
+            <a th:href="@{/reports}" th:classappend="${active == 'reports'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-chart-line w-5 text-center"></i> Reportes
+            </a>
+            <a th:href="@{/users}" th:classappend="${active == 'users'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-users w-5 text-center"></i> Usuarios
+            </a>
+            <a th:href="@{/sales}" th:classappend="${active == 'sales'} ? 'bg-main text-white shadow-md' : 'text-gray-500 hover:bg-gray-50 hover:text-main'" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-colors">
+                <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> Ventas
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-50">
+            <div class="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-50 rounded-2xl">
+                <div class="w-8 h-8 rounded-full bg-main/10 text-main flex items-center justify-center font-black">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="truncate">
+                    <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest">Administrador</p>
+                    <p class="text-xs font-black text-gray-800 truncate" sec:authentication="name">Admin</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-error/10 text-error hover:bg-error hover:text-white font-black text-[11px] uppercase tracking-widest transition-colors rounded-2xl border-none shadow-none">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </aside>
+</div>
