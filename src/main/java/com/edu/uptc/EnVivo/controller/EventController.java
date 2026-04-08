@@ -9,6 +9,7 @@ import com.edu.uptc.EnVivo.service.EventService;
 import com.edu.uptc.EnVivo.service.TicketService;
 import com.edu.uptc.EnVivo.service.TicketTypeService;
 import com.edu.uptc.EnVivo.service.UserService;
+import com.edu.uptc.EnVivo.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public class EventController {
     private final TicketService ticketService;
     private final TicketTypeService ticketTypeService;
     private final UserService userService;
+    private final PurchaseService purchaseService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -102,6 +104,12 @@ public class EventController {
         int pageSize = 50;
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
+
+        model.addAttribute("totalGanancias", purchaseService.getTotalGanancias());
+        model.addAttribute("eventosActivos", eventService.getEventosActivosCount());
+        model.addAttribute("eventosPasados", eventService.getEventosPasadosCount());
+        model.addAttribute("usuariosRegistrados", userService.getUsuariosRegistradosCount());
+        
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
