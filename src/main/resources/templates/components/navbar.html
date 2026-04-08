@@ -47,11 +47,6 @@
         </div>
 
         <div class="flex items-center gap-4 shrink-0 relative">
-            
-            <a th:href="@{/admin}" sec:authorize="hasRole('ADMIN')" th:if="${tipo == 'user'}"
-               class="hidden sm:block px-4 py-2 bg-main text-white text-sm font-semibold rounded-full shadow-md">
-                Administrador
-            </a>
 
             <div sec:authorize="isAuthenticated()" class="relative inline-block text-left" id="userDropdown">
                 <button type="button" onclick="toggleMenu()" class="flex items-center justify-center w-10 h-10 rounded-full bg-orange-50 text-main hover:bg-orange-100 transition-all border border-orange-100">
