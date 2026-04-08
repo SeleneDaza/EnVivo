@@ -186,5 +186,9 @@ public class UserService {
         }
         return normalized.replaceAll("\\s+", " ");
     }
+
+    public long getUsuariosRegistradosCount() {
+        return userRepository.countUsersWithoutAdminRole();
+    }
 }
 

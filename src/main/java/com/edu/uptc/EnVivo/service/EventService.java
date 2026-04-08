@@ -61,7 +61,6 @@ public class EventService {
         
         Event savedEvent = eventRepository.save(event);
 
-        // Crear los tickets asociados al evento si existen en el DTO
         if (dto.getTickets() != null && !dto.getTickets().isEmpty()) {
             ticketService.createTicketsForEvent(savedEvent, dto.getTickets());
         }
@@ -133,7 +132,6 @@ public class EventService {
 
         Event updatedEvent = eventRepository.save(event);
 
-        // Reemplaza los tickets sin re-asignar la colección administrada por Hibernate.
         if (dto.getTickets() != null) {
             ticketService.deleteTicketsByEvent(updatedEvent.getEvent_id());
 
@@ -184,7 +182,6 @@ public class EventService {
         }
     }
 
-    // --- LÓGICA PARA Top 10 eventos más atractivos (reporte admin) ---
     public List<EventReporteDTO> getTop10EventosPorInteres() {
         Pageable top10 = PageRequest.of(0, 10);
         return eventRepository.findTop10ByFavoritesCount(top10).stream()
@@ -192,7 +189,6 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
-    // --- LÓGICA PARA Lista de favoritos ordenada ---
     public List<Event> obtenerEventosFavoritosOrdenados(String loginIdentifier) {
         User user = findUserByLoginIdentifier(loginIdentifier);
                 
@@ -206,9 +202,7 @@ public class EventService {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    // --- LÓGICA PARA Lista de favoritos paginada ---
     public Page<Event> obtenerEventosFavoritosPaginados(String loginIdentifier, Pageable pageable) {
-        // Le inyectamos el ordenamiento por fecha al Pageable
         Pageable ordenado = PageRequest.of(
                 pageable.getPageNumber(), 
                 pageable.getPageSize(), 
@@ -236,7 +230,6 @@ public class EventService {
             dto.setCategory(evento.getCategory().getName());
         }
         
-        // Obtener los tickets asociados al evento
         List<Ticket> ticketsExistentes = ticketService.getTicketsByEvent(id);
         if (ticketsExistentes != null && !ticketsExistentes.isEmpty()) {
             dto.setTickets(ticketsExistentes.stream()
@@ -278,5 +271,13 @@ public class EventService {
         return event != null
                 && event.getDate() != null
                 && event.getDate().isBefore(LocalDate.now());
+    }
+
+    public long getEventosActivosCount() {
+        return eventRepository.countActiveEvents(LocalDate.now());
+    }
+
+    public long getEventosPasadosCount() {
+        return eventRepository.countPastEvents(LocalDate.now());
     }
 }

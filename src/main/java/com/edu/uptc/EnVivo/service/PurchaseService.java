@@ -217,5 +217,11 @@ public class PurchaseService {
     private boolean isHistoricalEvent(LocalDate eventDate) {
         return eventDate != null && eventDate.isBefore(LocalDate.now());
     }
+
+    @Transactional(readOnly = true)
+    public long getTotalGanancias() {
+        Long total = purchaseRepository.getTotalRevenueAllSales();
+        return total != null ? total : 0L;
+    }
 }
 
