@@ -26,6 +26,8 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
@@ -87,9 +89,11 @@
                                     <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}" class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
                                         <i class="fa-solid fa-pencil text-xs"></i>
                                     </a>
-                                    <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}" onclick="return confirm('¿Eliminar esta categoría?')" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+                                    
+                                    <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white btn-eliminar">
                                         <i class="fa-solid fa-trash-can text-xs"></i>
                                     </a>
+                                    
                                 </div>
                             </td>
                         </tr>
@@ -124,6 +128,68 @@
         <section th:replace="~{components/forms :: categoryForm}"></section>
     </div>
 </div>
+
 <script th:src="@{/js/categories.js}" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 1. Lógica para SweetAlert2 (Eliminar Categorías) ---
+        const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+        
+        botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const urlEliminacion = this.getAttribute('href');
+                
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "No podrás revertir esto. ¿Deseas eliminar esta categoría?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FF3B3B',
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: { popup: 'rounded-[2.5rem]' }
+                }).then((result) => {
+                    if (result.isConfirmed) window.location.href = urlEliminacion; 
+                });
+            });
+        });
+
+        // --- 2. Lógica de Modal Segura (Corregida) ---
+        const modal = document.getElementById('category-modal');
+        const btnOpen = document.getElementById('open-category-modal');
+        const btnClose = document.getElementById('close-category-modal');
+
+        // Detectar si la vista actual fue cargada para editar
+        const isEditMode = window.location.pathname.includes('/edit/');
+        const baseUrl = '/categories';
+
+        if (btnOpen && modal) {
+            btnOpen.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Pide un formulario limpio
+                } else {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        }
+
+        if (btnClose && modal) {
+            btnClose.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Limpia la URL al cerrar
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

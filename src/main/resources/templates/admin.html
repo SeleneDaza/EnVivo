@@ -25,6 +25,8 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
 
@@ -105,7 +107,8 @@
                                     <a th:href="@{/admin/editar/{id}(id=${e.event_id})}" class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
                                         <i class="fa-solid fa-pencil text-xs"></i>
                                     </a>
-                                    <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}" onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?')" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+                                    
+                                    <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white btn-eliminar">
                                         <i class="fa-solid fa-trash-can text-xs"></i>
                                     </a>
                                 </div>
@@ -170,6 +173,72 @@
         <section th:replace="~{components/forms :: adminEventForm}"></section>
     </div>
 </div>
+
 <script th:src="@{/js/admin.js}" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- 1. Lógica para SweetAlert2 (Eliminar Eventos) ---
+        const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+        
+        botonesEliminar.forEach(boton => {
+            boton.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                
+                const urlEliminacion = this.getAttribute('href');
+                
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se eliminará permanentemente este evento. ¡Esta acción no se puede deshacer!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FF3B3B', // Tailwind 'error'
+                    cancelButtonColor: '#9CA3AF',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: { popup: 'rounded-[2.5rem]' }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = urlEliminacion; 
+                    }
+                });
+            });
+        });
+
+        // --- 2. Lógica de Modal Segura ---
+        const modal = document.getElementById('admin-modal');
+        const btnOpen = document.getElementById('open-admin-modal');
+        const btnClose = document.getElementById('close-admin-modal');
+
+        // Detectar si la vista actual fue cargada para editar (Ruta: /admin/editar/{id})
+        const isEditMode = window.location.pathname.includes('/editar/');
+        const baseUrl = '/admin';
+
+        if (btnOpen && modal) {
+            btnOpen.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Pide un formulario limpio
+                } else {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+        }
+
+        if (btnClose && modal) {
+            btnClose.addEventListener('click', () => {
+                if (isEditMode) {
+                    window.location.href = baseUrl; // Limpia la URL al cerrar
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+    });
+</script>
+
 </body>
 </html>
