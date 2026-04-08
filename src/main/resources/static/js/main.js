@@ -44,23 +44,41 @@ function renderTickets(tickets, isHistorical) {
     }).join('');
 }
 
-function setBuyTicketLink(eventId, isHistorical) {
+function setBuyTicketLink(eventId, isHistorical, tickets) {
     const buyButton = document.getElementById('buyTicketButton');
     if (!buyButton) return;
 
-    if (!eventId || isHistorical) {
+    // 1. Verificamos si hay al menos una boleta disponible
+    const hayBoletas = Array.isArray(tickets) && tickets.some(ticket => ticket.availableQuantity > 0);
+
+    // 2. Si no hay ID, es histórico, O NO hay boletas disponibles -> DESHABILITAR
+    if (!eventId || isHistorical || !hayBoletas) {
         buyButton.setAttribute('href', '#');
         buyButton.setAttribute('aria-disabled', 'true');
-        buyButton.classList.add('opacity-50', 'pointer-events-none');
-        buyButton.classList.toggle('hidden', !!isHistorical);
-        buyButton.textContent = 'Comprar entradas';
+        buyButton.classList.add('pointer-events-none', 'cursor-not-allowed');
+        buyButton.classList.toggle('hidden', !!isHistorical); // Se oculta si es histórico
+        
+        // Si no es histórico, pero simplemente se agotaron las boletas:
+        if (!isHistorical && eventId && !hayBoletas) {
+            buyButton.textContent = 'Entradas agotadas';
+            buyButton.classList.remove('bg-main', 'hover:bg-darker');
+            buyButton.classList.add('bg-gray-400');
+        } else {
+            // Caso por defecto (cargando o histórico)
+            buyButton.textContent = 'Comprar entradas';
+            buyButton.classList.add('opacity-50');
+        }
         return;
     }
 
+    // 3. Si todo está bien y HAY boletas -> HABILITAR
     buyButton.setAttribute('href', `/buy-ticket/${eventId}`);
     buyButton.removeAttribute('aria-disabled');
-    buyButton.classList.remove('opacity-50', 'pointer-events-none');
-    buyButton.classList.remove('hidden');
+    
+    // Restauramos las clases originales del botón
+    buyButton.classList.remove('opacity-50', 'pointer-events-none', 'cursor-not-allowed', 'bg-gray-400', 'hidden');
+    buyButton.classList.add('bg-main', 'hover:bg-darker');
+    
     buyButton.textContent = 'Comprar entradas';
 }
 
@@ -101,7 +119,7 @@ function openModal(detail) {
     renderTickets(detail.tickets, isHistorical);
     setHistoricalBadge(isHistorical);
     setTicketsSectionVisibility(isHistorical);
-    setBuyTicketLink(eventId, isHistorical);
+    setBuyTicketLink(eventId, isHistorical, detail.tickets);
 
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
@@ -122,7 +140,7 @@ function showLoadingState() {
     }
     setHistoricalBadge(false);
     setTicketsSectionVisibility(false);
-    setBuyTicketLink(null, false);
+    setBuyTicketLink(null, false, null);
 }
 
 function openEventDetail(eventId) {
