@@ -55,6 +55,7 @@ public class EventController {
     private final TicketTypeService ticketTypeService;
     private final UserService userService;
     private final PurchaseService purchaseService;
+    private String date = "today";
 
     @GetMapping("/login")
     public String loginPage() {
@@ -82,7 +83,7 @@ public class EventController {
             : Collections.emptySet();
 
         model.addAttribute("misFavoritos", misFavoritos);
-        model.addAttribute("today", LocalDate.now());
+        model.addAttribute(date, LocalDate.now());
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
@@ -119,7 +120,7 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("today", LocalDate.now());
+        model.addAttribute(date, LocalDate.now());
         model.addAttribute("evento", new CreateEventDTO());
         cargarDatosComunes(model);
 
@@ -163,7 +164,7 @@ public class EventController {
         model.addAttribute("eventosActivos", eventService.getEventosActivosCount());
         model.addAttribute("eventosPasados", eventService.getEventosPasadosCount());
         model.addAttribute("usuariosRegistrados", userService.getUsuariosRegistradosCount());
-        model.addAttribute("today", LocalDate.now()); 
+        model.addAttribute(date, LocalDate.now()); 
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute("keyword", keyword);
@@ -240,7 +241,7 @@ public class EventController {
         Page<Event> misFavoritos = eventService.obtenerEventosFavoritosPaginados(principal.getName(), pageable);
         
         model.addAttribute("eventos", misFavoritos);
-        model.addAttribute("today", LocalDate.now());
+        model.addAttribute(date, LocalDate.now());
         
         return "favorites";
     }
