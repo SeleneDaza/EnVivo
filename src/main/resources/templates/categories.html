@@ -28,44 +28,29 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
-<body class="bg-[#f8f9fa] min-h-screen">
+<body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
 
-<div th:replace="~{components/navbar :: navbar('admin','categories')}"></div>
+<div th:replace="~{components/sidebar :: sidebar('categories')}"></div>
 
-<main class="max-w-[1400px] mx-auto p-8">
+<div class="flex-1 h-screen overflow-y-auto">
+    <main class="max-w-[1400px] mx-auto p-8">
 
-    <!-- LISTADO -->
-    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
-
-        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
-                <i class="fa-solid fa-tag text-main"></i>
-                Categorías Actuales
-            </h3>
-            <div class="flex items-center gap-3">
-                <button type="button"
-                        id="open-category-modal"
-                        class="px-4 py-2 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors">
-                    Añadir
-                </button>
-                <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
-                      th:text="${#lists.size(categorias) + ' total'}"></span>
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tighter">Gestión de Categorías</h2>
+                <p class="text-sm text-gray-500 font-medium mt-1">Administra las clasificaciones de los eventos</p>
             </div>
+            <button type="button" id="open-category-modal" class="px-6 py-3 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors border-none shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Añadir
+            </button>
         </div>
 
-        <!-- MENSAJES -->
-        <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}" class="px-8 pt-6 pb-6 border-b border-gray-100">
-    
-            <div th:if="${param.exito != null}"
-                class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
-                <i class="fa-solid fa-circle-check"></i>
-                Categoría procesada correctamente.
+        <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}" class="mb-6">
+            <div th:if="${param.exito != null}" class="p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-check"></i> Categoría procesada correctamente.
             </div>
-
-            <div th:if="${param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}"
-                class="p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+            <div th:if="${param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}" class="p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
                 <i class="fa-solid fa-circle-exclamation text-lg"></i>
-                
                 <div class="flex flex-col">
                     <span class="font-black uppercase tracking-wider text-xs mb-0.5">Operación fallida</span>
                     <span th:if="${param.error_en_uso != null}" class="font-normal">No es posible eliminar: Esta categoría tiene eventos asociados.</span>
@@ -75,55 +60,56 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50/50 border-b border-gray-100">
-                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
-                        <th class="px-8 py-6 font-black">Nombre</th>
-                        <th class="px-8 py-6 font-black text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr th:each="c : ${categorias}" class="group hover:bg-subtle/20 transition-all">
-                        <td class="px-8 py-5 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
-                                <i class="fa-solid fa-tag text-sm"></i>
-                            </div>
-                            <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors"
-                                  th:text="${c.name}">
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}"
-                                   class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
-                                    <i class="fa-solid fa-pencil text-xs"></i>
-                                </a>
-                                <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}"
-                                   onclick="return confirm('¿Eliminar esta categoría?')"
-                                   class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+        <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+            <div class="px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-main font-black flex items-center gap-2 text-sm uppercase tracking-widest">
+                    <i class="fa-solid fa-tags"></i> Lista de Categorías
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                            <th class="px-8 py-6 font-black">Nombre</th>
+                            <th class="px-8 py-6 font-black text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr th:each="c : ${categorias}" class="group hover:bg-subtle/20 transition-all">
+                            <td class="px-8 py-5 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-main/10 flex items-center justify-center text-main font-bold group-hover:bg-main group-hover:text-white transition-all">
+                                    <i class="fa-solid fa-tag text-sm"></i>
+                                </div>
+                                <span class="font-black text-gray-800 text-sm group-hover:text-main transition-colors" th:text="${c.name}"></span>
+                            </td>
+                            <td class="px-8 py-5 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a th:href="@{/categories/edit/{id}(id=${c.categoryId})}" class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
+                                        <i class="fa-solid fa-pencil text-xs"></i>
+                                    </a>
+                                    <a th:href="@{/categories/delete/{id}(id=${c.categoryId})}" onclick="return confirm('¿Eliminar esta categoría?')" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(categorias)}">
+                            <td colspan="2" class="text-center py-16">
+                                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                    <i class="fa-solid fa-folder-open text-2xl"></i>
+                                </div>
+                                <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
+                                    No hay categorías registradas
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-                    <tr th:if="${#lists.isEmpty(categorias)}">
-                        <td colspan="2" class="text-center py-16">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                                <i class="fa-solid fa-folder-open text-2xl"></i>
-                            </div>
-                            <p class="text-gray-400 text-sm font-black uppercase tracking-widest">
-                                No hay categorías registradas
-                            </p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-</main>
+    </main>
+</div>
 
 <div id="category-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"

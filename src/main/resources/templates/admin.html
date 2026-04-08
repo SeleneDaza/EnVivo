@@ -26,93 +26,136 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-[#f8f9fa] min-h-screen">
+<body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
 
-<div th:replace="~{components/navbar :: navbar('admin','admin')}"></div>
+<div th:replace="~{components/sidebar :: sidebar('admin')}"></div>
 
-<main class="max-w-[1400px] mx-auto p-8">
+<div class="flex-1 h-screen overflow-y-auto">
+    <main class="max-w-[1400px] mx-auto p-8">
 
-    <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
-        <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
-                <i class="fa-solid fa-calendar text-main"></i>
-                Eventos Registrados
-            </h3>
-            <div class="flex items-center gap-3">
-                <button type="button"
-                        id="open-admin-modal"
-                        class="px-4 py-2 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors">
-                    Añadir
-                </button>
-                <span class="text-[10px] bg-main/10 text-main px-3 py-1 rounded-full font-black uppercase tracking-widest"
-                      th:text="${#lists.size(eventos.content) + ' total'}"></span>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-success/10 text-success flex items-center justify-center text-2xl flex-shrink-0"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Ganancias</p><p class="text-2xl font-black text-gray-800" th:text="${totalGanancias != null ? '$' + #numbers.formatDecimal(totalGanancias, 0, 'COMMA', 0, 'POINT') : '$0'}">$0</p></div>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-main/10 text-main flex items-center justify-center text-2xl flex-shrink-0"><i class="fa-solid fa-calendar-check"></i></div>
+                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Eventos Activos</p><p class="text-2xl font-black text-gray-800" th:text="${eventosActivos}">0</p></div>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-gray-100 text-gray-500 flex items-center justify-center text-2xl flex-shrink-0"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Eventos Pasados</p><p class="text-2xl font-black text-gray-800" th:text="${eventosPasados}">0</p></div>
+            </div>
+            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex items-center gap-5">
+                <div class="w-14 h-14 rounded-2xl bg-info/10 text-info flex items-center justify-center text-2xl flex-shrink-0"><i class="fa-solid fa-users"></i></div>
+                <div><p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Clientes</p><p class="text-2xl font-black text-gray-800" th:text="${usuariosRegistrados}">0</p></div>
             </div>
         </div>
 
-        <!-- MENSAJES -->
-        <div th:if="${param.exito != null or param.error != null}" class="px-8 pt-6">
-            <div th:if="${param.exito != null}"
-                 class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
-                <i class="fa-solid fa-circle-check"></i>
-                Evento procesado correctamente.
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tighter">Gestión de Catálogo</h2>
+                <p class="text-sm text-gray-500 font-medium mt-1">Administra los eventos de la plataforma</p>
             </div>
-            <div th:if="${param.error != null}"
-                 class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span th:text="${param.error}">Error al procesar el evento.</span>
+            <button type="button" id="open-admin-modal" class="px-6 py-3 rounded-full bg-main text-white text-xs font-black uppercase tracking-widest hover:bg-darker transition-colors border-none shadow-md flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> Nuevo Evento
+            </button>
+        </div>
+
+        <div th:if="${param.exito != null or param.error != null}">
+            <div th:if="${param.exito != null}" class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-check"></i> Evento procesado correctamente.
+            </div>
+            <div th:if="${param.error != null}" class="mb-6 p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation"></i> <span th:text="${param.error}">Error al procesar el evento.</span>
             </div>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50/50 border-b border-gray-100">
-                    <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
-                        <th class="px-8 py-6 font-black">Evento</th>
-                        <th class="px-8 py-6 font-black">Fecha</th>
-                        <th class="px-8 py-6 font-black text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    <tr th:each="e : ${eventos.content}" class="group hover:bg-subtle/20 transition-all">
-                        <td class="px-8 py-5 flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm flex-shrink-0">
-                                <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
-                            </div>
-                            <div class="min-w-0">
-                                <div class="font-black text-gray-800 truncate text-sm" th:text="${e.name}">Nombre</div>
-                                <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-lighter/20 text-main text-[9px] font-black rounded uppercase tracking-tighter" th:text="${e.category.name}">CATEGORIA</span>
-                            </div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <span class="text-xs font-bold text-gray-500" th:text="${e.date}">2024-10-10</span>
-                            <span th:if="${e.date != null and e.date.isBefore(today)}"
-                                  class="ml-2 inline-block px-2 py-0.5 bg-warning/20 text-gray-800 text-[9px] font-black rounded uppercase tracking-widest">
-                                Historico
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <div th:if="${e.date == null or !e.date.isBefore(today)}" class="flex items-center justify-center gap-2">
-                                <a th:href="@{/admin/editar/{id}(id=${e.event_id})}"
-                                   class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
-                                    <i class="fa-solid fa-pencil text-xs"></i>
-                                </a>
-                                <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}"
-                                   onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?')"
-                                   class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
-                                    <i class="fa-solid fa-trash-can text-xs"></i>
-                                </a>
-                            </div>
-                            <span th:if="${e.date != null and e.date.isBefore(today)}"
-                                  class="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                Solo visualizacion
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-</main>
+        <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 mb-8 h-fit">
+            <div class="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-main font-black flex items-center gap-2 text-sm uppercase tracking-widest">
+                    <i class="fa-solid fa-bolt"></i> Próximos Eventos (Activos)
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                            <th class="px-8 py-6 font-black">Evento</th>
+                            <th class="px-8 py-6 font-black">Fecha</th>
+                            <th class="px-8 py-6 font-black text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr th:each="e : ${eventos.content}" th:if="${e.date == null or !e.date.isBefore(today)}" class="group hover:bg-subtle/20 transition-all">
+                            <td class="px-8 py-5 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm flex-shrink-0">
+                                    <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-black text-gray-800 truncate text-sm" th:text="${e.name}">Nombre</div>
+                                    <span th:if="${e.category != null}" class="inline-block mt-1 px-2 py-0.5 bg-lighter/20 text-main text-[9px] font-black rounded uppercase tracking-tighter" th:text="${e.category.name}">CATEGORIA</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <span class="text-xs font-bold text-gray-500" th:text="${e.date}">2024-10-10</span>
+                            </td>
+                            <td class="px-8 py-5 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a th:href="@{/admin/editar/{id}(id=${e.event_id})}" class="btn-icon bg-info/5 text-info hover:bg-info hover:text-white">
+                                        <i class="fa-solid fa-pencil text-xs"></i>
+                                    </a>
+                                    <a th:href="@{/admin/eliminar/{id}(id=${e.event_id})}" onclick="return confirm('¿Estás seguro de que deseas eliminar este evento?')" class="btn-icon bg-error/5 text-error hover:bg-error hover:text-white">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit">
+            <div class="px-8 py-5 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="text-gray-400 font-black flex items-center gap-2 text-sm uppercase tracking-widest">
+                    <i class="fa-solid fa-box-archive"></i> Historial (Finalizados)
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left opacity-75">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="text-gray-400 text-[10px] uppercase tracking-[0.2em]">
+                            <th class="px-8 py-6 font-black">Evento</th>
+                            <th class="px-8 py-6 font-black">Fecha</th>
+                            <th class="px-8 py-6 font-black text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <tr th:each="e : ${eventos.content}" th:if="${e.date != null and e.date.isBefore(today)}" class="group hover:bg-gray-50 transition-all">
+                            <td class="px-8 py-4 flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm flex-shrink-0 grayscale">
+                                    <img th:src="${e.image}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150'">
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-bold text-gray-600 truncate text-sm" th:text="${e.name}">Nombre</div>
+                                </div>
+                            </td>
+                            <td class="px-8 py-4">
+                                <span class="text-xs font-bold text-gray-400" th:text="${e.date}">2024-10-10</span>
+                                <span class="ml-2 inline-block px-2 py-0.5 bg-warning/20 text-gray-800 text-[9px] font-black rounded uppercase tracking-widest">Historico</span>
+                            </td>
+                            <td class="px-8 py-4 text-center">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Solo visualizacion</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
 
 <div id="admin-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
@@ -165,7 +208,6 @@
         }
     }
 
-    // Configuración de fecha mínima y contadores
     const fechaInput = document.getElementById('fechaEvento');
     if(fechaInput) fechaInput.min = new Date().toISOString().split('T')[0];
 
@@ -219,22 +261,15 @@
         if (!ticketContainer) return;
         
         const allSelects = Array.from(ticketContainer.querySelectorAll('.js-ticket-type'));
-        
-        // 1. Recopilar todos los valores que ya están seleccionados
-        const selectedValues = allSelects
-            .map(select => select.value)
-            .filter(value => value !== ""); // Ignorar los vacíos
+        const selectedValues = allSelects.map(select => select.value).filter(value => value !== "");
 
-        // 2. Recorrer cada select para bloquear las opciones usadas en otros
         allSelects.forEach(select => {
             Array.from(select.options).forEach(option => {
-                if (!option.value) return; // Ignorar la opción por defecto (ej: "Seleccione...")
-                
-                // Si la opción está en el array de seleccionados Y no es la que este select tiene elegida
+                if (!option.value) return; 
                 if (selectedValues.includes(option.value) && select.value !== option.value) {
-                    option.disabled = true; // La bloqueamos
+                    option.disabled = true;
                 } else {
-                    option.disabled = false; // La liberamos
+                    option.disabled = false;
                 }
             });
         });
@@ -245,7 +280,7 @@
         const row = ticketTemplate.content.firstElementChild.cloneNode(true);
         ticketContainer.appendChild(row);
         reindexTicketRows();
-        updateDisabledTicketOptions(); // <-- NUEVO
+        updateDisabledTicketOptions();
     }
 
     function isTicketRowEmpty(row) {
@@ -265,10 +300,9 @@
             if (!removeButton) return;
             removeButton.closest('.ticket-row')?.remove();
             reindexTicketRows();
-            updateDisabledTicketOptions(); // <-- NUEVO
+            updateDisabledTicketOptions();
         });
 
-        // <-- NUEVO EVENTO: Detectar cuando cambian la selección de una boleta -->
         ticketContainer.addEventListener('change', (event) => {
             if (event.target.classList.contains('js-ticket-type')) {
                 updateDisabledTicketOptions();

@@ -24,26 +24,26 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-
 </head>
-<body class="bg-[#f8f9fa] min-h-screen">
+<body class="bg-[#f8f9fa] h-screen overflow-hidden flex">
 
-<div th:replace="~{components/navbar :: navbar('admin','reports')}"></div>
+<div th:replace="~{components/sidebar :: sidebar('reports')}"></div>
 
-    <main class="max-w-5xl mx-auto mt-12 px-6">
+<div class="flex-1 h-screen overflow-y-auto">
+    <main class="max-w-[1400px] mx-auto p-8">
         
-        <div class="mb-10 flex items-end justify-between">
+        <div class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-4xl font-black text-gray-800 tracking-tight">Estadísticas <span class="text-info">Impacto</span></h1>
-                <p class="text-gray-500 font-medium mt-1">Análisis de los eventos con mayor tracción en la plataforma.</p>
+                <h2 class="text-2xl font-black text-gray-800 tracking-tighter">Reportes de Audiencia</h2>
+                <p class="text-sm text-gray-500 font-medium mt-1">Análisis de los eventos con mayor tracción en la plataforma</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
+            <div class="bg-white px-5 py-3 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
                 <div class="text-right">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Favoritos</p>
-                    <p class="text-2xl font-black text-main" th:text="${#lists.size(top10) > 0 ? #aggregates.sum(top10.![totalInteresados]) : 0}">0</p>
+                    <p class="text-xl font-black text-main" th:text="${#lists.size(top10) > 0 ? #aggregates.sum(top10.![totalInteresados]) : 0}">0</p>
                 </div>
-                <div class="w-12 h-12 bg-subtle rounded-xl flex items-center justify-center text-info">
-                    <i class="fa-solid fa-users text-xl"></i>
+                <div class="w-10 h-10 bg-subtle rounded-xl flex items-center justify-center text-info">
+                    <i class="fa-solid fa-users text-lg"></i>
                 </div>
             </div>
         </div>
@@ -51,8 +51,8 @@
         <div class="grid grid-cols-1 gap-8 mb-20">
             <section class="bg-white rounded-[2.5rem] shadow-sm overflow-hidden border border-gray-100 h-fit mb-20">
                 
-                <div class="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-white">
-                    <h3 class="text-gray-800 font-black flex items-center gap-3 text-lg uppercase tracking-tighter">
+                <div class="px-8 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h3 class="text-main font-black flex items-center gap-2 text-sm uppercase tracking-widest">
                         <i class="fa-solid fa-trophy text-warning"></i>
                         Top 10 Eventos más deseados
                     </h3>
@@ -74,8 +74,8 @@
                                     <div th:with="idx=${iterStat.index}" 
                                          class="w-10 h-10 mx-auto flex items-center justify-center rounded-2xl font-black text-sm shadow-sm"
                                          th:classappend="${idx == 0 ? 'bg-warning text-white shadow-warning/30' : 
-                                                           idx == 1 ? 'bg-gray-300 text-white shadow-gray-300/30' : 
-                                                           idx == 2 ? 'bg-[#CD7F32] text-white shadow-orange-900/20' : 'bg-subtle text-info'}">
+                                                         idx == 1 ? 'bg-gray-300 text-white shadow-gray-300/30' : 
+                                                         idx == 2 ? 'bg-[#CD7F32] text-white shadow-orange-900/20' : 'bg-subtle text-info'}">
                                         <span th:text="${idx + 1}">1</span>
                                     </div>
                                 </td>
@@ -127,6 +127,7 @@
             </section>
         </div>
     </main>
+</div>
 
 </body>
 </html>
