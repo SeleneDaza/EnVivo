@@ -145,26 +145,6 @@
         </section>
 
     </main>
-
-    <script>
-        /**
-         * Función para alternar la visibilidad de los detalles del evento
-         * @param {string} detailRowId - El ID de la fila (<tr>) que contiene los detalles
-         * @param {string} iconId - El ID del icono (<i>) de la flecha para rotarlo
-         */
-        function toggleAccordion(detailRowId, iconId) {
-            const detailRow = document.getElementById(detailRowId);
-            const icon = document.getElementById(iconId);
-
-            if (!detailRow || !icon) return;
-
-            // Alternar la clase 'hidden' en la fila de detalles
-            detailRow.classList.toggle('hidden');
-
-            // Rotar la flecha
-            icon.classList.toggle('rotate-180');
-        }
-    </script>
 </div>
 
 </body>
