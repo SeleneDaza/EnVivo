@@ -93,7 +93,7 @@ public class EventController {
         cargarDatosComunes(model);
 
         return "main";
-    }
+
 
     @PostMapping("/evento/crear")
     public String createEvent(@ModelAttribute CreateEventDTO dto) {
