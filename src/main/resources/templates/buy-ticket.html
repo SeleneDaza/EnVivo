@@ -117,8 +117,15 @@
                         <input id="email" type="email" class="w-full rounded-2xl" th:value="${buyerEmail}" autocomplete="email" required>
                     </div>
                     <div class="space-y-2">
-                        <label for="phone">Telefono</label>
-                        <input id="phone" type="tel" class="w-full rounded-2xl" th:value="${buyerPhone}" autocomplete="tel" required>
+                        <label for="phone">Teléfono</label>
+                        <input 
+                            id="phone" 
+                            type="tel" 
+                            class="w-full rounded-2xl" 
+                            th:value="${buyerPhone}" 
+                            autocomplete="tel" 
+                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
+                            required>
                     </div>
                 </form>
             </section>
@@ -131,8 +138,16 @@
                         <input id="cardHolder" type="text" class="w-full rounded-2xl" required>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label for="cardNumber">Numero de tarjeta</label>
-                        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" class="w-full rounded-2xl" placeholder="0000 0000 0000 0000" required>
+                        <label for="cardNumber">Número de tarjeta</label>
+                        <input 
+                            id="cardNumber" 
+                            type="text" 
+                            inputmode="numeric" 
+                            maxlength="19" 
+                            class="w-full rounded-2xl" 
+                            placeholder="0000 0000 0000 0000" 
+                            oninput="this.value = this.value.replace(/[^0-9 ]/g, '')" 
+                            required>
                     </div>
                     <div class="space-y-2">
                         <label for="expiry">Vencimiento</label>
@@ -140,7 +155,14 @@
                     </div>
                     <div class="space-y-2">
                         <label for="cvv">CVV</label>
-                        <input id="cvv" type="password" inputmode="numeric" maxlength="4" class="w-full rounded-2xl" required>
+                        <input 
+                            id="cvv" 
+                            type="password" 
+                            inputmode="numeric" 
+                            maxlength="4" 
+                            class="w-full rounded-2xl" 
+                            oninput="this.value = this.value.replace(/\D/g, '')"
+                            required>
                     </div>
                 </form>
             </section>
@@ -175,7 +197,7 @@
             <div id="step-error" class="hidden mt-8 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
 
             <footer class="mt-10 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
-                <a href="/" class="btn btn-ghost">
+                <a id="cancel-btn" href="/" class="btn btn-ghost">
                     Cancelar
                 </a>
 
@@ -205,6 +227,8 @@
     const ticketQuantity = document.getElementById('ticketQuantity');
     const personalForm = document.getElementById('personal-form');
     const bankForm = document.getElementById('bank-form');
+
+    const cancelButton = document.getElementById('cancel-btn');
 
     let currentStep = 1;
 
@@ -427,6 +451,11 @@
             
             confirmStepButton.classList.add('hidden');
             prevStepButton.classList.add('hidden');
+
+            cancelButton.textContent = 'Volver a la cartelera';
+            
+            cancelButton.classList.remove('btn-ghost');
+            cancelButton.classList.add('btn-neutral'); 
             
             const successMsg = `
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -458,6 +487,15 @@
     });
 
     updateStepUI();
+
+    const input = document.getElementById('expiry');
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    // Los meses en JS van de 0 a 11, sumamos 1 y rellenamos con un cero si es necesario
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0'); 
+    
+    // Establece el valor mínimo como el mes actual (Ej: "2026-04")
+    input.min = `${anio}-${mes}`;
 </script>
 
 </body>
