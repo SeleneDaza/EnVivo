@@ -147,5 +147,22 @@
     </main>
 </div>
 
+<script>
+    window.toggleAccordion = function (detalleId, iconoId) {
+        const detalle = document.getElementById(detalleId);
+        const icono = document.getElementById(iconoId);
+
+        if (!detalle) {
+            return;
+        }
+
+        detalle.classList.toggle('hidden');
+
+        if (icono) {
+            icono.classList.toggle('rotate-180');
+        }
+    };
+</script>
+
 </body>
 </html>

@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
+    boolean existsByCategory_CategoryId(Long categoryId);
+
     @Query("SELECT e FROM Event e WHERE e.date >= :today")
     Page<Event> findVigentes(@Param("today") LocalDate today, Pageable pageable);
 

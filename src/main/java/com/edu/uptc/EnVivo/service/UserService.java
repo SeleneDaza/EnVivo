@@ -44,8 +44,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public boolean registerUser(RegisterDTO dto) {
-        String login = normalizeLogin(dto.getNewUsername());
-        if (login == null) {
+        String email = normalizeEmail(dto.getNewEmail());
+        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
             return false;
         }
 
@@ -53,12 +53,12 @@ public class UserService {
             return false;
         }
 
-        if (userExists(login)) {
+        if (userExists(email)) {
             return false;
         }
 
         Role rolCliente = getOrCreateClientRole();
-        saveNewUser(login, dto.getNewPassword(), rolCliente);
+        saveNewUser(email, dto.getNewPassword(), rolCliente);
         return true;
     }
 
@@ -66,11 +66,11 @@ public class UserService {
         return dto.getNewPassword().equals(dto.getConfirmPassword());
     }
 
-    private String normalizeLogin(String login) {
-        if (login == null) {
+    private String normalizeEmail(String email) {
+        if (email == null) {
             return null;
         }
-        String normalized = login.trim();
+        String normalized = email.trim().toLowerCase();
         return normalized.isEmpty() ? null : normalized;
     }
 
