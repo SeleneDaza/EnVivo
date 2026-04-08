@@ -54,16 +54,24 @@
         </div>
 
         <!-- MENSAJES -->
-        <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null}" class="px-8 pt-6 pb-6 border-b border-gray-100">
+        <div th:if="${param.exito != null or param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}" class="px-8 pt-6 pb-6 border-b border-gray-100">
+    
             <div th:if="${param.exito != null}"
-                 class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
+                class="mb-6 p-4 rounded-2xl bg-success/10 border border-success/30 text-success text-sm font-bold flex items-center gap-3">
                 <i class="fa-solid fa-circle-check"></i>
                 Categoría procesada correctamente.
             </div>
-            <div th:if="${param.error_en_uso != null or param.error_general != null}"
-                 class="p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span th:text="${param.error_en_uso != null ? 'No es posible eliminar: Tiene eventos asociados.' : 'Ha ocurrido un error inesperado.'}"></span>
+
+            <div th:if="${param.error_en_uso != null or param.error_general != null or param.error_duplicado != null}"
+                class="p-4 rounded-2xl bg-error/10 border border-error/30 text-error text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-circle-exclamation text-lg"></i>
+                
+                <div class="flex flex-col">
+                    <span class="font-black uppercase tracking-wider text-xs mb-0.5">Operación fallida</span>
+                    <span th:if="${param.error_en_uso != null}" class="font-normal">No es posible eliminar: Esta categoría tiene eventos asociados.</span>
+                    <span th:if="${param.error_general != null}" class="font-normal">Ha ocurrido un error inesperado al intentar guardar.</span>
+                    <span th:if="${param.error_duplicado != null}" class="font-normal">No se pudo crear la categoría porque el nombre ingresado ya existe.</span>
+                </div>
             </div>
         </div>
 

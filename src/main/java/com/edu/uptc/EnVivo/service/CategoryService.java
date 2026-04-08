@@ -4,6 +4,8 @@ import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
 import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,5 +41,9 @@ public class CategoryService {
 
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+    }
+
+    public boolean existsByName(String name) {
+        return categoryRepository.existsByName(name);
     }
 }
