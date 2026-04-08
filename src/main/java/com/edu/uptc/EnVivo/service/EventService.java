@@ -150,7 +150,7 @@ public class EventService {
         User user = findUserByLoginIdentifier(loginIdentifier);
         Event event = obtenerPorId(eventId);
         if (isHistorical(event)) {
-            throw new IllegalStateException("No puedes marcar favoritos en eventos historicos.");
+            throw new IllegalStateException("Este evento es historico y no permite marcar favoritos.");
         }
         if (event.getInterestCount() == null) {
             event.setInterestCount(0);
