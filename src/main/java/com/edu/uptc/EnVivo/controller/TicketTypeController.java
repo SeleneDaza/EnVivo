@@ -18,20 +18,20 @@ public class TicketTypeController {
 
     private final TicketTypeService ticketTypeService;
 
-    private void cargarListaTipos(Model model) {
+    private void getTypeList(Model model) {
         model.addAttribute("tiposEntrada", ticketTypeService.getTicketTypes());
     }
 
     @GetMapping
     public String listTicketTypes(Model model) {
-        cargarListaTipos(model);
+        getTypeList(model);
         model.addAttribute("tipoEntrada", new CreateTicketTypeDTO());
         return "ticket-types";
     }
 
     @GetMapping("/edit/{id}")
     public String editTicketType(@PathVariable Long id, Model model) {
-        cargarListaTipos(model);
+        getTypeList(model);
         model.addAttribute("tipoEntrada", ticketTypeService.getTicketTypeDTO(id));
         return "ticket-types";
     }
