@@ -28,4 +28,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(value = "SELECT e FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login",
            countQuery = "SELECT count(e) FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login")
     Page<Event> findFavoritosByUsuarioLoginPaginated(@Param("login") String login, Pageable pageable);
+
+    @Query("SELECT COUNT(e) FROM Event e WHERE e.date >= :today")
+    long countActiveEvents(@Param("today") LocalDate today);
+
+    @Query("SELECT COUNT(e) FROM Event e WHERE e.date < :today")
+    long countPastEvents(@Param("today") LocalDate today);
 }
