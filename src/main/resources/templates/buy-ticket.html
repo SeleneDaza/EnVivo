@@ -72,18 +72,35 @@
             <section data-step="1" class="space-y-8">
                 <div class="grid lg:grid-cols-3 gap-10">
                     <article class="lg:col-span-2">
-                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-5">Selecciona tu boleta</h2>
+                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400 mb-5">Selecciona tus boletas</h2>
                         <div class="space-y-4" id="ticket-options">
                             <label th:each="ticket : ${evento.tickets}"
+                                   data-ticket-option
                                    class="block border border-gray-100 rounded-2xl p-5 hover:border-main transition-colors cursor-pointer has-[:checked]:border-main has-[:checked]:bg-main/5">
-                                <input type="radio"
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                                    <div class="md:col-span-6 flex items-center gap-3">
+                                        <input type="checkbox"
                                        name="ticketType"
                                        class="mr-3"
                                        th:value="${ticket.id}"
                                        th:attr="data-ticket-name=${ticket.ticketTypeName},data-ticket-price=${ticket.price},data-ticket-available=${ticket.availableQuantity}">
-                                <span class="font-black text-gray-800" th:text="${ticket.ticketTypeName}">General</span>
-                                <span class="float-right text-main font-black" th:text="${'$' + #numbers.formatInteger(ticket.price, 3, 'POINT')}">$0</span>
-                                <span class="block text-xs text-gray-500 mt-2">Disponibles: <span th:text="${ticket.availableQuantity}">0</span></span>
+                                        <div>
+                                            <span class="font-black text-gray-800" th:text="${ticket.ticketTypeName}">General</span>
+                                            <span class="block text-xs text-gray-500 mt-1">Disponibles: <span th:text="${ticket.availableQuantity}">0</span></span>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-3 text-main font-black" th:text="${'$' + #numbers.formatInteger(ticket.price, 3, 'POINT')}">$0</div>
+                                    <div class="md:col-span-3 flex md:justify-end">
+                                        <input type="number"
+                                               min="1"
+                                               value="1"
+                                               class="w-28 rounded-xl border-gray-200"
+                                               data-ticket-quantity
+                                               disabled
+                                               th:attr="data-ticket-id=${ticket.id},max=${ticket.availableQuantity}">
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-xs text-gray-500" data-ticket-subtotal>Subtotal: $0</div>
                             </label>
 
                             <div th:if="${#lists.isEmpty(evento.tickets)}" class="p-4 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold">
@@ -93,10 +110,11 @@
                     </article>
 
                     <aside class="bg-gray-50 rounded-3xl border border-gray-100 p-8 h-fit space-y-4">
-                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Cantidad</h3>
-                        <label for="ticketQuantity">Numero de boletas</label>
-                        <input id="ticketQuantity" type="number" min="1" value="1" class="w-full rounded-2xl" required>
-                        <p class="text-xs text-gray-500">La cantidad maxima depende de la disponibilidad del tipo de boleta.</p>
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Resumen rapido</h3>
+                        <p class="text-sm"><span class="font-black">Tipos seleccionados:</span> <span id="step1SelectedTypes">0</span></p>
+                        <p class="text-sm"><span class="font-black">Boletas:</span> <span id="step1SelectedQuantity">0</span></p>
+                        <p class="text-sm"><span class="font-black">Total:</span> <span id="step1SelectedTotal" class="text-main font-black">$0</span></p>
+                        <p class="text-xs text-gray-500">Activa cada cantidad marcando el tipo de boleta que quieres comprar.</p>
                     </aside>
                 </div>
             </section>
@@ -174,8 +192,9 @@
                     <div class="border border-gray-100 rounded-2xl p-6 bg-gray-50">
                         <h3 class="text-xs text-gray-400 uppercase tracking-[0.2em] font-black mb-3">Compra</h3>
                         <p class="text-sm"><span class="font-black">Evento:</span> <span th:text="${evento.name}"></span></p>
-                        <p class="text-sm mt-2"><span class="font-black">Tipo:</span> <span id="summaryTicketType">-</span></p>
-                        <p class="text-sm mt-2"><span class="font-black">Cantidad:</span> <span id="summaryQuantity">-</span></p>
+                        <p class="text-sm mt-2"><span class="font-black">Detalle:</span></p>
+                        <div id="summaryTicketItems" class="mt-2 space-y-1 text-sm text-gray-600">-</div>
+                        <p class="text-sm mt-2"><span class="font-black">Cantidad total:</span> <span id="summaryQuantity">-</span></p>
                         <p class="text-sm mt-2"><span class="font-black">Total:</span> <span id="summaryTotal" class="text-main font-black">$0</span></p>
                     </div>
 

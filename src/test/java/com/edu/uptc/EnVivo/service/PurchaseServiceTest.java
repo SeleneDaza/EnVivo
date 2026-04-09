@@ -3,6 +3,7 @@ package com.edu.uptc.EnVivo.service;
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
+import com.edu.uptc.EnVivo.dto.PurchaseCheckoutItemDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
 import com.edu.uptc.EnVivo.entity.Event;
 import com.edu.uptc.EnVivo.entity.Purchase;
@@ -18,6 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,6 +47,7 @@ class PurchaseServiceTest {
 
     private User mockUser;
     private Ticket mockTicket;
+    private Ticket secondTicket;
     private PurchaseCheckoutRequestDTO validRequest;
 
     @BeforeEach
@@ -56,6 +60,7 @@ class PurchaseServiceTest {
         Event mockEvent = new Event();
         mockEvent.setEvent_id(100L);
         mockEvent.setName("Concierto Rock");
+        mockEvent.setDate(LocalDate.now().plusDays(7));
 
         TicketType mockTicketType = new TicketType();
         mockTicketType.setName("VIP");
@@ -66,6 +71,16 @@ class PurchaseServiceTest {
         mockTicket.setTicketType(mockTicketType);
         mockTicket.setPrice(50000);
         mockTicket.setAvailableQuantity(50); 
+
+        TicketType generalType = new TicketType();
+        generalType.setName("General");
+
+        secondTicket = new Ticket();
+        secondTicket.setId(20L);
+        secondTicket.setEvent(mockEvent);
+        secondTicket.setTicketType(generalType);
+        secondTicket.setPrice(30000);
+        secondTicket.setAvailableQuantity(30);
 
         BuyerInfoDTO buyer = new BuyerInfoDTO();
         buyer.setFullName("Juan Perez");
@@ -81,16 +96,26 @@ class PurchaseServiceTest {
 
         validRequest = new PurchaseCheckoutRequestDTO();
         validRequest.setEventId(100L);
-        validRequest.setTicketId(10L);
-        validRequest.setQuantity(2);
+        validRequest.setItems(List.of(
+                buildItem(10L, 2),
+                buildItem(20L, 1)
+        ));
         validRequest.setBuyer(buyer);
         validRequest.setPayment(payment);
+    }
+
+    private PurchaseCheckoutItemDTO buildItem(Long ticketId, Integer quantity) {
+        PurchaseCheckoutItemDTO item = new PurchaseCheckoutItemDTO();
+        item.setTicketId(ticketId);
+        item.setQuantity(quantity);
+        return item;
     }
 
     @Test
     void checkout_Exitoso() {
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
+        when(ticketRepository.findByIdForUpdate(20L)).thenReturn(Optional.of(secondTicket));
         
         Purchase savedPurchase = new Purchase();
         savedPurchase.setId(999L); 
@@ -106,15 +131,18 @@ class PurchaseServiceTest {
         assertNotNull(result);
         assertEquals(999L, result.getPurchaseId());
         assertEquals("Concierto Rock", result.getEventName());
-        assertEquals(100000, result.getTotal()); 
+        assertEquals(130000, result.getTotal());
+        assertEquals(3, result.getQuantity());
         assertEquals(48, mockTicket.getAvailableQuantity());
+        assertEquals(29, secondTicket.getAvailableQuantity());
+        assertEquals(2, result.getTicketItems().size());
         
         verify(purchaseRepository, times(1)).save(any(Purchase.class));
     }
 
     @Test
     void checkout_FallaPorCantidadInsuficiente() {
-        validRequest.setQuantity(100);
+        validRequest.setItems(List.of(buildItem(10L, 100)));
         
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
