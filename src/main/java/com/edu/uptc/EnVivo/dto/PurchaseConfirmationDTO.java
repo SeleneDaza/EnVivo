@@ -3,6 +3,8 @@ package com.edu.uptc.EnVivo.dto;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @Builder
 public class PurchaseConfirmationDTO {
@@ -12,6 +14,7 @@ public class PurchaseConfirmationDTO {
     String ticketType;
     Integer quantity;
     Integer total;
+    List<PurchaseItemSummaryDTO> ticketItems;
     String buyerFullName;
     String buyerEmail;
     String buyerDocument;

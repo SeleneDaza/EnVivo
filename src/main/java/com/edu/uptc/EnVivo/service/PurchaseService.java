@@ -3,8 +3,10 @@ package com.edu.uptc.EnVivo.service;
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
 import com.edu.uptc.EnVivo.dto.ProfilePurchaseDTO;
+import com.edu.uptc.EnVivo.dto.PurchaseCheckoutItemDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
+import com.edu.uptc.EnVivo.dto.PurchaseItemSummaryDTO;
 import com.edu.uptc.EnVivo.entity.Purchase;
 import com.edu.uptc.EnVivo.entity.PurchaseDetail;
 import com.edu.uptc.EnVivo.entity.Ticket;
@@ -17,8 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,31 +38,11 @@ public class PurchaseService {
     @Transactional
     public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request) {
         validateRequest(request);
+        Map<Long, Integer> requestedItems = normalizeItems(request);
 
         User user = userService.findByUserName(principalName)
                 .or(() -> userService.findByEmail(principalName))
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
-
-        Ticket ticket = ticketRepository.findByIdForUpdate(request.getTicketId())
-                .orElseThrow(() -> new IllegalArgumentException("Tipo de boleta no encontrado."));
-
-        if (!ticket.getEvent().getEvent_id().equals(request.getEventId())) {
-            throw new IllegalArgumentException("La boleta no pertenece al evento seleccionado.");
-        }
-
-        if (isHistoricalEvent(ticket.getEvent().getDate())) {
-            throw new IllegalStateException("No puedes comprar boletas para eventos historicos.");
-        }
-
-        int quantity = request.getQuantity();
-        if (ticket.getAvailableQuantity() < quantity) {
-            throw new IllegalStateException("No hay disponibilidad suficiente para la cantidad solicitada.");
-        }
-
-        int unitPrice = ticket.getPrice();
-        int subtotal = Math.multiplyExact(unitPrice, quantity);
-
-        ticket.setAvailableQuantity(ticket.getAvailableQuantity() - quantity);
 
         Purchase purchase = new Purchase();
         purchase.setUser(user);
@@ -65,24 +51,70 @@ public class PurchaseService {
         purchase.setBuyerDocument(request.getBuyer().getDocument().trim());
         purchase.setBuyerEmail(request.getBuyer().getEmail().trim());
         purchase.setBuyerPhone(request.getBuyer().getPhone().trim());
-        purchase.setTotalAmount(subtotal);
 
-        PurchaseDetail detail = new PurchaseDetail();
-        detail.setTicket(ticket);
-        detail.setQuantity(quantity);
-        detail.setUnitPrice(unitPrice);
-        detail.setSubtotal(subtotal);
-        purchase.addDetail(detail);
+        int totalAmount = 0;
+        int totalQuantity = 0;
+        String eventName = null;
+        List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
+
+        for (Map.Entry<Long, Integer> item : requestedItems.entrySet()) {
+            Ticket ticket = ticketRepository.findByIdForUpdate(item.getKey())
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo de boleta no encontrado."));
+
+            if (!ticket.getEvent().getEvent_id().equals(request.getEventId())) {
+                throw new IllegalArgumentException("La boleta no pertenece al evento seleccionado.");
+            }
+
+            if (isHistoricalEvent(ticket.getEvent().getDate())) {
+                throw new IllegalStateException("No puedes comprar boletas para eventos historicos.");
+            }
+
+            int quantity = item.getValue();
+            if (ticket.getAvailableQuantity() < quantity) {
+                throw new IllegalStateException("No hay disponibilidad suficiente para la cantidad solicitada.");
+            }
+
+            int unitPrice = ticket.getPrice();
+            int subtotal = Math.multiplyExact(unitPrice, quantity);
+
+            ticket.setAvailableQuantity(ticket.getAvailableQuantity() - quantity);
+
+            PurchaseDetail detail = new PurchaseDetail();
+            detail.setTicket(ticket);
+            detail.setQuantity(quantity);
+            detail.setUnitPrice(unitPrice);
+            detail.setSubtotal(subtotal);
+            purchase.addDetail(detail);
+
+            totalAmount = Math.addExact(totalAmount, subtotal);
+            totalQuantity = Math.addExact(totalQuantity, quantity);
+            eventName = ticket.getEvent().getName();
+
+            ticketItems.add(PurchaseItemSummaryDTO.builder()
+                    .ticketId(ticket.getId())
+                    .ticketType(ticket.getTicketType().getName())
+                    .quantity(quantity)
+                    .unitPrice(unitPrice)
+                    .subtotal(subtotal)
+                    .build());
+        }
+
+        purchase.setTotalAmount(totalAmount);
 
         Purchase saved = purchaseRepository.save(purchase);
+
+        String ticketTypeSummary = ticketItems.size() == 1
+                ? ticketItems.get(0).getTicketType()
+                : "Multiples tipos";
 
         return PurchaseConfirmationDTO.builder()
                 .purchaseId(saved.getId())
                 .purchaseDate(saved.getPurchaseDate().toString())
-                .eventName(ticket.getEvent().getName())
-                .ticketType(ticket.getTicketType().getName())
-                .quantity(quantity)
-                .total(subtotal)
+                .eventName(eventName)
+                .ticketType(ticketTypeSummary)
+                .quantity(totalQuantity)
+                .total(totalAmount)
+                .ticketItems(ticketItems)
                 .buyerFullName(saved.getBuyerFullName())
                 .buyerEmail(saved.getBuyerEmail())
                 .buyerDocument(saved.getBuyerDocument())
@@ -98,15 +130,46 @@ public class PurchaseService {
         if (request.getEventId() == null || request.getEventId() <= 0) {
             throw new IllegalArgumentException("Evento invalido.");
         }
-        if (request.getTicketId() == null || request.getTicketId() <= 0) {
-            throw new IllegalArgumentException("Tipo de boleta invalido.");
-        }
-        if (request.getQuantity() == null || request.getQuantity() <= 0) {
-            throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+
+        if (hasCheckoutItems(request)) {
+            for (PurchaseCheckoutItemDTO item : request.getItems()) {
+                if (item == null || item.getTicketId() == null || item.getTicketId() <= 0) {
+                    throw new IllegalArgumentException("Tipo de boleta invalido.");
+                }
+                if (item.getQuantity() == null || item.getQuantity() <= 0) {
+                    throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+                }
+            }
+        } else {
+            if (request.getTicketId() == null || request.getTicketId() <= 0) {
+                throw new IllegalArgumentException("Tipo de boleta invalido.");
+            }
+            if (request.getQuantity() == null || request.getQuantity() <= 0) {
+                throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+            }
         }
 
         validateBuyer(request.getBuyer());
         validatePayment(request.getPayment());
+    }
+
+    private Map<Long, Integer> normalizeItems(PurchaseCheckoutRequestDTO request) {
+        Map<Long, Integer> normalized = new LinkedHashMap<>();
+
+        if (hasCheckoutItems(request)) {
+            for (PurchaseCheckoutItemDTO item : request.getItems()) {
+                normalized.merge(item.getTicketId(), item.getQuantity(), Math::addExact);
+            }
+            return normalized;
+        }
+
+        normalized.put(request.getTicketId(), request.getQuantity());
+        return normalized;
+    }
+
+    private boolean hasCheckoutItems(PurchaseCheckoutRequestDTO request) {
+        return request.getItems() != null
+                && request.getItems().stream().anyMatch(Objects::nonNull);
     }
 
     private void validateBuyer(BuyerInfoDTO buyer) {

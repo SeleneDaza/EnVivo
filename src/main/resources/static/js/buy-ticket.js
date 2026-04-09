@@ -10,7 +10,7 @@ const nextStepButton = document.getElementById('next-step');
 const confirmStepButton = document.getElementById('confirm-step');
 const errorBox = document.getElementById('step-error');
 
-const ticketQuantity = document.getElementById('ticketQuantity');
+const ticketTypeOptions = Array.from(document.querySelectorAll('input[name="ticketType"]'));
 const personalForm = document.getElementById('personal-form');
 const bankForm = document.getElementById('bank-form');
 
@@ -37,10 +37,6 @@ function hideError() {
     errorBox.textContent = '';
 }
 
-function getSelectedTicketInput() {
-    return document.querySelector('input[name="ticketType"]:checked');
-}
-
 function getTicketPrice(input) {
     return Number(input ? input.dataset.ticketPrice : 0);
 }
@@ -49,8 +45,90 @@ function getTicketAvailable(input) {
     return Number(input ? input.dataset.ticketAvailable : 0);
 }
 
-function getQuantity() {
-    return Number(ticketQuantity.value || 0);
+function getTicketQuantityInput(option) {
+    const ticketOption = option.closest('[data-ticket-option]');
+    return ticketOption ? ticketOption.querySelector('[data-ticket-quantity]') : null;
+}
+
+function getSelectedItems() {
+    return ticketTypeOptions
+        .filter((option) => option.checked)
+        .map((option) => {
+            const quantityInput = getTicketQuantityInput(option);
+            const quantity = Number(quantityInput ? quantityInput.value : 0);
+
+            return {
+                ticketId: Number(option.value),
+                ticketName: option.dataset.ticketName || 'Boleta',
+                unitPrice: getTicketPrice(option),
+                available: getTicketAvailable(option),
+                quantity,
+                subtotal: Number(quantity) * getTicketPrice(option)
+            };
+        });
+}
+
+function setOptionSubtotal(option) {
+    const ticketOption = option.closest('[data-ticket-option]');
+    if (!ticketOption) {
+        return;
+    }
+
+    const quantityInput = getTicketQuantityInput(option);
+    const subtotalNode = ticketOption.querySelector('[data-ticket-subtotal]');
+    if (!quantityInput || !subtotalNode) {
+        return;
+    }
+
+    const quantity = Number(quantityInput.value || 0);
+    const subtotal = option.checked ? quantity * getTicketPrice(option) : 0;
+    subtotalNode.textContent = `Subtotal: $${subtotal.toLocaleString('es-CO')}`;
+}
+
+function syncTicketOption(option) {
+    const quantityInput = getTicketQuantityInput(option);
+    if (!quantityInput) {
+        return;
+    }
+
+    const available = getTicketAvailable(option);
+    quantityInput.max = String(available);
+
+    if (available <= 0) {
+        option.checked = false;
+        option.disabled = true;
+        quantityInput.disabled = true;
+        quantityInput.value = '0';
+        setOptionSubtotal(option);
+        return;
+    }
+
+    if (option.checked) {
+        quantityInput.disabled = false;
+        if (!quantityInput.value || Number(quantityInput.value) < 1) {
+            quantityInput.value = '1';
+        }
+    } else {
+        quantityInput.disabled = true;
+        quantityInput.value = '1';
+    }
+
+    if (Number(quantityInput.value) > available) {
+        quantityInput.value = String(available);
+    }
+
+    setOptionSubtotal(option);
+}
+
+function updateStepOneSummary() {
+    const selectedItems = getSelectedItems();
+    const selectedTypes = selectedItems.length;
+    const totalQuantity = selectedItems.reduce((acc, item) => acc + item.quantity, 0);
+    const total = selectedItems.reduce((acc, item) => acc + item.subtotal, 0);
+
+    document.getElementById('step1SelectedTypes').textContent = String(selectedTypes);
+    document.getElementById('step1SelectedQuantity').textContent = String(totalQuantity);
+    document.getElementById('step1SelectedTotal').textContent = `$${total.toLocaleString('es-CO')}`;
 }
 
 function updateStepUI() {
@@ -85,23 +163,22 @@ function updateStepUI() {
 
 function validateStep(step) {
     if (step === 1) {
-        const selectedTicket = getSelectedTicketInput();
-        if (!selectedTicket) {
-            showError('Debes seleccionar un tipo de boleta para continuar.');
+        const selectedItems = getSelectedItems();
+        if (!selectedItems.length) {
+            showError('Debes seleccionar al menos un tipo de boleta para continuar.');
             return false;
         }
 
-        const quantity = getQuantity();
-        const available = getTicketAvailable(selectedTicket);
+        for (const item of selectedItems) {
+            if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+                showError(`La cantidad para ${item.ticketName} debe ser mayor a cero.`);
+                return false;
+            }
 
-        if (!Number.isInteger(quantity) || quantity <= 0) {
-            showError('La cantidad de boletas debe ser mayor a cero.');
-            return false;
-        }
-
-        if (quantity > available) {
-            showError('La cantidad supera la disponibilidad del tipo de boleta seleccionado.');
-            return false;
+            if (item.quantity > item.available) {
+                showError(`La cantidad para ${item.ticketName} supera la disponibilidad.`);
+                return false;
+            }
         }
 
         return true;
@@ -150,14 +227,24 @@ function maskCardNumber(rawCard) {
 }
 
 function fillSummary() {
-    const selectedTicket = getSelectedTicketInput();
-    const quantity = getQuantity();
-    const ticketName = selectedTicket ? selectedTicket.dataset.ticketName : '-';
-    const unitPrice = getTicketPrice(selectedTicket);
+    const selectedItems = getSelectedItems();
+    const summaryItemsContainer = document.getElementById('summaryTicketItems');
+    const totalQuantity = selectedItems.reduce((acc, item) => acc + item.quantity, 0);
+    const total = selectedItems.reduce((acc, item) => acc + item.subtotal, 0);
 
-    document.getElementById('summaryTicketType').textContent = ticketName;
-    document.getElementById('summaryQuantity').textContent = String(quantity);
-    document.getElementById('summaryTotal').textContent = `$${(unitPrice * quantity).toLocaleString('es-CO')}`;
+    summaryItemsContainer.innerHTML = '';
+    if (!selectedItems.length) {
+        summaryItemsContainer.textContent = '-';
+    } else {
+        selectedItems.forEach((item) => {
+            const itemLine = document.createElement('p');
+            itemLine.textContent = `${item.ticketName} x${item.quantity} - $${item.subtotal.toLocaleString('es-CO')}`;
+            summaryItemsContainer.appendChild(itemLine);
+        });
+    }
+
+    document.getElementById('summaryQuantity').textContent = String(totalQuantity);
+    document.getElementById('summaryTotal').textContent = `$${total.toLocaleString('es-CO')}`;
 
     document.getElementById('summaryName').textContent = document.getElementById('fullName').value || '-';
     document.getElementById('summaryEmail').textContent = document.getElementById('email').value || '-';
@@ -167,15 +254,17 @@ function fillSummary() {
 }
 
 async function submitCheckout() {
-    const selectedTicket = getSelectedTicketInput();
-    if (!selectedTicket) {
-        throw new Error('Debes seleccionar un tipo de boleta.');
+    const selectedItems = getSelectedItems();
+    if (!selectedItems.length) {
+        throw new Error('Debes seleccionar al menos un tipo de boleta.');
     }
 
     const payload = {
         eventId,
-        ticketId: Number(selectedTicket.value),
-        quantity: getQuantity(),
+        items: selectedItems.map((item) => ({
+            ticketId: item.ticketId,
+            quantity: item.quantity
+        })),
         buyer: {
             fullName: document.getElementById('fullName').value,
             document: document.getElementById('document').value,
@@ -265,12 +354,43 @@ confirmStepButton.addEventListener('click', async () => {
     }
 });
 
-document.querySelectorAll('input[name="ticketType"]').forEach((option) => {
+ticketTypeOptions.forEach((option) => {
+    const quantityInput = getTicketQuantityInput(option);
+
     option.addEventListener('change', () => {
-        const available = getTicketAvailable(option);
-        ticketQuantity.max = String(available);
+        syncTicketOption(option);
+        updateStepOneSummary();
     });
+
+    if (quantityInput) {
+        quantityInput.addEventListener('input', () => {
+            const available = getTicketAvailable(option);
+            if (available <= 0) {
+                quantityInput.value = '0';
+                setOptionSubtotal(option);
+                updateStepOneSummary();
+                return;
+            }
+
+            const value = Number(quantityInput.value || 0);
+
+            if (value < 1) {
+                quantityInput.value = '1';
+            }
+
+            if (Number(quantityInput.value) > available) {
+                quantityInput.value = String(available);
+            }
+
+            setOptionSubtotal(option);
+            updateStepOneSummary();
+        });
+    }
+
+    syncTicketOption(option);
 });
+
+updateStepOneSummary();
 
 updateStepUI();
 
