@@ -17,6 +17,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
+    //TODO:El id no tiene que mandarlo el front sino la base de datos lo genera
     public Category saveCategory(CreateCategoryDTO dto) {
         Category category = new Category();
         category.setCategoryId(dto.getCategoryId()); 
@@ -32,6 +33,7 @@ public class CategoryService {
         return dto;
     }
 
+    //TODO: Devolver un DTO
     public List<Category> getCategories() {
         return categoryRepository.findAll();
     }

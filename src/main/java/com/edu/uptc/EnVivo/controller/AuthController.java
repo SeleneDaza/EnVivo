@@ -37,7 +37,7 @@ public class AuthController {
         if (principal == null) {
             return "redirect:/login";
         }
-
+//TODO: Esto va en el servicio
         User user = userService.findByUserName(principal.getName())
                 .or(() -> userService.findByEmail(principal.getName()))
                 .orElse(null);
