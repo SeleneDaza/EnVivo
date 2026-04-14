@@ -94,7 +94,7 @@ public class EventService {
         if (keyword != null && !keyword.trim().isEmpty()) {
             return eventRepository.findVigentesByNameContaining(keyword, hoy, ordenado);
         }
-        return eventRepository.findVigentes(hoy, ordenado);
+        return eventRepository.findByDateGreaterThanEqual(hoy, ordenado);
     }
 
     public void eliminarEvento(Long id) {
@@ -274,10 +274,10 @@ public class EventService {
     }
 
     public long getEventosActivosCount() {
-        return eventRepository.countActiveEvents(LocalDate.now());
+        return eventRepository.countByDateGreaterThanEqual(LocalDate.now());
     }
 
     public long getEventosPasadosCount() {
-        return eventRepository.countPastEvents(LocalDate.now());
+        return eventRepository.countByDateLessThan(LocalDate.now());
     }
 }

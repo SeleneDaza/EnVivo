@@ -14,26 +14,24 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     boolean existsByCategory_CategoryId(Long categoryId);
 
-    @Query("SELECT e FROM Event e WHERE e.date >= :today")
-    Page<Event> findVigentes(@Param("today") LocalDate today, Pageable pageable);
+    Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    Page<Event> findByDateGreaterThanEqual(LocalDate date, Pageable pageable);
+
+    long countByDateGreaterThanEqual(LocalDate date);
+
+    long countByDateLessThan(LocalDate date);
 
     @Query("SELECT e FROM Event e WHERE e.date >= :today AND LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Event> findVigentesByNameContaining(@Param("keyword") String keyword,
                                              @Param("today") LocalDate today,
                                              Pageable pageable);
 
-    Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
-
     @Query("SELECT e FROM Event e LEFT JOIN e.favoritedByUsers u GROUP BY e ORDER BY COUNT(u) DESC")
     List<Event> findTop10ByFavoritesCount(Pageable pageable);
-    
+
     @Query(value = "SELECT e FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login",
-           countQuery = "SELECT count(e) FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login")
+            countQuery = "SELECT count(e) FROM Event e JOIN e.favoritedByUsers u WHERE u.userName = :login OR u.email = :login")
     Page<Event> findFavoritosByUsuarioLoginPaginated(@Param("login") String login, Pageable pageable);
 
-    @Query("SELECT COUNT(e) FROM Event e WHERE e.date >= :today")
-    long countActiveEvents(@Param("today") LocalDate today);
-
-    @Query("SELECT COUNT(e) FROM Event e WHERE e.date < :today")
-    long countPastEvents(@Param("today") LocalDate today);
 }
