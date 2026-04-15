@@ -17,10 +17,15 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
-    //TODO:El id no tiene que mandarlo el front sino la base de datos lo genera
     public Category saveCategory(CreateCategoryDTO dto) {
         Category category = new Category();
-        category.setCategoryId(dto.getCategoryId());
+        category.setName(dto.getName());
+        return categoryRepository.save(category);
+    }
+
+    public Category updateCategory(Long id, CreateCategoryDTO dto) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria no encontrada."));
         category.setName(dto.getName());
         return categoryRepository.save(category);
     }
@@ -28,12 +33,10 @@ public class CategoryService {
     public CreateCategoryDTO getCategoryDTO(Long id) {
         Category cat = getById(id);
         CreateCategoryDTO dto = new CreateCategoryDTO();
-        dto.setCategoryId(cat.getCategoryId());
         dto.setName(cat.getName());
         return dto;
     }
 
-    //TODO: Devolver un DTO
     public List<Category> getCategories() {
         return categoryRepository.findAll();
     }
