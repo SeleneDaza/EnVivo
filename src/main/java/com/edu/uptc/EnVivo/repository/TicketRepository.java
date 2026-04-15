@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
+
     @Query("SELECT t FROM Ticket t WHERE t.event.event_id = :eventId")
     List<Ticket> findByEventId(@Param("eventId") Long eventId);
 

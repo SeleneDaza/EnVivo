@@ -15,9 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByUserName(String userName);
 
-    Optional<User> findByEmail(String email);
-
     Optional<User> findByDocument(String document);
+
+    Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
 
@@ -26,6 +26,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) FROM User u WHERE NOT EXISTS (SELECT r FROM u.roles r WHERE UPPER(r.name) = 'ADMIN')")
     long countUsersWithoutAdminRole();
-
-
 }
