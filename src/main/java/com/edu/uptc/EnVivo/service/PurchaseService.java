@@ -40,10 +40,23 @@ public class PurchaseService {
         validateRequest(request);
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
-        User user = userService.findByUserName(principalName)
+        User user = getUser(principalName);
+        Purchase purchase = initializePurchase(user, request);
+        List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
+
+        processAllItems(requestedItems, request.getEventId(), purchase, ticketItems);
+
+        Purchase saved = purchaseRepository.save(purchase);
+        return buildConfirmation(saved, ticketItems, request.getPayment().getCardNumber());
+    }
+
+    private User getUser(String principalName) {
+        return userService.findByUserName(principalName)
                 .or(() -> userService.findByEmail(principalName))
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+    }
 
+    private Purchase initializePurchase(User user, PurchaseCheckoutRequestDTO request) {
         Purchase purchase = new Purchase();
         purchase.setUser(user);
         purchase.setPurchaseDate(LocalDateTime.now());
@@ -51,74 +64,83 @@ public class PurchaseService {
         purchase.setBuyerDocument(request.getBuyer().getDocument().trim());
         purchase.setBuyerEmail(request.getBuyer().getEmail().trim());
         purchase.setBuyerPhone(request.getBuyer().getPhone().trim());
+        purchase.setTotalAmount(0);
+        return purchase;
+    }
 
-        int totalAmount = 0;
-        int totalQuantity = 0;
-        String eventName = null;
-        List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
-
-        for (Map.Entry<Long, Integer> item : requestedItems.entrySet()) {
-            Ticket ticket = ticketRepository.findByIdForUpdate(item.getKey())
-                    .orElseThrow(() -> new IllegalArgumentException("Tipo de boleta no encontrado."));
-
-            if (!ticket.getEvent().getEvent_id().equals(request.getEventId())) {
-                throw new IllegalArgumentException("La boleta no pertenece al evento seleccionado.");
-            }
-
-            if (isHistoricalEvent(ticket.getEvent().getDate())) {
-                throw new IllegalStateException("No puedes comprar boletas para eventos historicos.");
-            }
-
-            int quantity = item.getValue();
-            if (ticket.getAvailableQuantity() < quantity) {
-                throw new IllegalStateException("No hay disponibilidad suficiente para la cantidad solicitada.");
-            }
-
-            int unitPrice = ticket.getPrice();
-            int subtotal = Math.multiplyExact(unitPrice, quantity);
-
-            ticket.setAvailableQuantity(ticket.getAvailableQuantity() - quantity);
-
-            PurchaseDetail detail = new PurchaseDetail();
-            detail.setTicket(ticket);
-            detail.setQuantity(quantity);
-            detail.setUnitPrice(unitPrice);
-            detail.setSubtotal(subtotal);
-            purchase.addDetail(detail);
-
-            totalAmount = Math.addExact(totalAmount, subtotal);
-            totalQuantity = Math.addExact(totalQuantity, quantity);
-            eventName = ticket.getEvent().getName();
-
-            ticketItems.add(PurchaseItemSummaryDTO.builder()
-                    .ticketId(ticket.getId())
-                    .ticketType(ticket.getTicketType().getName())
-                    .quantity(quantity)
-                    .unitPrice(unitPrice)
-                    .subtotal(subtotal)
-                    .build());
+    private void processAllItems(Map<Long, Integer> items, Long eventId,
+                                 Purchase purchase, List<PurchaseItemSummaryDTO> summaries) {
+        for (Map.Entry<Long, Integer> item : items.entrySet()) {
+            processSingleItem(item.getKey(), item.getValue(), eventId, purchase, summaries);
         }
+    }
 
-        purchase.setTotalAmount(totalAmount);
+    private void processSingleItem(Long ticketId, int quantity, Long reqEventId,
+                                   Purchase purchase, List<PurchaseItemSummaryDTO> summaries) {
+        Ticket ticket = fetchAndValidateTicket(ticketId, reqEventId, quantity);
+        int subtotal = Math.multiplyExact(ticket.getPrice(), quantity);
 
-        Purchase saved = purchaseRepository.save(purchase);
+        ticket.setAvailableQuantity(ticket.getAvailableQuantity() - quantity);
+        purchase.addDetail(createPurchaseDetail(ticket, quantity, subtotal));
+        purchase.setTotalAmount(Math.addExact(purchase.getTotalAmount(), subtotal));
 
-        String ticketTypeSummary = ticketItems.size() == 1
-                ? ticketItems.get(0).getTicketType()
-                : "Multiples tipos";
+        summaries.add(buildItemSummary(ticket, quantity, subtotal));
+    }
+
+    private Ticket fetchAndValidateTicket(Long ticketId, Long eventId, int quantity) {
+        Ticket ticket = ticketRepository.findByIdForUpdate(ticketId)
+                .orElseThrow(() -> new IllegalArgumentException("Tipo de boleta no encontrado."));
+
+        if (!ticket.getEvent().getEvent_id().equals(eventId)) {
+            throw new IllegalArgumentException("La boleta no pertenece al evento seleccionado.");
+        }
+        if (isHistoricalEvent(ticket.getEvent().getDate())) {
+            throw new IllegalStateException("No puedes comprar boletas para eventos historicos.");
+        }
+        if (ticket.getAvailableQuantity() < quantity) {
+            throw new IllegalStateException("No hay disponibilidad suficiente.");
+        }
+        return ticket;
+    }
+
+    private PurchaseDetail createPurchaseDetail(Ticket ticket, int quantity, int subtotal) {
+        PurchaseDetail detail = new PurchaseDetail();
+        detail.setTicket(ticket);
+        detail.setQuantity(quantity);
+        detail.setUnitPrice(ticket.getPrice());
+        detail.setSubtotal(subtotal);
+        return detail;
+    }
+
+    private PurchaseItemSummaryDTO buildItemSummary(Ticket ticket, int quantity, int subtotal) {
+        return PurchaseItemSummaryDTO.builder()
+                .ticketId(ticket.getId())
+                .ticketType(ticket.getTicketType().getName())
+                .quantity(quantity)
+                .unitPrice(ticket.getPrice())
+                .subtotal(subtotal)
+                .build();
+    }
+
+    private PurchaseConfirmationDTO buildConfirmation(Purchase saved, List<PurchaseItemSummaryDTO> items,
+                                                      String cardNumber) {
+        String ticketSummary = items.size() == 1 ? items.get(0).getTicketType() : "Multiples tipos";
+        int totalQuantity = items.stream().mapToInt(PurchaseItemSummaryDTO::getQuantity).sum();
+        String eventName = saved.getDetails().isEmpty() ? "" :
+                saved.getDetails().get(0).getTicket().getEvent().getName();
 
         return PurchaseConfirmationDTO.builder()
                 .purchaseId(saved.getId())
                 .purchaseDate(saved.getPurchaseDate().toString())
                 .eventName(eventName)
-                .ticketType(ticketTypeSummary)
+                .ticketType(ticketSummary)
                 .quantity(totalQuantity)
-                .total(totalAmount)
-                .ticketItems(ticketItems)
+                .total(saved.getTotalAmount())
+                .ticketItems(items)
                 .buyerFullName(saved.getBuyerFullName())
                 .buyerEmail(saved.getBuyerEmail())
                 .buyerDocument(saved.getBuyerDocument())
-                .maskedCard(maskCard(request.getPayment().getCardNumber()))
+                .maskedCard(maskCard(cardNumber))
                 .message("Compra registrada exitosamente.")
                 .build();
     }

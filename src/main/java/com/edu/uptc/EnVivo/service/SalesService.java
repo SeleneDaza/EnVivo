@@ -27,16 +27,41 @@ public class SalesService {
     public SalesReportDTO getSalesReport(Long eventId) {
         validateEventIfPresent(eventId);
 
-        List<PurchaseRepository.EventSalesProjection> eventSales = purchaseRepository.findEventSalesByEvent(eventId);
-        List<PurchaseRepository.TicketTypeSalesProjection> breakdown = purchaseRepository.findTicketTypeSalesByEvent(eventId);
+        List<PurchaseRepository.EventSalesProjection> eventSales =
+                purchaseRepository.findEventSalesByEvent(eventId);
+        List<PurchaseRepository.TicketTypeSalesProjection> breakdown =
+                purchaseRepository.findTicketTypeSalesByEvent(eventId);
 
-        Map<Long, List<SalesTicketTypeSummaryDTO>> breakdownByEvent = breakdown.stream()
+        List<SalesEventSummaryDTO> events = processEventSummaries(eventId, eventSales, breakdown);
+
+        return buildFinalReport(events);
+    }
+
+    private List<SalesEventSummaryDTO> processEventSummaries(Long eventId,
+                                                             List<PurchaseRepository.EventSalesProjection> sales,
+                                                             List<PurchaseRepository.TicketTypeSalesProjection> breakdown) {
+
+        Map<Long, List<SalesTicketTypeSummaryDTO>> breakdownMap = groupBreakdown(breakdown);
+        List<SalesEventSummaryDTO> events = mapToEventDtos(sales, breakdownMap);
+
+        return handleEmptyEventCase(eventId, events);
+    }
+
+    private Map<Long, List<SalesTicketTypeSummaryDTO>> groupBreakdown(
+            List<PurchaseRepository.TicketTypeSalesProjection> breakdown) {
+
+        return breakdown.stream()
                 .collect(Collectors.groupingBy(
                         PurchaseRepository.TicketTypeSalesProjection::getEventId,
                         Collectors.mapping(this::toTicketTypeSummary, Collectors.toList())
                 ));
+    }
 
-        List<SalesEventSummaryDTO> events = eventSales.stream()
+    private List<SalesEventSummaryDTO> mapToEventDtos(
+            List<PurchaseRepository.EventSalesProjection> eventSales,
+            Map<Long, List<SalesTicketTypeSummaryDTO>> breakdownByEvent) {
+
+        return eventSales.stream()
                 .map(event -> new SalesEventSummaryDTO(
                         event.getEventId(),
                         event.getEventName(),
@@ -45,26 +70,32 @@ public class SalesService {
                         breakdownByEvent.getOrDefault(event.getEventId(), Collections.emptyList())
                 ))
                 .toList();
+    }
 
-        // Si se filtra por evento y aun no tiene ventas, devolvemos el evento con valores en cero.
-        if (eventId != null && events.isEmpty()) {
-            Event event = eventRepository.findById(eventId)
-                    .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado."));
+    private List<SalesEventSummaryDTO> handleEmptyEventCase(Long eventId,
+                                                            List<SalesEventSummaryDTO> events) {
 
-            events = List.of(new SalesEventSummaryDTO(
-                    event.getEvent_id(),
-                    event.getName(),
-                    0L,
-                    0L,
-                    Collections.emptyList()
-            ));
+        if (eventId == null || !events.isEmpty()) {
+            return events;
         }
 
-        return new SalesReportDTO(
-                events,
-                toLong(purchaseRepository.getTotalTicketsSoldAllSales()),
-                toLong(purchaseRepository.getTotalRevenueAllSales())
-        );
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Evento no encontrado."));
+
+        return List.of(new SalesEventSummaryDTO(
+                event.getEvent_id(),
+                event.getName(),
+                0L,
+                0L,
+                Collections.emptyList()
+        ));
+    }
+
+    private SalesReportDTO buildFinalReport(List<SalesEventSummaryDTO> events) {
+        long totalTickets = toLong(purchaseRepository.getTotalTicketsSoldAllSales());
+        long totalRevenue = toLong(purchaseRepository.getTotalRevenueAllSales());
+
+        return new SalesReportDTO(events, totalTickets, totalRevenue);
     }
 
     @Transactional(readOnly = true)
