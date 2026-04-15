@@ -1,7 +1,6 @@
 package com.edu.uptc.EnVivo.controller;
 
 import com.edu.uptc.EnVivo.dto.CreateCategoryDTO;
-import com.edu.uptc.EnVivo.entity.Category;
 import com.edu.uptc.EnVivo.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

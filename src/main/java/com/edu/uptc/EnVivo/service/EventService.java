@@ -68,14 +68,6 @@ public class EventService {
         return savedEvent;
     }
 
-    public List<Event> findAll() {
-        return eventRepository.findAll();
-    }
-
-    public Page<Event> findAll(Pageable pageable) {
-        return eventRepository.findAll(pageable);
-    }
-
     public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
         Sort porFechaAsc = Sort.by(Sort.Direction.ASC, "date");
         Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaAsc);
@@ -84,17 +76,6 @@ public class EventService {
             return eventRepository.findByNameContainingIgnoreCase(keyword, ordenado);
         }
         return eventRepository.findAll(ordenado);
-    }
-
-    public Page<Event> buscarOPaginarVigentes(String keyword, Pageable pageable) {
-        Sort porFechaAsc = Sort.by(Sort.Direction.ASC, "date");
-        Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaAsc);
-        LocalDate hoy = LocalDate.now();
-
-        if (keyword != null && !keyword.trim().isEmpty()) {
-            return eventRepository.findVigentesByNameContaining(keyword, hoy, ordenado);
-        }
-        return eventRepository.findByDateGreaterThanEqual(hoy, ordenado);
     }
 
     public void eliminarEvento(Long id) {
@@ -187,19 +168,6 @@ public class EventService {
         return eventRepository.findTop10ByFavoritesCount(top10).stream()
                 .map(e -> new EventReporteDTO(e, e.getFavoritedByUsers().size()))
                 .collect(Collectors.toList());
-    }
-
-    public List<Event> obtenerEventosFavoritosOrdenados(String loginIdentifier) {
-        User user = findUserByLoginIdentifier(loginIdentifier);
-                
-        return user.getFavoriteEvents().stream()
-                .sorted((e1, e2) -> {
-                    // Protegemos por si algún evento no tiene fecha
-                    if (e1.getDate() == null) return 1;
-                    if (e2.getDate() == null) return -1;
-                    return e1.getDate().compareTo(e2.getDate()); // Ordena de más próximo a más lejano
-                })
-                .collect(java.util.stream.Collectors.toList());
     }
 
     public Page<Event> obtenerEventosFavoritosPaginados(String loginIdentifier, Pageable pageable) {
