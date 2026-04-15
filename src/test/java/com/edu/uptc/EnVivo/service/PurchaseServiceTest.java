@@ -116,21 +116,19 @@ class PurchaseServiceTest {
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
         when(ticketRepository.findByIdForUpdate(20L)).thenReturn(Optional.of(secondTicket));
-        
-        Purchase savedPurchase = new Purchase();
-        savedPurchase.setId(999L); 
-        savedPurchase.setPurchaseDate(java.time.LocalDateTime.now()); 
-        savedPurchase.setBuyerFullName(validRequest.getBuyer().getFullName());
-        savedPurchase.setBuyerEmail(validRequest.getBuyer().getEmail());
-        savedPurchase.setBuyerDocument(validRequest.getBuyer().getDocument());
-        
-        when(purchaseRepository.save(any(Purchase.class))).thenReturn(savedPurchase);
+
+        when(purchaseRepository.save(any(Purchase.class))).thenAnswer(invocation -> {
+            Purchase toSave = invocation.getArgument(0);
+            toSave.setId(999L);
+            return toSave;
+        });
 
         PurchaseConfirmationDTO result = purchaseService.checkout("test@correo.com", validRequest);
 
         assertNotNull(result);
         assertEquals(999L, result.getPurchaseId());
         assertEquals("Concierto Rock", result.getEventName());
+        assertEquals("Multiples tipos", result.getTicketType());
         assertEquals(130000, result.getTotal());
         assertEquals(3, result.getQuantity());
         assertEquals(48, mockTicket.getAvailableQuantity());
@@ -147,11 +145,10 @@ class PurchaseServiceTest {
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            purchaseService.checkout("test@correo.com", validRequest);
-        });
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> purchaseService.checkout("test@correo.com", validRequest));
 
-        assertEquals("No hay disponibilidad suficiente para la cantidad solicitada.", exception.getMessage());
+        assertEquals("No hay disponibilidad suficiente.", exception.getMessage());
         
         verify(purchaseRepository, never()).save(any(Purchase.class));
     }
