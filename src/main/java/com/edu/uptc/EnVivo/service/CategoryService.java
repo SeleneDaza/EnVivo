@@ -20,7 +20,7 @@ public class CategoryService {
     //TODO:El id no tiene que mandarlo el front sino la base de datos lo genera
     public Category saveCategory(CreateCategoryDTO dto) {
         Category category = new Category();
-        category.setCategoryId(dto.getCategoryId()); 
+        category.setCategoryId(dto.getCategoryId());
         category.setName(dto.getName());
         return categoryRepository.save(category);
     }
