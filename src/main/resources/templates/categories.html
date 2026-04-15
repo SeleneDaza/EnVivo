@@ -117,7 +117,7 @@
 
 <div id="category-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4"
-     th:attr="data-edit-open=${categoria.categoryId != null}">
+     th:attr="data-edit-open=${isEditMode}">
     <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <button type="button"
                 id="close-category-modal"
