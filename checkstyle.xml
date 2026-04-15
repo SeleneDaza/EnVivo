@@ -6,10 +6,6 @@
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
 
-    <module name="FileTabCharacter">
-        <property name="eachLine" value="true"/>
-    </module>
-
     <module name="TreeWalker">
         <module name="MethodLength">
             <property name="max" value="30"/>
@@ -20,20 +16,14 @@
             <property name="max" value="5"/>
         </module>
 
-        <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
 
         <module name="TypeName"/>
-        <module name="MethodName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
         <module name="ConstantName"/>
 
         <module name="NeedBraces"/>
-
-        <module name="EmptyBlock">
-            <property name="option" value="TEXT"/>
-        </module>
 
         <module name="EmptyCatchBlock"/>
     </module>

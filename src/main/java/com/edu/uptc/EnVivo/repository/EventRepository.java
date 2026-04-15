@@ -16,16 +16,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    Page<Event> findByDateGreaterThanEqual(LocalDate date, Pageable pageable);
-
     long countByDateGreaterThanEqual(LocalDate date);
 
     long countByDateLessThan(LocalDate date);
-
-    @Query("SELECT e FROM Event e WHERE e.date >= :today AND LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    Page<Event> findVigentesByNameContaining(@Param("keyword") String keyword,
-                                             @Param("today") LocalDate today,
-                                             Pageable pageable);
 
     @Query("SELECT e FROM Event e LEFT JOIN e.favoritedByUsers u GROUP BY e ORDER BY COUNT(u) DESC")
     List<Event> findTop10ByFavoritesCount(Pageable pageable);
