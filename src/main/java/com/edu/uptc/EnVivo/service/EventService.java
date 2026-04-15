@@ -152,7 +152,9 @@ public class EventService {
     }
 
     public Set<Long> obtenerFavoritosUsuario(String loginIdentifier) {
-        if (loginIdentifier == null) return Collections.emptySet();
+        if (loginIdentifier == null) {
+            return Collections.emptySet();
+        }
         try {
             User user = findUserByLoginIdentifier(loginIdentifier);
             return user.getFavoriteEvents().stream()
