@@ -129,37 +129,65 @@ public class UserService {
         String email = normalizeRequiredField(dto.getEmail());
         String phone = normalizeRequiredField(dto.getPhone());
 
-        if (fullName == null || !FULL_NAME_PATTERN.matcher(fullName).matches()) {
+        UpdateProfileResult formatValidation = checkFormats(fullName, document, email, phone);
+        if (formatValidation != UpdateProfileResult.SUCCESS) {
+            return formatValidation;
+        }
+
+        UpdateProfileResult uniqueValidation = checkUniqueness(user.getId(), email, document);
+        if (uniqueValidation != UpdateProfileResult.SUCCESS) {
+            return uniqueValidation;
+        }
+
+        return applyAndSaveUpdates(user, fullName, document, email, phone);
+    }
+
+    private UpdateProfileResult checkFormats(String name, String doc, String email, String phone) {
+        if (name == null || !FULL_NAME_PATTERN.matcher(name).matches()) {
             return UpdateProfileResult.INVALID_FULL_NAME;
         }
-
-        if (document == null || !DOCUMENT_PATTERN.matcher(document).matches()) {
+        if (doc == null || !DOCUMENT_PATTERN.matcher(doc).matches()) {
             return UpdateProfileResult.INVALID_DOCUMENT;
         }
-
         if (phone == null || !PHONE_PATTERN.matcher(phone).matches()) {
             return UpdateProfileResult.INVALID_PHONE;
         }
-
         if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
             return UpdateProfileResult.INVALID_EMAIL;
         }
+        return UpdateProfileResult.SUCCESS;
+    }
 
-        Optional<User> emailOwner = userRepository.findByEmail(email);
-        if (emailOwner.isPresent() && !emailOwner.get().getId().equals(user.getId())) {
+    private UpdateProfileResult checkUniqueness(Long currentUserId, String email, String document) {
+        if (isEmailInUseByAnother(currentUserId, email)) {
             return UpdateProfileResult.EMAIL_IN_USE;
         }
-
-        Optional<User> documentOwner = userRepository.findByDocument(document);
-        if (documentOwner.isPresent() && !documentOwner.get().getId().equals(user.getId())) {
+        if (isDocumentInUseByAnother(currentUserId, document)) {
             return UpdateProfileResult.DOCUMENT_IN_USE;
         }
+        return UpdateProfileResult.SUCCESS;
+    }
 
-        user.setFullName(fullName);
-        user.setDocument(document);
+    private boolean isEmailInUseByAnother(Long currentUserId, String email) {
+        return userRepository.findByEmail(email)
+                .filter(owner -> !owner.getId().equals(currentUserId))
+                .isPresent();
+    }
+
+    private boolean isDocumentInUseByAnother(Long currentUserId, String document) {
+        return userRepository.findByDocument(document)
+                .filter(owner -> !owner.getId().equals(currentUserId))
+                .isPresent();
+    }
+
+    private UpdateProfileResult applyAndSaveUpdates(User user, String name,
+                                                    String doc, String email, String phone) {
+        user.setFullName(name);
+        user.setDocument(doc);
         user.setPhone(phone);
         user.setEmail(email);
         userRepository.save(user);
+
         return UpdateProfileResult.SUCCESS;
     }
 
