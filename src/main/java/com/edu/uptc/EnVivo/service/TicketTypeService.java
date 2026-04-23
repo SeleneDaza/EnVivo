@@ -38,8 +38,17 @@ public class TicketTypeService {
     }
 
     private TicketType mapToEntity(CreateTicketTypeDTO dto) {
-        TicketType ticketType = new TicketType();
-        ticketType.setId(dto.getId());
+        TicketType ticketType;
+
+        if (dto.getId() != null) {
+            // UPDATE → buscar existente
+            ticketType = ticketTypeRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("TicketType no encontrado"));
+        } else {
+            // CREATE → nuevo objeto
+            ticketType = new TicketType();
+        }
+
         ticketType.setName(dto.getName().trim());
         return ticketType;
     }
