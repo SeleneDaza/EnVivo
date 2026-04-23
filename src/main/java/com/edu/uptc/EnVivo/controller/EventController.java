@@ -50,11 +50,15 @@ public class EventController {
     public static final int PAGESIZE = 10;
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     
-    // Constants to replace duplicated literals
     private static final String ATTR_TODAY = "today";
-    private static final String ATTR_EVENTO = "evento";
+    private static final String ATTR_EVENT = "event";
     private static final String KEY_MESSAGE = "message";
     private static final String KEY_SUCCESS = "success";
+    private static final String KEY_INTERESTED = "interested";
+    private static final String KEY_COUNT_TICKETS = "countTickets";
+    private static final String KEY_TICKETS = "tickets";
+    private static final String KEY_TICKET_TYPES = "ticketTypes";
+    private static final String KEY_STRING = "keyword";
 
     private final EventService eventService;
     private final CategoryService categoryService;
@@ -70,7 +74,7 @@ public class EventController {
 
     @GetMapping("/")
     public String index(
-            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = KEY_STRING, required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
             Authentication authentication,
             Model model) {
@@ -92,7 +96,7 @@ public class EventController {
         model.addAttribute(ATTR_TODAY, LocalDate.now());
 
         model.addAttribute("eventos", eventPage);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute(KEY_STRING, keyword);
         cargarDatosComunes(model);
 
         return "main";
@@ -110,7 +114,7 @@ public class EventController {
 
     @GetMapping("/admin")
     public String adminIndex(
-            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = KEY_STRING, required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
             Model model) {
 
@@ -125,16 +129,16 @@ public class EventController {
         
 
         model.addAttribute("eventos", eventPage);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute(KEY_STRING, keyword);
         model.addAttribute(ATTR_TODAY, LocalDate.now());
-        model.addAttribute(ATTR_EVENTO, new CreateEventDTO());
+        model.addAttribute(ATTR_EVENT, new CreateEventDTO());
         cargarDatosComunes(model);
 
         return "admin";
     }
 
     @PostMapping("/admin/guardar")
-    public String saveEventAdmin(@ModelAttribute(ATTR_EVENTO) CreateEventDTO dto,
+    public String saveEventAdmin(@ModelAttribute(ATTR_EVENT) CreateEventDTO dto,
                                      @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             eventService.createEvent(dto, file);
@@ -159,7 +163,7 @@ public class EventController {
 
     @GetMapping("/admin/editar/{id}")
     public String editEventAdmin(@PathVariable Long id,
-                                    @RequestParam(name = "keyword", required = false) String keyword,
+                                    @RequestParam(name = KEY_STRING, required = false) String keyword,
                                     @RequestParam(name = "page", defaultValue = "0") int page,
                                     Model model) {
         int pageSize = 50;
@@ -173,10 +177,10 @@ public class EventController {
         model.addAttribute(ATTR_TODAY, LocalDate.now()); 
 
         model.addAttribute("eventos", eventPage);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute(KEY_STRING, keyword);
 
         CreateEventDTO dto = eventService.obtenerEventoParaEdicion(id);
-        model.addAttribute(ATTR_EVENTO, dto);
+        model.addAttribute(ATTR_EVENT, dto);
      
         cargarDatosComunes(model);
 
@@ -185,7 +189,7 @@ public class EventController {
 
     @PostMapping("/admin/editar/{id}")
     public String saveEditionAdmin(@PathVariable Long id,
-                                      @ModelAttribute(ATTR_EVENTO) CreateEventDTO dto,
+                                      @ModelAttribute(ATTR_EVENT) CreateEventDTO dto,
                                       @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             eventService.actualizarEvento(id, dto, file);
@@ -218,7 +222,7 @@ public class EventController {
             String mensaje = newState ? "¡Añadido a tus intereses!" : "Eliminado de tus intereses";
             
             // Devolvemos el nuevo estado y el mensaje en formato JSON
-            return ResponseEntity.ok(Map.<String, Object>of("interested", newState, KEY_MESSAGE, mensaje));
+            return ResponseEntity.ok(Map.<String, Object>of(KEY_INTERESTED, newState, KEY_MESSAGE, mensaje));
 
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -266,7 +270,7 @@ public class EventController {
             if (detailDTO.isHistorical()) {
                 return "redirect:/?error=evento_historico";
             }
-            model.addAttribute(ATTR_EVENTO, detailDTO);
+            model.addAttribute(ATTR_EVENT, detailDTO);
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())
@@ -304,7 +308,7 @@ public class EventController {
             List<com.edu.uptc.EnVivo.dto.TicketDTO> tickets = ticketService.getTicketsAsDTO(eventId);
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,
-                    "tickets", tickets,
+                    KEY_TICKETS, tickets,
                     "count", tickets.size()
             ));
         } catch (IllegalArgumentException e) {
@@ -325,7 +329,7 @@ public class EventController {
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,
                     "event", detalle,
-                    "countTickets", detalle.getTickets() != null ? detalle.getTickets().size() : 0
+                    KEY_COUNT_TICKETS, detalle.getTickets() != null ? detalle.getTickets().size() : 0
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -347,7 +351,7 @@ public class EventController {
             var types = ticketTypeService.getTicketTypes();
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,
-                    "ticketTypes", types
+                    KEY_TICKET_TYPES, types
             ));
         } catch (Exception e) {
             logger.error("Error fetching ticket types", e);

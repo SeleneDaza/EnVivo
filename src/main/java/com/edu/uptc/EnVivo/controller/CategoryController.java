@@ -21,6 +21,8 @@ public class CategoryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService categoryService;
+    //TODO: revisar pq esta en español
+    private static final String KEY_CATEGORY = "categoria";
 
     private void getCategoriesList(Model model) {
         model.addAttribute("categorias", categoryService.getCategories());
@@ -29,7 +31,7 @@ public class CategoryController {
     @GetMapping
     public String listCategories(Model model) {
         getCategoriesList(model);
-        model.addAttribute("categoria", new CreateCategoryDTO());
+        model.addAttribute(KEY_CATEGORY, new CreateCategoryDTO());
         model.addAttribute("isEditMode", false);
         model.addAttribute("editingCategoryId", null);
         return "categories";
@@ -39,14 +41,14 @@ public class CategoryController {
     public String editCategory(@PathVariable Long id, Model model) {
         CreateCategoryDTO dto = categoryService.getCategoryDTO(id);
         getCategoriesList(model);
-        model.addAttribute("categoria", dto);
+        model.addAttribute(KEY_CATEGORY, dto);
         model.addAttribute("isEditMode", true);
         model.addAttribute("editingCategoryId", id);
         return "categories";
     }
 
     @PostMapping("/create")
-    public String saveCategory(@ModelAttribute("categoria") CreateCategoryDTO dto) {
+    public String saveCategory(@ModelAttribute(KEY_CATEGORY) CreateCategoryDTO dto) {
         try {
             if (categoryService.existsByName(dto.getName())) {
                 return "redirect:/categories?error_duplicado=true";
@@ -61,7 +63,7 @@ public class CategoryController {
 
     @PostMapping("/edit/{id}")
     public String updateCategory(@PathVariable Long id,
-                                 @ModelAttribute("categoria") CreateCategoryDTO dto) {
+                                 @ModelAttribute(KEY_CATEGORY) CreateCategoryDTO dto) {
         try {
             if (categoryService.existsByName(dto.getName())) {
                 Category existingCategory = categoryService.getById(id);

@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "purchase_details")
-@NoArgsConstructor // Requerido por JPA y tus servicios
+@NoArgsConstructor 
 public class PurchaseDetail {
 
     @Id

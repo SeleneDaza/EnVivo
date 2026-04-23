@@ -25,6 +25,7 @@ public class PurchaseController {
 
     private static final String KEY_SUCCESS = "success";
     private static final String KEY_MESSAGE = "message";
+    private static final String KEY_PURCHASE = "purchase";
 
     private final PurchaseService purchaseService;
 

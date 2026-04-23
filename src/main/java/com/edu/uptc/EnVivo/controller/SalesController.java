@@ -18,6 +18,8 @@ import java.util.Map;
 public class SalesController {
 
     private final SalesService salesService;
+    private static final String SUCCESS = "success";
+    private static final String KEY_MESSAGE = "message";
 
     @GetMapping("/sales")
     public String showSalesPage(Model model) {
@@ -36,15 +38,15 @@ public class SalesController {
         try {
             SalesReportDTO report = salesService.getSalesReport(eventId);
             return ResponseEntity.ok(Map.of(
-                    "success", true,
+                    SUCCESS, true,
                     "report", report
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "message", e.getMessage()));
+                    .body(Map.of(SUCCESS, false, KEY_MESSAGE, e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "message", "Error al generar el reporte de ventas."));
+                    .body(Map.of(SUCCESS, false, KEY_MESSAGE, "Error al generar el reporte de ventas."));
         }
     }
 }
