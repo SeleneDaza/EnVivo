@@ -17,6 +17,7 @@ const bankForm = document.getElementById('bank-form');
 const cancelButton = document.getElementById('cancel-btn');
 
 let currentStep = 1;
+let isSubmitting = false;
 
 function showError(message) {
     errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
@@ -311,6 +312,8 @@ prevStepButton.addEventListener('click', () => {
 });
 
 confirmStepButton.addEventListener('click', async () => {
+    if (isSubmitting) return;
+
     if (!validateStep(3)) return;
 
     if (!eventId || eventId <= 0) {
@@ -318,7 +321,9 @@ confirmStepButton.addEventListener('click', async () => {
         return;
     }
 
+    isSubmitting = true;
     confirmStepButton.disabled = true;
+    confirmStepButton.setAttribute('aria-busy', 'true');
     confirmStepButton.textContent = 'Procesando...';
 
     try {
@@ -348,7 +353,9 @@ confirmStepButton.addEventListener('click', async () => {
 
         showSuccess(successMsg);
     } catch (error) {
+        isSubmitting = false;
         confirmStepButton.disabled = false;
+        confirmStepButton.removeAttribute('aria-busy');
         confirmStepButton.textContent = 'Confirmar compra';
         showError(error.message || 'No fue posible confirmar la compra.');
     }

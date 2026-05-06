@@ -271,6 +271,8 @@ public class EventController {
                 return "redirect:/?error=evento_historico";
             }
             model.addAttribute(ATTR_EVENT, detailDTO);
+            // Compatibilidad con plantillas que usan la variable 'evento'
+            model.addAttribute("evento", detailDTO);
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())

@@ -40,7 +40,7 @@ public class PurchaseController {
             PurchaseConfirmationDTO confirmation = purchaseService.checkout(principal.getName(), request);
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,
-                    "purchase", confirmation
+                    KEY_PURCHASE, confirmation
             ));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
