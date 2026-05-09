@@ -131,7 +131,7 @@
                     </article>
 
                     <aside class="bg-gray-50 rounded-3xl border border-gray-100 p-8 h-fit space-y-4">
-                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Resumen rapido</h3>
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Resumen compra</h3>
                         <p class="text-sm"><span class="font-black">Tipos seleccionados:</span> <span id="step1SelectedTypes">0</span></p>
                         <p class="text-sm"><span class="font-black">Boletas:</span> <span id="step1SelectedQuantity">0</span></p>
                         <p class="text-sm"><span class="font-black">Total:</span> <span id="step1SelectedTotal" class="text-main font-black">$0</span></p>
@@ -144,20 +144,20 @@
                 <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos personales</h2>
                 <form id="personal-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
                     <div class="space-y-2">
-                        <label for="fullName">Nombre completo</label>
+                        <label for="fullName">Nombre completo <span class="text-error">*</span></label>
                         <input id="fullName" type="text" class="w-full rounded-2xl" th:value="${buyerFullName}" autocomplete="name" required>
                     </div>
                     <div class="space-y-2">
-                        <label for="document">Documento</label>
+                        <label for="document">Documento <span class="text-error">*</span></label>
                         <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}"
                                inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" required>
                     </div>
                     <div class="space-y-2">
-                        <label for="email">Correo electronico</label>
+                        <label for="email">Correo electronico <span class="text-error">*</span></label>
                         <input id="email" type="email" class="w-full rounded-2xl" th:value="${buyerEmail}" autocomplete="email" required>
                     </div>
                     <div class="space-y-2">
-                        <label for="phone">Teléfono</label>
+                        <label for="phone">Teléfono <span class="text-error">*</span></label>
                         <input 
                             id="phone" 
                             type="tel" 
@@ -174,7 +174,7 @@
                 <h2 class="text-sm font-black uppercase tracking-[0.2em] text-gray-400">Datos bancarios</h2>
                 <form id="bank-form" class="grid md:grid-cols-2 gap-x-7 gap-y-6">
                     <div class="md:col-span-2 space-y-2">
-                        <label for="cardHolder">Titular de la tarjeta</label>
+                        <label for="cardHolder">Titular de la tarjeta <span class="text-error">*</span></label>
                         <input id="cardHolder" type="text" class="w-full rounded-2xl" required>
                     </div>
                     <div class="md:col-span-2 space-y-2">
@@ -191,7 +191,7 @@
                         </div>
                     </div>
                     <div class="md:col-span-2 space-y-2">
-                        <label for="cardNumber">Número de tarjeta</label>
+                        <label for="cardNumber">Número de tarjeta <span class="text-error">*</span></label>
                         <input 
                             id="cardNumber" 
                             type="text" 
@@ -203,11 +203,11 @@
                             required>
                     </div>
                     <div class="space-y-2">
-                        <label for="expiry">Vencimiento</label>
+                        <label for="expiry">Vencimiento <span class="text-error">*</span></label>
                         <input id="expiry" type="month" class="w-full rounded-2xl" required>
                     </div>
                     <div class="space-y-2">
-                        <label for="cvv">CVV</label>
+                        <label for="cvv">CVV <span class="text-error">*</span></label>
                         <input 
                             id="cvv" 
                             type="password" 
