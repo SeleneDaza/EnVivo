@@ -250,7 +250,9 @@ function fillSummary() {
     document.getElementById('summaryName').textContent = document.getElementById('fullName').value || '-';
     document.getElementById('summaryEmail').textContent = document.getElementById('email').value || '-';
     document.getElementById('summaryDocument').textContent = document.getElementById('document').value || '-';
-    document.getElementById('summaryCard').textContent = maskCardNumber(document.getElementById('cardNumber').value);
+    const typeInput = document.querySelector('input[name="cardType"]:checked');
+    const cardType = typeInput ? typeInput.value : null;
+    document.getElementById('summaryCard').textContent = cardType ? `${cardType} ${maskCardNumber(document.getElementById('cardNumber').value)}` : maskCardNumber(document.getElementById('cardNumber').value);
     document.getElementById('summaryCvv').textContent = '***';
 }
 
@@ -276,7 +278,8 @@ async function submitCheckout() {
             cardHolder: document.getElementById('cardHolder').value,
             cardNumber: document.getElementById('cardNumber').value,
             expiry: document.getElementById('expiry').value,
-            cvv: document.getElementById('cvv').value
+            cvv: document.getElementById('cvv').value,
+            type: (document.querySelector('input[name="cardType"]:checked') || {}).value || null
         }
     };
 
