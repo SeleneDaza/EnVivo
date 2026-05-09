@@ -149,8 +149,8 @@
                     </div>
                     <div class="space-y-2">
                         <label for="document">Documento <span class="text-error">*</span></label>
-                        <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}"
-                               inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" required>
+                           <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}"
+                               inputmode="text" pattern="[0-9A-Za-z]*" oninput="this.value = this.value.replace(/[^0-9A-Za-z]/g, '')" required>
                     </div>
                     <div class="space-y-2">
                         <label for="email">Correo electronico <span class="text-error">*</span></label>
@@ -212,7 +212,7 @@
                             id="cvv" 
                             type="password" 
                             inputmode="numeric" 
-                            maxlength="4" 
+                            maxlength="3" 
                             class="w-full rounded-2xl" 
                             oninput="this.value = this.value.replace(/\D/g, '')"
                             required>
