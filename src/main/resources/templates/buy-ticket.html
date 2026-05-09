@@ -149,7 +149,8 @@
                     </div>
                     <div class="space-y-2">
                         <label for="document">Documento</label>
-                        <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}" required>
+                        <input id="document" type="text" class="w-full rounded-2xl" th:value="${buyerDocument}"
+                               inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" required>
                     </div>
                     <div class="space-y-2">
                         <label for="email">Correo electronico</label>
