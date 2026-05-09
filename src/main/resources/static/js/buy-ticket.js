@@ -207,8 +207,8 @@ function validateStep(step) {
             return false;
         }
 
-        if (cvv.length < 3 || cvv.length > 4) {
-            showError('El CVV debe tener 3 o 4 digitos.');
+        if (cvv.length !== 3) {
+            showError('El CVV debe tener 3 digitos.');
             return false;
         }
 
