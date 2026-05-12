@@ -55,7 +55,7 @@ public class PurchaseService {
         try {
             var gatewayResult = paymentGatewayService.processPayment(monto, tipoTarjeta, numeroTarjeta, cvv);
             if (!gatewayResult.isSuccess()) {
-                throw new IllegalStateException(gatewayResult.getMessage());
+                throw new PaymentFailedException(gatewayResult.getMessage(), gatewayResult.getRawResponse());
             }
         } catch (PaymentGatewayService.GatewayConnectionException e) {
             throw new IllegalStateException(e.getMessage());

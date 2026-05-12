@@ -298,7 +298,11 @@ async function submitCheckout() {
 
     const result = await response.json();
     if (!response.ok || !result.success) {
-        throw new Error(result.message || 'No fue posible registrar la compra.');
+        const backendMessage = result.message || 'No fue posible registrar la compra.';
+        const gatewayRaw = result.gateway_response;
+        const gatewayText = gatewayRaw ? (typeof gatewayRaw === 'string' ? gatewayRaw : JSON.stringify(gatewayRaw)) : null;
+        const fullMessage = gatewayText ? `${backendMessage}\n\nRespuesta pasarela: ${gatewayText}` : backendMessage;
+        throw new Error(fullMessage);
     }
 
     return result.purchase;
