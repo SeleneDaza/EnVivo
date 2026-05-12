@@ -34,6 +34,7 @@ public class PurchaseService {
     private final TicketRepository ticketRepository;
     private final UserService userService;
     private final PdfTicketService pdfTicketService;
+    private final PaymentGatewayService paymentGatewayService;
 
     @Transactional
     public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request) {
@@ -45,6 +46,20 @@ public class PurchaseService {
         List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
 
         processAllItems(requestedItems, request.getEventId(), purchase, ticketItems);
+        // Antes de persistir, procesar el pago con la pasarela externa
+        long monto = purchase.getTotalAmount();
+        String tipoTarjeta = request.getPayment().getTipoTarjeta();
+        String numeroTarjeta = request.getPayment().getCardNumber();
+        String cvv = request.getPayment().getCvv();
+
+        try {
+            var gatewayResult = paymentGatewayService.processPayment(monto, tipoTarjeta, numeroTarjeta, cvv);
+            if (!gatewayResult.isSuccess()) {
+                throw new IllegalStateException(gatewayResult.getMessage());
+            }
+        } catch (PaymentGatewayService.GatewayConnectionException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
 
         Purchase saved = purchaseRepository.save(purchase);
         return buildConfirmation(saved, ticketItems, request.getPayment().getCardNumber());
