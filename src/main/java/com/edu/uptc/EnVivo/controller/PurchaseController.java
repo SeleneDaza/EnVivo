@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Map;
-import com.edu.uptc.EnVivo.service.PaymentFailedException;
 
 @RestController
 @RequestMapping("/api/purchases")
@@ -43,16 +42,9 @@ public class PurchaseController {
                     KEY_SUCCESS, true,
                     KEY_PURCHASE, confirmation
             ));
-        } catch (PaymentFailedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.<String, Object>of(
-                    KEY_SUCCESS, false,
-                    KEY_MESSAGE, e.getMessage(),
-                    "gateway_response", e.getGatewayRawResponse()
-                ));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, e.getMessage()));
+                    .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, e.getMessage()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, e.getMessage()));
