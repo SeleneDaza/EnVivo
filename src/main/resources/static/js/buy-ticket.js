@@ -198,9 +198,14 @@ function validateStep(step) {
             showError('Completa los datos bancarios requeridos.');
             return false;
         }
-
         const cardDigits = document.getElementById('cardNumber').value.replace(/\D/g, '');
         const cvv = document.getElementById('cvv').value.replace(/\D/g, '');
+
+        const cardType = (document.querySelector('input[name="cardType"]:checked') || {}).value || null;
+        if (!cardType) {
+            showError('Debes seleccionar el tipo de tarjeta (Visa o Mastercard).');
+            return false;
+        }
 
         if (cardDigits.length < 13 || cardDigits.length > 19) {
             showError('El numero de tarjeta debe tener entre 13 y 19 digitos.');
@@ -252,7 +257,7 @@ function fillSummary() {
     document.getElementById('summaryDocument').textContent = document.getElementById('document').value || '-';
     const typeInput = document.querySelector('input[name="cardType"]:checked');
     const cardType = typeInput ? typeInput.value : null;
-    document.getElementById('summaryCard').textContent = cardType ? `${cardType} ${maskCardNumber(document.getElementById('cardNumber').value)}` : maskCardNumber(document.getElementById('cardNumber').value);
+    document.getElementById('summaryCard').textContent = cardType ? `${cardType.toUpperCase()} ${maskCardNumber(document.getElementById('cardNumber').value)}` : maskCardNumber(document.getElementById('cardNumber').value);
     document.getElementById('summaryCvv').textContent = '***';
 }
 
@@ -279,7 +284,7 @@ async function submitCheckout() {
             cardNumber: document.getElementById('cardNumber').value,
             expiry: document.getElementById('expiry').value,
             cvv: document.getElementById('cvv').value,
-            type: (document.querySelector('input[name="cardType"]:checked') || {}).value || null
+            tipo_tarjeta: ((document.querySelector('input[name="cardType"]:checked') || {}).value || null)?.toLowerCase()
         }
     };
 
