@@ -148,6 +148,67 @@ java -jar target/EnVivo-0.0.1-SNAPSHOT.jar
 
 ---
 
+## Logging y Observabilidad (Grafana, Loki, Promtail)
+
+### Arquitectura de logs (breve)
+
+- **Promtail**: recolecta logs desde los contenedores y archivos del host y los envía a **Loki**.
+- **Loki**: almacena los logs de forma escalable y indexa etiquetas para búsquedas eficientes.
+- **Grafana**: visualiza los logs consultando a Loki y construye paneles y alertas.
+
+En este proyecto, la aplicación escribe logs en archivos locales (`./logs/app.log`) para que Promtail los lea desde el volumen o ruta del host.
+
+### Ejecución con Docker Compose
+
+El sistema de observabilidad (Grafana + Loki + Promtail) está preparado para levantarse junto con la aplicación mediante `docker compose up -d`.
+Los servicios relevantes incluyen los contenedores para Grafana, Loki y Promtail. Al ejecutar `docker compose up -d`, todos los servicios configurados en `docker-compose.yml` deberán iniciarse automáticamente.
+
+Importante: los contenedores están configurados con la política `restart: always`. Esto significa que los servicios se reiniciarán automáticamente si fallan o si el host Docker se reinicia.
+
+### Comportamiento esperado
+
+- Al arrancar el proyecto con Docker Compose, Grafana, Loki y Promtail deben estar en ejecución sin intervención manual.
+- La aplicación escribe logs en `./logs/app.log` (ruta relativa al proyecto) y Promtail debe recolectarlos y enviarlos a Loki.
+
+### ¿Qué hacer si los servicios NO se reinician automáticamente?
+
+1. Verificar que el servicio Docker Engine esté activo en la máquina.
+2. Ejecutar `docker ps -a` para revisar el estado de los contenedores y detectar errores de arranque.
+3. Reiniciar los servicios con:
+
+```bash
+docker compose up -d
+```
+
+4. Si el problema persiste, recrear los contenedores:
+
+```bash
+docker compose up -d --force-recreate
+```
+
+5. Revisar logs del contenedor problemático para diagnosticar (ejemplo para Grafana):
+
+```bash
+docker logs grafana
+```
+
+### Comandos útiles
+
+```bash
+docker compose up -d
+docker compose down
+docker ps
+docker logs grafana
+```
+
+Si Promtail no está enviando logs a Loki, verificar:
+
+- Que la ruta del archivo (`./logs/app.log`) esté montada o accesible desde el contenedor de Promtail.
+- Permisos de lectura en los archivos de logs.
+- La configuración de `promtail-config.yaml` para asegurar que el `scrape_config` incluye la ruta correspondiente.
+
+Esta configuración facilita la integración con Grafana/Loki y permite búsquedas y dashboards académicos para análisis de eventos y fallos.
+
 ## Endpoints Principales
 
 ### Públicos (sin autenticación)
