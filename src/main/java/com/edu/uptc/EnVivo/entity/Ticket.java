@@ -2,6 +2,8 @@ package com.edu.uptc.EnVivo.entity;
 
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
 @Entity
 @Table(name = "tickets")
@@ -18,6 +20,7 @@ public class Ticket {
     private Event event;
 
     @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "ticket_type_id", nullable = false)
     private TicketType ticketType;
 

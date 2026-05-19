@@ -128,9 +128,10 @@ public class PurchaseService {
     }
 
     private PurchaseItemSummaryDTO buildItemSummary(Ticket ticket, int quantity, int subtotal) {
+        String typeName = ticket.getTicketType() != null ? ticket.getTicketType().getName() : "Sin tipo";
         return PurchaseItemSummaryDTO.builder()
                 .ticketId(ticket.getId())
-                .ticketType(ticket.getTicketType().getName())
+                .ticketType(typeName)
                 .quantity(quantity)
                 .unitPrice(ticket.getPrice())
                 .subtotal(subtotal)
