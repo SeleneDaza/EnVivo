@@ -4,6 +4,8 @@ import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
 import com.edu.uptc.EnVivo.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity; 
@@ -23,6 +25,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PurchaseController {
 
+    private static final Logger log = LoggerFactory.getLogger(PurchaseController.class);
     private static final String KEY_SUCCESS = "success";
     private static final String KEY_MESSAGE = "message";
     private static final String KEY_PURCHASE = "purchase";
