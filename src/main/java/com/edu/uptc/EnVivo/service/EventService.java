@@ -69,9 +69,19 @@ public class EventService {
     }
 
     public Page<Event> buscarOPaginar(String keyword, Pageable pageable) {
+        return buscarOPaginar(keyword, pageable, false);
+    }
+
+    public Page<Event> buscarOPaginar(String keyword, Pageable pageable, boolean soloDisponibles) {
         Sort porFechaAsc = Sort.by(Sort.Direction.ASC, "date");
         Pageable ordenado = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), porFechaAsc);
 
+        if (soloDisponibles) {
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                return eventRepository.findWithAvailableTicketsByKeyword(keyword.trim(), ordenado);
+            }
+            return eventRepository.findWithAvailableTickets(ordenado);
+        }
         if (keyword != null && !keyword.trim().isEmpty()) {
             return eventRepository.findByNameContainingIgnoreCase(keyword, ordenado);
         }

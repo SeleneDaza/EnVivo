@@ -16,6 +16,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Page<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
+    @Query(value = "SELECT e FROM Event e WHERE (e.date IS NULL OR e.date >= CURRENT_DATE) AND EXISTS (SELECT t FROM Ticket t WHERE t.event = e AND t.availableQuantity > 0)",
+           countQuery = "SELECT COUNT(e) FROM Event e WHERE (e.date IS NULL OR e.date >= CURRENT_DATE) AND EXISTS (SELECT t FROM Ticket t WHERE t.event = e AND t.availableQuantity > 0)")
+    Page<Event> findWithAvailableTickets(Pageable pageable);
+
+    @Query(value = "SELECT e FROM Event e WHERE LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (e.date IS NULL OR e.date >= CURRENT_DATE) AND EXISTS (SELECT t FROM Ticket t WHERE t.event = e AND t.availableQuantity > 0)",
+           countQuery = "SELECT COUNT(e) FROM Event e WHERE LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (e.date IS NULL OR e.date >= CURRENT_DATE) AND EXISTS (SELECT t FROM Ticket t WHERE t.event = e AND t.availableQuantity > 0)")
+    Page<Event> findWithAvailableTicketsByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
     long countByDateGreaterThanEqual(LocalDate date);
 
     long countByDateLessThan(LocalDate date);

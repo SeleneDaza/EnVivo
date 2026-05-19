@@ -40,12 +40,23 @@
 
 <div th:replace="components/navbar :: navbar('user','')"></div>
 
-<main class="max-w-[1600px] 
-             mx-auto 
-             px-4 sm:px-6 md:px-8 lg:px-10 
+<main class="max-w-[1600px]
+             mx-auto
+             px-4 sm:px-6 md:px-8 lg:px-10
              py-8 md:py-10 lg:py-12">
 
-    <div class="grid grid-cols-1 
+    <div class="mb-6 flex items-center gap-3">
+        <a th:href="${soloDisponibles} ? @{/(keyword=${keyword})} : @{/(keyword=${keyword}, soloDisponibles=true)}"
+           th:classappend="${soloDisponibles} ? 'bg-main text-white border-main' : 'bg-white text-gray-600 border-gray-200 hover:border-main hover:text-main'"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Con entradas disponibles
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1
                 sm:grid-cols-2 
                 md:grid-cols-3 
                 lg:grid-cols-4 
@@ -101,7 +112,7 @@
 
     <div th:if="${eventos.totalPages > 1}" class="mt-12 sm:mt-16 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
 
-        <a th:href="@{/(page=${eventos.number - 1}, keyword=${keyword})}"
+        <a th:href="@{/(page=${eventos.number - 1}, keyword=${keyword}, soloDisponibles=${soloDisponibles})}"
            th:classappend="${!eventos.hasPrevious()} ? 'pointer-events-none opacity-30' : 'hover:bg-lighter'"
            class="px-4 sm:px-5 py-2 rounded-full bg-white border border-gray-200 text-xs sm:text-sm font-bold transition-colors">
             Anterior
@@ -109,18 +120,18 @@
 
         <div class="flex flex-wrap gap-2">
             <a th:each="i : ${#numbers.sequence(0, eventos.totalPages - 1)}"
-               th:href="@{/(page=${i}, keyword=${keyword})}"
+               th:href="@{/(page=${i}, keyword=${keyword}, soloDisponibles=${soloDisponibles})}"
                th:text="${i + 1}"
                th:classappend="${eventos.number == i} ? 'bg-main text-white' : 'bg-white hover:border-main'"
-               class="w-8 h-8 sm:w-10 sm:h-10 
-                      flex items-center justify-center 
-                      rounded-full border border-gray-200 
-                      text-xs sm:text-sm font-bold 
+               class="w-8 h-8 sm:w-10 sm:h-10
+                      flex items-center justify-center
+                      rounded-full border border-gray-200
+                      text-xs sm:text-sm font-bold
                       transition-all">
             </a>
         </div>
 
-        <a th:href="@{/(page=${eventos.number + 1}, keyword=${keyword})}"
+        <a th:href="@{/(page=${eventos.number + 1}, keyword=${keyword}, soloDisponibles=${soloDisponibles})}"
            th:classappend="${!eventos.hasNext()} ? 'pointer-events-none opacity-30' : 'hover:bg-lighter'"
            class="px-4 sm:px-5 py-2 rounded-full bg-white border border-gray-200 text-xs sm:text-sm font-bold transition-colors">
             Siguiente

@@ -51,7 +51,7 @@ public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     
     private static final String ATTR_TODAY = "today";
-    private static final String ATTR_EVENT = "event";
+    private static final String ATTR_EVENT = "evento";
     private static final String KEY_MESSAGE = "message";
     private static final String KEY_SUCCESS = "success";
     private static final String KEY_INTERESTED = "interested";
@@ -76,6 +76,7 @@ public class EventController {
     public String index(
             @RequestParam(name = KEY_STRING, required = false) String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "soloDisponibles", required = false, defaultValue = "false") boolean soloDisponibles,
             Authentication authentication,
             Model model) {
 
@@ -86,7 +87,7 @@ public class EventController {
 
         Pageable pageable = PageRequest.of(page, PAGESIZE);
 
-        Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable);
+        Page<Event> eventPage = eventService.buscarOPaginar(keyword, pageable, soloDisponibles);
 
         Set<Long> misFavoritos = (authentication != null)
             ? eventService.obtenerFavoritosUsuario(authentication.getName())
@@ -97,6 +98,7 @@ public class EventController {
 
         model.addAttribute("eventos", eventPage);
         model.addAttribute(KEY_STRING, keyword);
+        model.addAttribute("soloDisponibles", soloDisponibles);
         cargarDatosComunes(model);
 
         return "main";
@@ -271,8 +273,6 @@ public class EventController {
                 return "redirect:/?error=evento_historico";
             }
             model.addAttribute(ATTR_EVENT, detailDTO);
-            // Compatibilidad con plantillas que usan la variable 'evento'
-            model.addAttribute("evento", detailDTO);
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())
