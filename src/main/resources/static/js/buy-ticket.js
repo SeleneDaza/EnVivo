@@ -203,7 +203,7 @@ function validateStep(step) {
 
         const cardType = (document.querySelector('input[name="cardType"]:checked') || {}).value || null;
         if (!cardType) {
-            showError('Debes seleccionar el tipo de tarjeta (Visa, Mastercard o Nubank).');
+            showError('Debes seleccionar el tipo de tarjeta (Visa, Mastercard o Nu).');
             return false;
         }
 
