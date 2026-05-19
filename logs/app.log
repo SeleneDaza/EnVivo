@@ -1,0 +1,15 @@
+2026-05-19 18:16:45 [WARN] [THYMELEAF][http-nio-8080-exec-1][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-19 18:17:13 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 5622222, Tipo tarjeta: nu
+2026-05-19 18:17:13 [INFO] Iniciando procesamiento de pago - monto: 5622222, tarjeta: ****0366
+2026-05-19 18:17:14 [INFO] Pago procesado exitosamente - Respuesta: Transacción aprobada ID:Pago aprobado correctamente.
+2026-05-19 18:17:14 [INFO] Compra registrada exitosamente - Usuario: Sofia, ID Compra: 36, Monto: 5622222
+2026-05-19 18:17:49 [WARN] [THYMELEAF][http-nio-8080-exec-5][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-19 18:17:50 [WARN] [THYMELEAF][http-nio-8080-exec-9][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-19 18:18:08 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: nu
+2026-05-19 18:18:08 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****0365
+2026-05-19 18:18:09 [WARN] Pasarela respondió con error de negocio - Status: 200, Mensaje: Tarjeta rechazada.
+2026-05-19 18:18:09 [WARN] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: Tarjeta rechazada.
+2026-05-19 18:18:48 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: nu
+2026-05-19 18:18:48 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****0365
+2026-05-19 18:18:48 [ERROR] NO SE PUDO CONECTAR CON LA PASARELA DE PAGOS (sin respuesta) - Error: I/O error on POST request for "http://localhost:8002/pagos": Connection refused: connect
+2026-05-19 18:18:48 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.

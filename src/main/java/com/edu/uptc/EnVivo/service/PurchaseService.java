@@ -14,6 +14,8 @@ import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.repository.PurchaseRepository;
 import com.edu.uptc.EnVivo.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PurchaseService {
 
+    private static final Logger log = LoggerFactory.getLogger(PurchaseService.class);
+
     private final PurchaseRepository purchaseRepository;
     private final TicketRepository ticketRepository;
     private final UserService userService;
@@ -42,26 +46,46 @@ public class PurchaseService {
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
         User user = getUser(principalName);
+        
+        // Log inicial de checkout
+        String tipoTarjeta = request.getPayment().getTipoTarjeta();
+        long monto = request.getItems().stream()
+            .mapToLong(item -> {
+                Ticket ticket = ticketRepository.findById(item.getTicketId()).orElse(null);
+                return ticket != null ? (long) ticket.getPrice() * item.getQuantity() : 0;
+            }).sum();
+        log.info("Iniciando checkout - Usuario: {}, Monto: {}, Tipo tarjeta: {}", 
+            user.getUserName(), monto, tipoTarjeta.toLowerCase());
+        
         Purchase purchase = initializePurchase(user, request);
         List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
 
         processAllItems(requestedItems, request.getEventId(), purchase, ticketItems);
+        
         // Antes de persistir, procesar el pago con la pasarela externa
-        long monto = purchase.getTotalAmount();
-        String tipoTarjeta = request.getPayment().getTipoTarjeta();
+        long montoFinal = purchase.getTotalAmount();
         String numeroTarjeta = request.getPayment().getCardNumber();
         String cvv = request.getPayment().getCvv();
 
         try {
-            var gatewayResult = paymentGatewayService.processPayment(monto, tipoTarjeta, numeroTarjeta, cvv);
+            var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
             if (!gatewayResult.isSuccess()) {
+                log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}", 
+                    user.getUserName(), montoFinal, gatewayResult.getMessage());
                 throw new IllegalStateException(gatewayResult.getMessage());
             }
         } catch (PaymentGatewayService.GatewayConnectionException e) {
+            log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.", 
+                user.getUserName(), montoFinal);
             throw new IllegalStateException(e.getMessage());
         }
 
         Purchase saved = purchaseRepository.save(purchase);
+        
+        // Log de compra registrada exitosamente
+        log.info("Compra registrada exitosamente - Usuario: {}, ID Compra: {}, Monto: {}", 
+            user.getUserName(), saved.getId(), montoFinal);
+        
         return buildConfirmation(saved, ticketItems, request.getPayment().getCardNumber());
     }
 
