@@ -20,8 +20,8 @@ import java.util.Map;
 public class PaymentGatewayService {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentGatewayService.class);
-    private static final String GATEWAY_URL = "http://localhost:8080/pagos";
-    private static final String EMPRESA_ID = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String GATEWAY_URL = "http://localhost:8002/pagos";
+    private static final String EMPRESA_ID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
