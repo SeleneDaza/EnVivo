@@ -36,4 +36,5 @@ build/
 .env
 
 # Logs
+app.log
 logs/
