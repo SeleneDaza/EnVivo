@@ -38,9 +38,10 @@ public abstract class BasePlaywrightTest {
     static void launchBrowser() {
         playwright = Playwright.create();
         boolean headless = Boolean.parseBoolean(System.getProperty("playwright.headless", "true"));
+        int slowMo = Integer.parseInt(System.getProperty("playwright.slow-mo", headless ? "0" : "800"));
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
                 .setHeadless(headless)
-                .setSlowMo(headless ? 0 : 800);
+                .setSlowMo(slowMo);
 
         // Usar Chrome del sistema si Playwright no tiene sus propios binarios descargados
         String customExe = System.getProperty("playwright.chrome-exe");
