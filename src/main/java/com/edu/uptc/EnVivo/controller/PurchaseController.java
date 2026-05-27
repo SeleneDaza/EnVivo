@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/purchases")
@@ -33,14 +35,20 @@ public class PurchaseController {
     private final PurchaseService purchaseService;
 
     @PostMapping("/checkout")
-    public ResponseEntity<Map<String, Object>> checkout(@RequestBody PurchaseCheckoutRequestDTO request, Principal principal) {
+    public ResponseEntity<Map<String, Object>> checkout(@RequestBody PurchaseCheckoutRequestDTO request,
+                                                        Principal principal, HttpSession session) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, "Debes iniciar sesion para comprar."));
         }
 
         try {
-            PurchaseConfirmationDTO confirmation = purchaseService.checkout(principal.getName(), request);
+            String sessionId = (String) session.getAttribute("paymentSessionId");
+            if (sessionId == null) {
+                sessionId = UUID.randomUUID().toString();
+                session.setAttribute("paymentSessionId", sessionId);
+            }
+            PurchaseConfirmationDTO confirmation = purchaseService.checkout(principal.getName(), request, sessionId);
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,
                     KEY_PURCHASE, confirmation

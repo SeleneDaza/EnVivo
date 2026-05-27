@@ -11,14 +11,18 @@ import com.edu.uptc.EnVivo.entity.Purchase;
 import com.edu.uptc.EnVivo.entity.PurchaseDetail;
 import com.edu.uptc.EnVivo.entity.Ticket;
 import com.edu.uptc.EnVivo.entity.User;
+import com.edu.uptc.EnVivo.controller.PaymentProgressController;
 import com.edu.uptc.EnVivo.repository.PurchaseRepository;
 import com.edu.uptc.EnVivo.repository.TicketRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -27,6 +31,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +44,14 @@ public class PurchaseService {
     private final TicketRepository ticketRepository;
     private final UserService userService;
     private final PdfTicketService pdfTicketService;
-    private final PaymentGatewayService paymentGatewayService;
+    private final PaymentProgressController paymentProgressController;
+    private final ObjectMapper objectMapper;
+
+    @Value("${gateway.ws-url:ws://localhost:8002/ws/pagos}")
+    private String gatewayWsUrl;
 
     @Transactional
-    public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request) {
+    public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request, String sessionId) {
         validateRequest(request);
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
@@ -68,15 +78,37 @@ public class PurchaseService {
         String cvv = request.getPayment().getCvv();
 
         try {
-            var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
-            if (!gatewayResult.isSuccess()) {
-                log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}", 
-                    user.getUserName(), montoFinal, gatewayResult.getMessage());
-                throw new IllegalStateException(gatewayResult.getMessage());
+            String paymentPayload = objectMapper.writeValueAsString(Map.<String, Object>of(
+                "empresa_id", "EnVivo",
+                "monto", montoFinal,
+                "tipo_tarjeta", tipoTarjeta,
+                "numero_tarjeta", numeroTarjeta,
+                "cvv", cvv
+            ));
+
+            CompletableFuture<PaymentProgressDTO> resultFuture = new CompletableFuture<>();
+
+            GatewayWebSocketClient wsClient = new GatewayWebSocketClient(
+                new URI(gatewayWsUrl),
+                paymentPayload,
+                dto -> paymentProgressController.sendProgress(sessionId, dto),
+                resultFuture::complete,
+                ex -> resultFuture.completeExceptionally(new IllegalStateException(ex))
+            );
+            wsClient.connect();
+
+            PaymentProgressDTO result = resultFuture.get(15, TimeUnit.SECONDS);
+
+            if (!"aprobado".equals(result.getEstadoTransaccion())) {
+                log.warn("FALLO EN PASARELA - Usuario: {}, Monto: {}, Detalle: {}",
+                    user.getUserName(), montoFinal, result.getDetalle());
+                throw new IllegalStateException(result.getDetalle());
             }
-        } catch (PaymentGatewayService.GatewayConnectionException e) {
-            log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.", 
-                user.getUserName(), montoFinal);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",
+                user.getUserName(), montoFinal, e.getMessage());
             throw new IllegalStateException(e.getMessage());
         }
 
