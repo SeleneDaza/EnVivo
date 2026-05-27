@@ -44,7 +44,7 @@ public class SecurityConfig {
             return loadUserFromDatabase(username);
         };
     }
-
+//
     private InMemoryUserDetailsManager createInMemoryManager(PasswordEncoder passwordEncoder) {
         UserDetails admin = User.builder()
                 .username("admin")
