@@ -1,12 +1,6 @@
 package com.edu.uptc.EnVivo.service;
 
-import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
-import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
-import com.edu.uptc.EnVivo.dto.ProfilePurchaseDTO;
-import com.edu.uptc.EnVivo.dto.PurchaseCheckoutItemDTO;
-import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
-import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
-import com.edu.uptc.EnVivo.dto.PurchaseItemSummaryDTO;
+import com.edu.uptc.EnVivo.dto.*;
 import com.edu.uptc.EnVivo.entity.Purchase;
 import com.edu.uptc.EnVivo.entity.PurchaseDetail;
 import com.edu.uptc.EnVivo.entity.Ticket;
@@ -21,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.HashMap;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -56,68 +50,80 @@ public class PurchaseService {
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
         User user = getUser(principalName);
-        
-        // Log inicial de checkout
-        String tipoTarjeta = request.getPayment().getTipoTarjeta();
+
+        // Normalizar tipo de tarjeta antes de usarla
+        String rawTipo = request.getPayment().getTipoTarjeta();
+        if (rawTipo == null) {
+            throw new IllegalArgumentException("Debes seleccionar un tipo de tarjeta.");
+        }
+        String tipoTarjeta = rawTipo.toLowerCase();
+
         long monto = request.getItems().stream()
-            .mapToLong(item -> {
-                Ticket ticket = ticketRepository.findById(item.getTicketId()).orElse(null);
-                return ticket != null ? (long) ticket.getPrice() * item.getQuantity() : 0;
-            }).sum();
-        log.info("Iniciando checkout - Usuario: {}, Monto: {}, Tipo tarjeta: {}", 
-            user.getUserName(), monto, tipoTarjeta.toLowerCase());
-        
+                .mapToLong(item -> {
+                    Ticket ticket = ticketRepository.findById(item.getTicketId()).orElse(null);
+                    return ticket != null ? (long) ticket.getPrice() * item.getQuantity() : 0;
+                }).sum();
+        log.info("Iniciando checkout - Usuario: {}, Monto: {}, Tipo tarjeta: {}",
+                user.getUserName(), monto, tipoTarjeta);
+
         Purchase purchase = initializePurchase(user, request);
         List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
 
         processAllItems(requestedItems, request.getEventId(), purchase, ticketItems);
-        
-        // Antes de persistir, procesar el pago con la pasarela externa
+
         long montoFinal = purchase.getTotalAmount();
-        String numeroTarjeta = request.getPayment().getCardNumber();
-        String cvv = request.getPayment().getCvv();
+
+        // Limpiar espacios del número de tarjeta (puede venir "4111 1111 1111 1111")
+        String numeroTarjeta = request.getPayment().getCardNumber().replaceAll("\\s+", "");
+        String cvv = request.getPayment().getCvv().trim();
 
         try {
-            String paymentPayload = objectMapper.writeValueAsString(Map.<String, Object>of(
-                "empresa_id", "EnVivo",
-                "monto", montoFinal,
-                "tipo_tarjeta", tipoTarjeta,
-                "numero_tarjeta", numeroTarjeta,
-                "cvv", cvv
-            ));
+            // Usar HashMap en lugar de Map.of — Map.of no acepta valores null
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("empresa_id", "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
+            payloadMap.put("monto", montoFinal);
+            payloadMap.put("tipo_tarjeta", tipoTarjeta);
+            payloadMap.put("numero_tarjeta", numeroTarjeta);
+            payloadMap.put("cvv", cvv);
+
+            String paymentPayload = objectMapper.writeValueAsString(payloadMap);
 
             CompletableFuture<PaymentProgressDTO> resultFuture = new CompletableFuture<>();
 
             GatewayWebSocketClient wsClient = new GatewayWebSocketClient(
-                new URI(gatewayWsUrl),
-                paymentPayload,
-                dto -> paymentProgressController.sendProgress(sessionId, dto),
-                resultFuture::complete,
-                ex -> resultFuture.completeExceptionally(new IllegalStateException(ex))
+                    new URI(gatewayWsUrl),
+                    paymentPayload,
+                    dto -> paymentProgressController.sendProgress(sessionId, dto),
+                    resultFuture::complete,
+                    ex -> resultFuture.completeExceptionally(new IllegalStateException(ex))
             );
             wsClient.connect();
 
             PaymentProgressDTO result = resultFuture.get(15, TimeUnit.SECONDS);
 
+            if (result == null) {
+                throw new IllegalStateException("No se recibió respuesta de la pasarela.");
+            }
+
             if (!"aprobado".equals(result.getEstadoTransaccion())) {
                 log.warn("FALLO EN PASARELA - Usuario: {}, Monto: {}, Detalle: {}",
-                    user.getUserName(), montoFinal, result.getDetalle());
+                        user.getUserName(), montoFinal, result.getDetalle());
                 throw new IllegalStateException(result.getDetalle());
             }
+
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
             log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",
-                user.getUserName(), montoFinal, e.getMessage());
+                    user.getUserName(), montoFinal, e.getMessage());
             throw new IllegalStateException(e.getMessage());
         }
 
         Purchase saved = purchaseRepository.save(purchase);
-        
-        // Log de compra registrada exitosamente
-        log.info("Compra registrada exitosamente - Usuario: {}, ID Compra: {}, Monto: {}", 
-            user.getUserName(), saved.getId(), montoFinal);
-        
+
+        log.info("Compra registrada exitosamente - Usuario: {}, ID Compra: {}, Monto: {}",
+                user.getUserName(), saved.getId(), montoFinal);
+
         return buildConfirmation(saved, ticketItems, request.getPayment().getCardNumber());
     }
 

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/purchases")
@@ -43,11 +42,7 @@ public class PurchaseController {
         }
 
         try {
-            String sessionId = (String) session.getAttribute("paymentSessionId");
-            if (sessionId == null) {
-                sessionId = UUID.randomUUID().toString();
-                session.setAttribute("paymentSessionId", sessionId);
-            }
+            String sessionId = session.getId();
             PurchaseConfirmationDTO confirmation = purchaseService.checkout(principal.getName(), request, sessionId);
             return ResponseEntity.ok(Map.<String, Object>of(
                     KEY_SUCCESS, true,

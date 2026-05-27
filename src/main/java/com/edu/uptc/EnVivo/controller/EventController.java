@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseBody;
+import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
 
@@ -266,8 +267,9 @@ public class EventController {
     }
 
     @GetMapping("/buy-ticket/{eventId}")
-    public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model) {
+    public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model, HttpSession session) {
         try {
+            model.addAttribute("sessionId", session.getId());
             EventDetailDTO detailDTO = eventService.obtenerDetalleEvento(eventId);
             if (detailDTO.isHistorical()) {
                 return "redirect:/?error=evento_historico";
