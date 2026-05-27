@@ -158,8 +158,8 @@ public class TicketService {
     public TicketDTO convertToDTO(Ticket ticket) {
         TicketDTO dto = new TicketDTO();
         dto.setId(ticket.getId());
-        dto.setTicketTypeId(ticket.getTicketType().getId());
-        dto.setTicketTypeName(ticket.getTicketType().getName());
+        dto.setTicketTypeId(ticket.getTicketType() != null ? ticket.getTicketType().getId() : null);
+        dto.setTicketTypeName(ticket.getTicketType() != null ? ticket.getTicketType().getName() : "Sin tipo");
         dto.setPrice(ticket.getPrice());
         dto.setAvailableQuantity(ticket.getAvailableQuantity());
         return dto;

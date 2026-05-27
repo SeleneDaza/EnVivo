@@ -41,10 +41,9 @@ public class GatewayWebSocketClient extends WebSocketClient {
     public void onMessage(String message) {
         try {
             PaymentProgressDTO dto = mapper.readValue(message, PaymentProgressDTO.class);
+            onProgress.accept(dto);
             if ("resultado_final".equals(dto.getFase())) {
                 onComplete.accept(dto);
-            } else {
-                onProgress.accept(dto);
             }
         } catch (Exception e) {
             onError.accept(e.getMessage());

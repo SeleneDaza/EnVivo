@@ -321,45 +321,109 @@ prevStepButton.addEventListener('click', () => {
 
 confirmStepButton.addEventListener('click', async () => {
     if (isSubmitting) return;
-
     if (!validateStep(3)) return;
-
     if (!eventId || eventId <= 0) {
-        showError('No se pudo identificar el evento para registrar la compra.');
+        showError('No se pudo identificar el evento.');
         return;
     }
 
     isSubmitting = true;
     confirmStepButton.disabled = true;
     confirmStepButton.setAttribute('aria-busy', 'true');
-    confirmStepButton.textContent = 'Procesando...';
+    confirmStepButton.textContent = 'Conectando...';
 
     try {
+        // 1. Conectar STOMP y esperar suscripción antes de cualquier otra cosa
+        await new Promise(function (resolve, reject) {
+            const sessionId = document.querySelector('meta[name="session-id"]')?.getAttribute('content');
+            if (!sessionId) { resolve(); return; }
+
+            const socket = new SockJS('/ws');
+            const stomp = Stomp.over(socket);
+            stomp.debug = null;
+            stomp.connect({}, function () {
+                stomp.subscribe('/topic/payment-progress/' + sessionId, function (frame) {
+                    try {
+                        const dto = JSON.parse(frame.body);
+
+                        // Limpiar mensaje inicial
+                        const empty = document.getElementById('progress-log-empty');
+                        if (empty) empty.remove();
+
+                        // Agregar al log
+                        const log = document.getElementById('progress-log');
+                        if (log) {
+                            const row = document.createElement('div');
+                            row.className = 'flex flex-col gap-0.5 pb-2 border-b border-gray-50';
+
+                            const top = document.createElement('div');
+                            top.className = 'flex items-center gap-2';
+
+                            const badge = document.createElement('span');
+                            badge.className = 'text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0';
+                            badge.textContent = dto.fase || '';
+
+                            const msg = document.createElement('span');
+                            msg.className = 'text-sm font-bold text-gray-800';
+                            msg.textContent = dto.mensaje || '';
+
+                            top.appendChild(badge);
+                            top.appendChild(msg);
+                            row.appendChild(top);
+
+                            if (dto.detalle) {
+                                const detail = document.createElement('p');
+                                detail.className = 'text-xs text-gray-400 mt-0.5';
+                                detail.textContent = dto.detalle;
+                                row.appendChild(detail);
+                            }
+
+                            log.appendChild(row);
+                            log.scrollTop = log.scrollHeight;
+                        }
+
+                        // Actualizar círculos de progreso
+                        const fase = dto.fase;
+                        if (fase === 'transaccion_creada') {
+                            activateCircle(1);
+                        } else if (fase === 'verificando_tarjeta' || fase === 'respuesta_tarjeta') {
+                            activateCircle(2);
+                        } else if (fase === 'resultado_final') {
+                            const ok = (dto.estado_transaccion || dto.estadoTransaccion) === 'aprobado';
+                            activateCircle(3, ok ? 'bg-success' : 'bg-error');
+                            if (!ok) showError(dto.detalle || 'Pago rechazado.');
+                        }
+                    } catch (e) {}
+                });
+                resolve(); // ← resuelve SOLO después de suscribirse
+            }, function (err) {
+                resolve(); // si falla, continuar igual
+            });
+        });
+
+        // 2. STOMP suscrito — ahora sí llamar al checkout
+        confirmStepButton.textContent = 'Procesando...';
         const purchase = await submitCheckout();
 
         confirmStepButton.classList.add('hidden');
         prevStepButton.classList.add('hidden');
-
         cancelButton.textContent = 'Volver a la cartelera';
-
         cancelButton.classList.remove('btn-ghost');
         cancelButton.classList.add('btn-neutral');
 
-        const successMsg = `
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                        <p class="font-black">¡Compra registrada exitosamente!</p>
-                        <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
-                    </div>
-                    <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas" target="_blank" 
-                       class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
-                        <i class="fa-solid fa-download"></i>
-                        Descargar Entradas (PDF)
-                    </a>
+        showSuccess(`
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <p class="font-black">¡Compra registrada exitosamente!</p>
+                    <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
                 </div>
-            `;
+                <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas" target="_blank"
+                   class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-download"></i>
+                    Descargar Entradas (PDF)
+                </a>
+            </div>`);
 
-        showSuccess(successMsg);
     } catch (error) {
         isSubmitting = false;
         confirmStepButton.disabled = false;
@@ -368,6 +432,24 @@ confirmStepButton.addEventListener('click', async () => {
         showError(error.message || 'No fue posible confirmar la compra.');
     }
 });
+
+function activateCircle(num, colorClass) {
+    const color = colorClass || 'bg-main';
+    for (let i = 1; i <= num; i++) {
+        const circle = document.getElementById('prog-circle-' + i);
+        if (!circle) continue;
+        circle.classList.remove('bg-gray-200', 'text-gray-400');
+        circle.classList.add(i === num ? color : 'bg-main', 'text-white');
+    }
+    if (num >= 1) {
+        const f1 = document.getElementById('prog-line-fill-1');
+        if (f1) f1.style.width = '100%';
+    }
+    if (num >= 2) {
+        const f2 = document.getElementById('prog-line-fill-2');
+        if (f2) f2.style.width = '100%';
+    }
+}
 
 ticketTypeOptions.forEach((option) => {
     const quantityInput = getTicketQuantityInput(option);
