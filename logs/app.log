@@ -1,0 +1,376 @@
+2026-05-21 13:17:21 [INFO] Starting EnVivoApplication using Java 21.0.10 with PID 6484 (C:\co.edu.uptc.vtm\sw2\01_java\EnVivo\target\classes started by valer in C:\co.edu.uptc.vtm\sw2\01_java\EnVivo)
+2026-05-21 13:17:21 [INFO] No active profile set, falling back to 1 default profile: "default"
+2026-05-21 13:17:21 [INFO] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-21 13:17:21 [INFO] Finished Spring Data repository scanning in 56 ms. Found 7 JPA repository interfaces.
+2026-05-21 13:17:22 [INFO] Tomcat initialized with port 8080 (http)
+2026-05-21 13:17:22 [INFO] Initializing ProtocolHandler ["http-nio-8080"]
+2026-05-21 13:17:22 [INFO] Starting service [Tomcat]
+2026-05-21 13:17:22 [INFO] Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-05-21 13:17:22 [INFO] Initializing Spring embedded WebApplicationContext
+2026-05-21 13:17:22 [INFO] Root WebApplicationContext: initialization completed in 1211 ms
+2026-05-21 13:17:22 [INFO] HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-21 13:17:22 [INFO] HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-05-21 13:17:22 [INFO] HHH000026: Second-level cache disabled
+2026-05-21 13:17:23 [INFO] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-21 13:17:23 [INFO] HikariPool-1 - Starting...
+2026-05-21 13:17:23 [INFO] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@74830d73
+2026-05-21 13:17:23 [INFO] HikariPool-1 - Start completed.
+2026-05-21 13:17:23 [INFO] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-21 13:17:24 [INFO] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-21 13:17:24 [INFO] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 13:17:24 [INFO] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-21 13:17:26 [WARN] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-21 13:17:26 [INFO] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-05-21 13:17:26 [INFO] Adding welcome page template: index
+2026-05-21 13:17:26 [INFO] Starting ProtocolHandler ["http-nio-8080"]
+2026-05-21 13:17:26 [INFO] Tomcat started on port 8080 (http) with context path '/'
+2026-05-21 13:17:26 [INFO] Started EnVivoApplication in 5.877 seconds (process running for 6.799)
+2026-05-21 13:17:26 [INFO] event=application_start status=started timestamp=2026-05-21T18:17:26.757324Z 
+2026-05-21 13:19:09 [INFO] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21 13:19:09 [INFO] Initializing Servlet 'dispatcherServlet'
+2026-05-21 13:19:09 [INFO] Completed initialization in 0 ms
+2026-05-21 13:19:09 [WARN] [THYMELEAF][http-nio-8080-exec-1][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:19:15 [ERROR] Error fetching event detail for id 106
+java.lang.NullPointerException: Cannot invoke "com.edu.uptc.EnVivo.entity.TicketType.getId()" because the return value of "com.edu.uptc.EnVivo.entity.Ticket.getTicketType()" is null
+	at com.edu.uptc.EnVivo.service.TicketService.convertToDTO(TicketService.java:161)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+	at com.edu.uptc.EnVivo.service.TicketService.getTicketsAsDTO(TicketService.java:177)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:723)
+	at com.edu.uptc.EnVivo.service.TicketService$$SpringCGLIB$$0.getTicketsAsDTO(<generated>)
+	at com.edu.uptc.EnVivo.service.EventService.obtenerDetalleEvento(EventService.java:231)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:723)
+	at com.edu.uptc.EnVivo.service.EventService$$SpringCGLIB$$0.obtenerDetalleEvento(<generated>)
+	at com.edu.uptc.EnVivo.controller.EventController.getEventDetail(EventController.java:330)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:257)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:190)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:986)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:891)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1088)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:978)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:227)
+	at org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter.doFilter(AbstractAuthenticationProcessingFilter.java:221)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:243)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:238)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:397)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:905)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1743)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026-05-21 13:19:22 [WARN] [THYMELEAF][http-nio-8080-exec-5][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:28:12 [WARN] [THYMELEAF][http-nio-8080-exec-2][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:28:13 [WARN] [THYMELEAF][http-nio-8080-exec-9][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:28:15 [WARN] [THYMELEAF][http-nio-8080-exec-7][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:28:17 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 13:28:17 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 13:28:18 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 13:28:18 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 13:28:25 [WARN] [THYMELEAF][http-nio-8080-exec-6][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:33:42 [WARN] [THYMELEAF][http-nio-8080-exec-10][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:33:43 [WARN] [THYMELEAF][http-nio-8080-exec-2][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:33:44 [WARN] [THYMELEAF][http-nio-8080-exec-5][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:33:45 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 13:33:45 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 13:33:45 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 13:33:45 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 13:36:39 [INFO] Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-21 13:36:39 [INFO] Graceful shutdown complete
+2026-05-21 13:36:39 [INFO] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 13:36:39 [INFO] HikariPool-1 - Shutdown initiated...
+2026-05-21 13:36:39 [INFO] HikariPool-1 - Shutdown completed.
+2026-05-21 13:36:41 [INFO] Starting EnVivoApplication using Java 21.0.10 with PID 29496 (C:\co.edu.uptc.vtm\sw2\01_java\EnVivo\target\classes started by valer in C:\co.edu.uptc.vtm\sw2\01_java\EnVivo)
+2026-05-21 13:36:41 [INFO] No active profile set, falling back to 1 default profile: "default"
+2026-05-21 13:36:41 [INFO] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-21 13:36:41 [INFO] Finished Spring Data repository scanning in 45 ms. Found 7 JPA repository interfaces.
+2026-05-21 13:36:42 [INFO] Tomcat initialized with port 8080 (http)
+2026-05-21 13:36:42 [INFO] Initializing ProtocolHandler ["http-nio-8080"]
+2026-05-21 13:36:42 [INFO] Starting service [Tomcat]
+2026-05-21 13:36:42 [INFO] Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-05-21 13:36:42 [INFO] Initializing Spring embedded WebApplicationContext
+2026-05-21 13:36:42 [INFO] Root WebApplicationContext: initialization completed in 850 ms
+2026-05-21 13:36:42 [INFO] HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-21 13:36:42 [INFO] HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-05-21 13:36:42 [INFO] HHH000026: Second-level cache disabled
+2026-05-21 13:36:42 [INFO] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-21 13:36:42 [INFO] HikariPool-1 - Starting...
+2026-05-21 13:36:42 [INFO] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@258a8584
+2026-05-21 13:36:42 [INFO] HikariPool-1 - Start completed.
+2026-05-21 13:36:42 [INFO] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-21 13:36:43 [INFO] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-21 13:36:43 [INFO] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 13:36:43 [INFO] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-21 13:36:44 [WARN] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-21 13:36:44 [INFO] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-05-21 13:36:44 [INFO] Adding welcome page template: index
+2026-05-21 13:36:45 [INFO] Starting ProtocolHandler ["http-nio-8080"]
+2026-05-21 13:36:45 [INFO] Tomcat started on port 8080 (http) with context path '/'
+2026-05-21 13:36:45 [INFO] Started EnVivoApplication in 4.303 seconds (process running for 4.972)
+2026-05-21 13:36:45 [INFO] event=application_start status=started timestamp=2026-05-21T18:36:45.308483200Z 
+2026-05-21 13:37:14 [INFO] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21 13:37:14 [INFO] Initializing Servlet 'dispatcherServlet'
+2026-05-21 13:37:14 [INFO] Completed initialization in 1 ms
+2026-05-21 13:37:17 [WARN] [THYMELEAF][http-nio-8080-exec-4][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:37:18 [WARN] [THYMELEAF][http-nio-8080-exec-9][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:37:19 [WARN] [THYMELEAF][http-nio-8080-exec-10][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 13:37:20 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 13:37:20 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 13:37:20 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 13:37:20 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 13:48:56 [INFO] Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-21 13:48:56 [INFO] Graceful shutdown complete
+2026-05-21 13:48:56 [INFO] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 13:48:56 [INFO] HikariPool-1 - Shutdown initiated...
+2026-05-21 13:48:56 [INFO] HikariPool-1 - Shutdown completed.
+2026-05-21 14:11:09 [INFO] Starting EnVivoApplication using Java 21.0.10 with PID 22608 (C:\co.edu.uptc.vtm\sw2\01_java\EnVivo\target\classes started by valer in C:\co.edu.uptc.vtm\sw2\01_java\EnVivo)
+2026-05-21 14:11:09 [INFO] No active profile set, falling back to 1 default profile: "default"
+2026-05-21 14:11:09 [INFO] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-21 14:11:10 [INFO] Finished Spring Data repository scanning in 45 ms. Found 7 JPA repository interfaces.
+2026-05-21 14:11:10 [INFO] Tomcat initialized with port 8080 (http)
+2026-05-21 14:11:10 [INFO] Initializing ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:11:10 [INFO] Starting service [Tomcat]
+2026-05-21 14:11:10 [INFO] Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-05-21 14:11:10 [INFO] Initializing Spring embedded WebApplicationContext
+2026-05-21 14:11:10 [INFO] Root WebApplicationContext: initialization completed in 943 ms
+2026-05-21 14:11:10 [INFO] HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-21 14:11:10 [INFO] HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-05-21 14:11:10 [INFO] HHH000026: Second-level cache disabled
+2026-05-21 14:11:10 [INFO] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-21 14:11:10 [INFO] HikariPool-1 - Starting...
+2026-05-21 14:11:10 [INFO] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@4152bd0f
+2026-05-21 14:11:10 [INFO] HikariPool-1 - Start completed.
+2026-05-21 14:11:10 [INFO] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-21 14:11:11 [INFO] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-21 14:11:12 [INFO] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:11:12 [INFO] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-21 14:11:13 [WARN] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-21 14:11:13 [INFO] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-05-21 14:11:13 [INFO] Adding welcome page template: index
+2026-05-21 14:11:13 [INFO] Starting ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:11:13 [INFO] Tomcat started on port 8080 (http) with context path '/'
+2026-05-21 14:11:13 [INFO] Started EnVivoApplication in 4.548 seconds (process running for 5.117)
+2026-05-21 14:11:13 [INFO] event=application_start status=started timestamp=2026-05-21T19:11:13.755045800Z 
+2026-05-21 14:11:38 [INFO] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21 14:11:38 [INFO] Initializing Servlet 'dispatcherServlet'
+2026-05-21 14:11:38 [INFO] Completed initialization in 1 ms
+2026-05-21 14:11:42 [WARN] [THYMELEAF][http-nio-8080-exec-4][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:11:42 [WARN] [THYMELEAF][http-nio-8080-exec-10][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:11:43 [WARN] [THYMELEAF][http-nio-8080-exec-1][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:11:45 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 14:11:45 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 14:11:45 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 14:11:45 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 14:17:25 [INFO] Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-21 14:17:25 [INFO] Graceful shutdown complete
+2026-05-21 14:17:25 [INFO] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:17:25 [INFO] HikariPool-1 - Shutdown initiated...
+2026-05-21 14:17:25 [INFO] HikariPool-1 - Shutdown completed.
+2026-05-21 14:17:27 [INFO] Starting EnVivoApplication using Java 21.0.10 with PID 7156 (C:\co.edu.uptc.vtm\sw2\01_java\EnVivo\target\classes started by valer in C:\co.edu.uptc.vtm\sw2\01_java\EnVivo)
+2026-05-21 14:17:27 [INFO] No active profile set, falling back to 1 default profile: "default"
+2026-05-21 14:17:28 [INFO] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-21 14:17:28 [INFO] Finished Spring Data repository scanning in 47 ms. Found 7 JPA repository interfaces.
+2026-05-21 14:17:28 [INFO] Tomcat initialized with port 8080 (http)
+2026-05-21 14:17:28 [INFO] Initializing ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:17:28 [INFO] Starting service [Tomcat]
+2026-05-21 14:17:28 [INFO] Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-05-21 14:17:28 [INFO] Initializing Spring embedded WebApplicationContext
+2026-05-21 14:17:28 [INFO] Root WebApplicationContext: initialization completed in 852 ms
+2026-05-21 14:17:28 [INFO] HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-21 14:17:28 [INFO] HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-05-21 14:17:28 [INFO] HHH000026: Second-level cache disabled
+2026-05-21 14:17:29 [INFO] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-21 14:17:29 [INFO] HikariPool-1 - Starting...
+2026-05-21 14:17:29 [INFO] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@553ce348
+2026-05-21 14:17:29 [INFO] HikariPool-1 - Start completed.
+2026-05-21 14:17:29 [INFO] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-21 14:17:29 [INFO] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-21 14:17:30 [INFO] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:17:30 [INFO] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-21 14:17:31 [WARN] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-21 14:17:31 [INFO] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-05-21 14:17:31 [INFO] Adding welcome page template: index
+2026-05-21 14:17:31 [INFO] Starting ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:17:31 [INFO] Tomcat started on port 8080 (http) with context path '/'
+2026-05-21 14:17:31 [INFO] Started EnVivoApplication in 4.307 seconds (process running for 4.876)
+2026-05-21 14:17:31 [INFO] event=application_start status=started timestamp=2026-05-21T19:17:31.917157400Z 
+2026-05-21 14:17:47 [INFO] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21 14:17:47 [INFO] Initializing Servlet 'dispatcherServlet'
+2026-05-21 14:17:47 [INFO] Completed initialization in 1 ms
+2026-05-21 14:17:50 [WARN] [THYMELEAF][http-nio-8080-exec-3][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:17:50 [WARN] [THYMELEAF][http-nio-8080-exec-9][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:17:51 [WARN] [THYMELEAF][http-nio-8080-exec-10][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:17:53 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 14:17:53 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 14:17:53 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 14:17:53 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 14:19:03 [INFO] Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-21 14:19:03 [INFO] Graceful shutdown complete
+2026-05-21 14:19:03 [INFO] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:19:03 [INFO] HikariPool-1 - Shutdown initiated...
+2026-05-21 14:19:03 [INFO] HikariPool-1 - Shutdown completed.
+2026-05-21 14:19:05 [INFO] Starting EnVivoApplication using Java 21.0.10 with PID 5708 (C:\co.edu.uptc.vtm\sw2\01_java\EnVivo\target\classes started by valer in C:\co.edu.uptc.vtm\sw2\01_java\EnVivo)
+2026-05-21 14:19:05 [INFO] No active profile set, falling back to 1 default profile: "default"
+2026-05-21 14:19:05 [INFO] Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-05-21 14:19:05 [INFO] Finished Spring Data repository scanning in 45 ms. Found 7 JPA repository interfaces.
+2026-05-21 14:19:06 [INFO] Tomcat initialized with port 8080 (http)
+2026-05-21 14:19:06 [INFO] Initializing ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:19:06 [INFO] Starting service [Tomcat]
+2026-05-21 14:19:06 [INFO] Starting Servlet engine: [Apache Tomcat/10.1.36]
+2026-05-21 14:19:06 [INFO] Initializing Spring embedded WebApplicationContext
+2026-05-21 14:19:06 [INFO] Root WebApplicationContext: initialization completed in 846 ms
+2026-05-21 14:19:06 [INFO] HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-05-21 14:19:06 [INFO] HHH000412: Hibernate ORM core version 6.6.8.Final
+2026-05-21 14:19:06 [INFO] HHH000026: Second-level cache disabled
+2026-05-21 14:19:06 [INFO] No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-05-21 14:19:06 [INFO] HikariPool-1 - Starting...
+2026-05-21 14:19:06 [INFO] HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@14292d71
+2026-05-21 14:19:06 [INFO] HikariPool-1 - Start completed.
+2026-05-21 14:19:06 [INFO] HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-05-21 14:19:07 [INFO] HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-05-21 14:19:07 [INFO] Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:19:07 [INFO] Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-05-21 14:19:08 [WARN] spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-05-21 14:19:08 [INFO] Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-05-21 14:19:08 [INFO] Adding welcome page template: index
+2026-05-21 14:19:09 [INFO] Starting ProtocolHandler ["http-nio-8080"]
+2026-05-21 14:19:09 [INFO] Tomcat started on port 8080 (http) with context path '/'
+2026-05-21 14:19:09 [INFO] Started EnVivoApplication in 4.258 seconds (process running for 5.015)
+2026-05-21 14:19:09 [INFO] event=application_start status=started timestamp=2026-05-21T19:19:09.152680900Z 
+2026-05-21 14:20:07 [INFO] Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21 14:20:07 [INFO] Initializing Servlet 'dispatcherServlet'
+2026-05-21 14:20:07 [INFO] Completed initialization in 1 ms
+2026-05-21 14:20:10 [WARN] [THYMELEAF][http-nio-8080-exec-4][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:20:10 [WARN] [THYMELEAF][http-nio-8080-exec-8][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:20:11 [WARN] [THYMELEAF][http-nio-8080-exec-9][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:20:13 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-21 14:20:13 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-21 14:20:13 [ERROR] Pasarela respondió con error HTTP - Status: 422 UNPROCESSABLE_ENTITY, Mensaje: Unprocessable Entity
+2026-05-21 14:20:13 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-21 14:20:37 [WARN] [THYMELEAF][http-nio-8080-exec-2][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-21 14:20:41 [INFO] Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-21 14:20:41 [INFO] Graceful shutdown complete
+2026-05-21 14:20:41 [INFO] Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-21 14:20:41 [INFO] HikariPool-1 - Shutdown initiated...
+2026-05-21 14:20:41 [INFO] HikariPool-1 - Shutdown completed.
