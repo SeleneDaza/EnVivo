@@ -417,3 +417,37 @@ const mes = String(hoy.getMonth() + 1).padStart(2, '0');
 
 // Establece el valor mínimo como el mes actual (Ej: "2026-04")
 input.min = `${anio}-${mes}`;
+
+function handleMessage(dto) {
+    if (dto.fase === 'MENSAJE_BONITO') {
+        const aiBox = document.getElementById('ai-result-box');
+        if (aiBox) {
+            aiBox.classList.remove('hidden');
+            aiBox.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <i class="fa-solid fa-robot text-info mt-0.5"></i>
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-widest text-info mb-1">
+                            Asistente IA
+                        </p>
+                        <p class="text-sm text-gray-700">${dto.detalle}</p>
+                    </div>
+                </div>`;
+        }
+        return;
+    }
+
+    appendLog(dto);
+    advanceTo(faseToStep(dto.fase));
+
+    if (dto.fase === 'resultado_final') {
+        if (dto.estadoTransaccion === 'aprobado') {
+            setCircle(3, 'bg-success');
+        } else {
+            setCircle(3, 'bg-error');
+            if (typeof showError === 'function') {
+                showError(dto.detalle || 'Pago rechazado por la pasarela.');
+            }
+        }
+    }
+}
