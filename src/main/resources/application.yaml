@@ -15,7 +15,18 @@ spring:
       hibernate:
         format_sql: true
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
+
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}
   api-secret: ${CLOUDINARY_API_SECRET}
+
+rabbitmq:
+  queue:
+    recibidos: cola.recibidos
+    resultados: cola.resultados
