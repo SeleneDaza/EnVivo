@@ -75,8 +75,13 @@ public class PurchaseService {
             var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
 
             String estadoTransaccion = gatewayResult.isSuccess() ? "aprobado" : "rechazado";
+
             PaymentProgressDTO progressDTO = new PaymentProgressDTO(
-                    estadoTransaccion, null, gatewayResult.getMessage(), estadoTransaccion);
+                "resultado_final",
+                "Resultado del pago",
+                gatewayResult.getMessage(),
+                estadoTransaccion
+            );
             paymentEventPublisher.publishPhase(progressDTO);
 
             if (!gatewayResult.isSuccess()) {
