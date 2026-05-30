@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentProgressDTO {
     private String fase;
+    private String mensaje;
     private String detalle;
     private String estadoTransaccion;
 }
