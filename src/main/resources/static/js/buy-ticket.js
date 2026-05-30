@@ -339,27 +339,26 @@ confirmStepButton.addEventListener('click', async () => {
 
         confirmStepButton.classList.add('hidden');
         prevStepButton.classList.add('hidden');
-
         cancelButton.textContent = 'Volver a la cartelera';
-
         cancelButton.classList.remove('btn-ghost');
         cancelButton.classList.add('btn-neutral');
 
-        const successMsg = `
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div>
-                        <p class="font-black">¡Compra registrada exitosamente!</p>
-                        <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
-                    </div>
-                    <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas" target="_blank" 
-                       class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
-                        <i class="fa-solid fa-download"></i>
-                        Descargar Entradas (PDF)
-                    </a>
-                </div>
-            `;
+        showSuccess(`
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="font-black">¡Compra registrada exitosamente!</p>
+                <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
+            </div>
+            <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas"
+               target="_blank"
+               class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-download"></i>
+                Descargar Entradas (PDF)
+            </a>
+        </div>`);
 
-        showSuccess(successMsg);
+        // Do NOT disconnect STOMP here — keep it open to receive
+        // the AI message from cola.resultados via WebSocket
     } catch (error) {
         isSubmitting = false;
         confirmStepButton.disabled = false;
