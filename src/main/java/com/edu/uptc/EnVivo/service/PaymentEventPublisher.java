@@ -17,32 +17,21 @@ public class PaymentEventPublisher {
     @Value("${rabbitmq.queue.recibidos}")
     private String queueRecibidos;
 
-    private final AtomicInteger faseCounter = new AtomicInteger(1);
+    private final AtomicInteger counter = new AtomicInteger(1);
 
     public PaymentEventPublisher(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
     public void publishPhase(PaymentProgressDTO dto) {
-        boolean esFinal = "aprobado".equalsIgnoreCase(dto.getEstadoTransaccion())
-                || "rechazado".equalsIgnoreCase(dto.getEstadoTransaccion());
+        String tipo = "aprobado".equals(dto.getEstadoTransaccion()) ? "EXITO" : "ERROR";
 
-        String tipo;
-        if (esFinal) {
-            tipo = "aprobado".equalsIgnoreCase(dto.getEstadoTransaccion()) ? "EXITO" : "ERROR";
-        } else {
-            tipo = dto.getFase();
-        }
+        Map<String, Object> message = new HashMap<>();
+        message.put("tipo", tipo);
+        message.put("contenido", dto.getDetalle());
+        message.put("fase", counter.getAndIncrement());
 
-        Map<String, Object> mensaje = new HashMap<>();
-        mensaje.put("tipo", tipo);
-        mensaje.put("contenido", dto.getDetalle());
-        mensaje.put("fase", faseCounter.getAndIncrement());
-
-        rabbitTemplate.convertAndSend(queueRecibidos, mensaje);
-
-        if (esFinal) {
-            faseCounter.set(1);
-        }
+        rabbitTemplate.convertAndSend(queueRecibidos, message);
+        counter.set(1);
     }
 }
