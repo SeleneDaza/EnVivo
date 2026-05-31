@@ -2,6 +2,8 @@ package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.entity.Purchase;
 import com.edu.uptc.EnVivo.entity.PurchaseDetail;
+import com.edu.uptc.EnVivo.logging.StructuredLogContext;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.io.IOException;
 public class PdfTicketService {
 
     private final QrCodeService qrCodeService;
+    private final StructuredLogService structuredLogService;
 
     public byte[] generateTicketsPdf(Purchase purchase) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -30,6 +33,17 @@ public class PdfTicketService {
             }
 
             document.close();
+
+            int totalTickets = purchase.getDetails().stream()
+                    .mapToInt(PurchaseDetail::getQuantity)
+                    .sum();
+
+            structuredLogService.logSuccess("ticket_pdf", "TICKETS_GENERATED",
+                    StructuredLogContext.currentTransactionId(), StructuredLogContext.currentSessionId(),
+                    StructuredLogContext.currentUserId(), StructuredLogContext.currentClientIp(),
+                    StructuredLogContext.currentPaymentProvider(), "GENERATED",
+                    "Tickets PDF generated for purchaseId=" + purchase.getId() + ", totalTickets=" + totalTickets);
+
             return baos.toByteArray();
         } catch (DocumentException | IOException e) {
             throw new RuntimeException("Error crítico al generar el PDF de las entradas", e);

@@ -1,27 +1,39 @@
 package com.edu.uptc.EnVivo.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.edu.uptc.EnVivo.logging.StructuredLogContext;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/logs")
+@RequiredArgsConstructor
 public class LogTestController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogTestController.class);
+    private final StructuredLogService structuredLogService;
 
     @GetMapping("/test")
     public String testLogs() {
-        String transactionId = java.util.UUID.randomUUID().toString();
-        double amount = 123.45;
+    String transactionId = structuredLogService.ensureTransactionId();
+    String paymentProvider = "VISA";
 
-        logger.info("event=payment status=approved transactionId={} amount={}", transactionId, amount);
-        logger.warn("event=payment status=delayed transactionId={} amount={}", transactionId, amount);
-        logger.error("event=payment status=error transactionId={} reason={}", transactionId, "simulated-error");
+    try (StructuredLogContext.Scope ignored = structuredLogService.scope(java.util.Map.of(
+        StructuredLogContext.KEY_TRANSACTION_ID, transactionId,
+        StructuredLogContext.KEY_PAYMENT_PROVIDER, paymentProvider,
+        StructuredLogContext.KEY_USER_ID, "test-user"
+    ))) {
+        structuredLogService.logInfo("logging", "PAYMENT_REQUEST_SENT", transactionId, null, "test-user",
+            null, paymentProvider, "SENT", "Structured log test started.");
+        structuredLogService.logSuccess("logging", "PAYMENT_AUTHORIZED", transactionId, null, "test-user",
+            null, paymentProvider, "AUTHORIZED", "Simulated payment authorization.");
+        structuredLogService.logError("logging", "PAYMENT_DECLINED", transactionId, null, "test-user",
+            null, paymentProvider, "SIMULATED_ERROR", "Simulated technical failure",
+            "Simulated functional rejection", null);
+    }
 
-        return "Logs emitted with transactionId=" + transactionId;
+    return "Logs emitted with transactionId=" + transactionId;
     }
 
 }

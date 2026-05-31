@@ -1,9 +1,9 @@
 package com.edu.uptc.EnVivo.service;
 
+import com.edu.uptc.EnVivo.logging.StructuredLogContext;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,17 +22,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentGatewayService {
 
-    private static final Logger log = LoggerFactory.getLogger(PaymentGatewayService.class);
     private static final String GATEWAY_URL = "http://localhost:8002/pagos";
     private static final String EMPRESA_ID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+    private static final String MODULE = "payment_gateway";
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final StructuredLogService structuredLogService;
 
     public GatewayResult processPayment(long monto, String tipoTarjeta, String numeroTarjeta, String cvv) {
-        String maskedCard = maskCardNumber(numeroTarjeta);
-        
-        // Log inicial de procesamiento
-        log.info("Iniciando procesamiento de pago - monto: {}, tarjeta: {}", monto, maskedCard);
+        String transactionId = StructuredLogContext.ensureTransactionId();
+        String paymentProvider = normalizePaymentProvider(tipoTarjeta);
+
+        structuredLogService.logInfo(MODULE, "PAYMENT_REQUEST_SENT", transactionId,
+                StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                StructuredLogContext.currentClientIp(), paymentProvider, "SENT",
+                "Payment request sent to external gateway.");
         
         Map<String, Object> payload = new HashMap<>();
         payload.put("empresa_id", EMPRESA_ID);
@@ -51,40 +55,82 @@ public class PaymentGatewayService {
             GatewayResponse body = response.getBody();
             
             if (body == null) {
-                log.warn("Pasarela respondió con respuesta vacia");
+                structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                        StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                        StructuredLogContext.currentClientIp(), paymentProvider,
+                        "GATEWAY_EMPTY_RESPONSE",
+                        "Gateway returned an empty response body.",
+                        "The payment provider did not return a valid decision.", null);
                 return new GatewayResult(false, "Respuesta vacia de la pasarela.");
             }
             
-            // Evaluar la respuesta
             if (body.success) {
-                log.info("Pago procesado exitosamente - Respuesta: Transacción aprobada ID:{}", body.message);
+                structuredLogService.logSuccess(MODULE, "PAYMENT_AUTHORIZED", transactionId,
+                        StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                        StructuredLogContext.currentClientIp(), paymentProvider,
+                        "AUTHORIZED", "Payment authorized by provider: " + safeMessage(body.message));
                 return new GatewayResult(true, body.message);
             } else {
-                // Error de negocio (rechazo del pago)
-                log.warn("Pasarela respondió con error de negocio - Status: 200, Mensaje: {}", body.message);
+                structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                        StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                        StructuredLogContext.currentClientIp(), paymentProvider,
+                        "PAYMENT_DECLINED",
+                        "Gateway returned a business rejection: " + safeMessage(body.message),
+                        "The card issuer declined the transaction.", null);
                 return new GatewayResult(false, body.message);
             }
         } catch (HttpServerErrorException e) {
-            // Error HTTP 5xx
-            log.error("Pasarela respondió con error HTTP - Status: {}, Mensaje: {}, Body: {}", 
-                e.getStatusCode(), e.getStatusText(), e.getResponseBodyAsString());
+            structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                    StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                    StructuredLogContext.currentClientIp(), paymentProvider,
+                    "PAYMENT_GATEWAY_HTTP_5XX",
+                    "Gateway HTTP 5xx: " + e.getStatusCode() + " " + e.getStatusText(),
+                    "The payment provider is temporarily unavailable.", null);
             throw new GatewayConnectionException("Pasarela respondió con error HTTP " + e.getStatusCode() + ": " + e.getStatusText());
         } catch (HttpClientErrorException e) {
-            // Error HTTP 4xx
-            log.error("Pasarela respondió con error HTTP - Status: {}, Mensaje: {}", 
-                e.getStatusCode(), e.getStatusText());
+            structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                    StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                    StructuredLogContext.currentClientIp(), paymentProvider,
+                    "PAYMENT_GATEWAY_HTTP_4XX",
+                    "Gateway HTTP 4xx: " + e.getStatusCode() + " " + e.getStatusText(),
+                    "The payment provider rejected the submitted request.", null);
             throw new GatewayConnectionException("Pasarela respondió con error HTTP " + e.getStatusCode() + ": " + e.getStatusText());
         } catch (ResourceAccessException e) {
-            // Error de conexión (Connection refused, timeout, etc.)
-            String errorMessage = e.getMessage();
-            log.error("NO SE PUDO CONECTAR CON LA PASARELA DE PAGOS (sin respuesta) - Error: {}", errorMessage);
+            structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                    StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                    StructuredLogContext.currentClientIp(), paymentProvider,
+                    "PAYMENT_GATEWAY_UNREACHABLE",
+                    "Gateway connection failed: " + safeMessage(e.getMessage()),
+                    "The payment provider cannot be reached right now.", null);
             throw new GatewayConnectionException("Error conectando con la pasarela de pagos");
         } catch (RestClientException e) {
-            // Otros errores
-            String errorMessage = e.getMessage();
-            log.error("Error al conectar con la pasarela de pagos - Error: {}", errorMessage);
+            structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
+                    StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
+                    StructuredLogContext.currentClientIp(), paymentProvider,
+                    "PAYMENT_GATEWAY_ERROR",
+                    "Gateway client error: " + safeMessage(e.getMessage()),
+                    "The payment provider request could not be completed.", null);
             throw new GatewayConnectionException("Error conectando con la pasarela de pagos");
         }
+    }
+
+    private String normalizePaymentProvider(String tipoTarjeta) {
+        if (tipoTarjeta == null || tipoTarjeta.isBlank()) {
+            return "UNKNOWN";
+        }
+
+        String normalized = tipoTarjeta.trim().toUpperCase();
+        if (normalized.contains("VISA")) {
+            return "VISA";
+        }
+        if (normalized.contains("MASTER")) {
+            return "MASTERCARD";
+        }
+        return normalized;
+    }
+
+    private String safeMessage(String value) {
+        return value == null || value.isBlank() ? "n/a" : value;
     }
     
     private String maskCardNumber(String cardNumber) {

@@ -10,6 +10,7 @@ import com.edu.uptc.EnVivo.entity.Purchase;
 import com.edu.uptc.EnVivo.entity.Ticket;
 import com.edu.uptc.EnVivo.entity.TicketType;
 import com.edu.uptc.EnVivo.entity.User;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import com.edu.uptc.EnVivo.repository.PurchaseRepository;
 import com.edu.uptc.EnVivo.repository.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class PurchaseServiceTest {
 
+    private static final String TEST_SESSION_ID = "session-test";
+
     @Mock
     private PurchaseRepository purchaseRepository;
     
@@ -41,6 +44,15 @@ class PurchaseServiceTest {
     
     @Mock
     private PdfTicketService pdfTicketService;
+
+    @Mock
+    private PaymentGatewayService paymentGatewayService;
+
+    @Mock
+    private PaymentEventPublisher paymentEventPublisher;
+
+    @Mock
+    private StructuredLogService structuredLogService;
 
     @InjectMocks
     private PurchaseService purchaseService;
@@ -93,6 +105,7 @@ class PurchaseServiceTest {
         payment.setCardNumber("1234567812345678");
         payment.setExpiry("12/25");
         payment.setCvv("123");
+        payment.setTipoTarjeta("VISA");
 
         validRequest = new PurchaseCheckoutRequestDTO();
         validRequest.setEventId(100L);
@@ -114,8 +127,12 @@ class PurchaseServiceTest {
     @Test
     void checkout_Exitoso() {
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
+        when(ticketRepository.findById(10L)).thenReturn(Optional.of(mockTicket));
+        when(ticketRepository.findById(20L)).thenReturn(Optional.of(secondTicket));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
         when(ticketRepository.findByIdForUpdate(20L)).thenReturn(Optional.of(secondTicket));
+        when(paymentGatewayService.processPayment(130000L, "VISA", "1234567812345678", "123"))
+                .thenReturn(new PaymentGatewayService.GatewayResult(true, "Transacción aprobada"));
 
         when(purchaseRepository.save(any(Purchase.class))).thenAnswer(invocation -> {
             Purchase toSave = invocation.getArgument(0);
@@ -123,7 +140,7 @@ class PurchaseServiceTest {
             return toSave;
         });
 
-        PurchaseConfirmationDTO result = purchaseService.checkout("test@correo.com", validRequest);
+        PurchaseConfirmationDTO result = purchaseService.checkout("test@correo.com", validRequest, TEST_SESSION_ID);
 
         assertNotNull(result);
         assertEquals(999L, result.getPurchaseId());
@@ -143,10 +160,11 @@ class PurchaseServiceTest {
         validRequest.setItems(List.of(buildItem(10L, 100)));
         
         when(userService.findByUserName("test@correo.com")).thenReturn(Optional.of(mockUser));
+        when(ticketRepository.findById(10L)).thenReturn(Optional.of(mockTicket));
         when(ticketRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(mockTicket));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> purchaseService.checkout("test@correo.com", validRequest));
+            () -> purchaseService.checkout("test@correo.com", validRequest, TEST_SESSION_ID));
 
         assertEquals("No hay disponibilidad suficiente.", exception.getMessage());
         

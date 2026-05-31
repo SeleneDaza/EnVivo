@@ -1,6 +1,8 @@
 package com.edu.uptc.EnVivo.config;
 
 import com.edu.uptc.EnVivo.repository.UserRepository;
+import com.edu.uptc.EnVivo.logging.StructuredLogContext;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +19,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.edu.uptc.EnVivo.entity.Role;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -27,6 +33,7 @@ import java.util.stream.Collectors;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final StructuredLogService structuredLogService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -90,7 +97,8 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/", true) 
-                        .failureUrl("/login?error=true")
+                    .successHandler(this::handleLoginSuccess)
+                    .failureHandler(this::handleLoginFailure)
                         .permitAll()
                 )
                 .logout((logout) -> logout
@@ -101,5 +109,35 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
+    }
+
+    private void handleLoginSuccess(HttpServletRequest request, HttpServletResponse response, org.springframework.security.core.Authentication authentication)
+            throws IOException {
+        String transactionId = StructuredLogContext.currentTransactionId();
+        String clientIp = StructuredLogContext.currentClientIp();
+        String userId = authentication.getName();
+
+        try (StructuredLogContext.Scope ignored = structuredLogService.scope(Map.of(
+                StructuredLogContext.KEY_USER_ID, userId
+        ))) {
+            structuredLogService.logSuccess("auth", "AUTH_LOGIN_SUCCESS", transactionId, null, userId,
+                    clientIp, null, "SUCCESS", "User authenticated successfully.");
+        }
+
+        response.sendRedirect("/");
+    }
+
+    private void handleLoginFailure(HttpServletRequest request, HttpServletResponse response,
+                                    org.springframework.security.core.AuthenticationException exception)
+            throws IOException {
+        String transactionId = StructuredLogContext.currentTransactionId();
+        String clientIp = StructuredLogContext.currentClientIp();
+
+        structuredLogService.logError("auth", "AUTH_LOGIN_FAILED", transactionId, null, null,
+                clientIp, null, "AUTH_INVALID_CREDENTIALS",
+                "Authentication failed: " + exception.getClass().getSimpleName() + ": " + exception.getMessage(),
+                "Invalid credentials or unavailable account.", null);
+
+        response.sendRedirect("/login?error=true");
     }
 }
