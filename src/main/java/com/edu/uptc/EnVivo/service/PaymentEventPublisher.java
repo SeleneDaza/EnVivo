@@ -1,48 +1,40 @@
 package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.PaymentProgressDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PaymentEventPublisher {
 
     private final RabbitTemplate rabbitTemplate;
+    private static final Logger log = LoggerFactory.getLogger(PaymentEventPublisher.class);
 
     @Value("${rabbitmq.queue.recibidos}")
     private String queueRecibidos;
-
-    private final AtomicInteger faseCounter = new AtomicInteger(1);
 
     public PaymentEventPublisher(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void publishPhase(PaymentProgressDTO dto) {
-        boolean esFinal = "aprobado".equalsIgnoreCase(dto.getEstadoTransaccion())
-                || "rechazado".equalsIgnoreCase(dto.getEstadoTransaccion());
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishPhase(PaymentProgressDTO dto, String sessionId) {
+        String tipo = "aprobado".equals(dto.getEstadoTransaccion()) ? "EXITO" : "ERROR";
 
-        String tipo;
-        if (esFinal) {
-            tipo = "aprobado".equalsIgnoreCase(dto.getEstadoTransaccion()) ? "EXITO" : "ERROR";
-        } else {
-            tipo = dto.getFase();
-        }
+        Map<String, Object> message = new HashMap<>();
+        message.put("tipo", tipo);
+        message.put("contenido", dto.getDetalle());
+        message.put("sessionId", sessionId);
 
-        Map<String, Object> mensaje = new HashMap<>();
-        mensaje.put("tipo", tipo);
-        mensaje.put("contenido", dto.getDetalle());
-        mensaje.put("fase", faseCounter.getAndIncrement());
-
-        rabbitTemplate.convertAndSend(queueRecibidos, mensaje);
-
-        if (esFinal) {
-            faseCounter.set(1);
-        }
+        log.info("Publicando en RabbitMQ — tipo: {}, contenido: {}", tipo, dto.getDetalle());
+        rabbitTemplate.convertAndSend(queueRecibidos, message);
     }
 }

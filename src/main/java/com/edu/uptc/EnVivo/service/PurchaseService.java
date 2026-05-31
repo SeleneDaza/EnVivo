@@ -2,6 +2,7 @@ package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
+import com.edu.uptc.EnVivo.dto.PaymentProgressDTO;
 import com.edu.uptc.EnVivo.dto.ProfilePurchaseDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutItemDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
@@ -39,9 +40,10 @@ public class PurchaseService {
     private final UserService userService;
     private final PdfTicketService pdfTicketService;
     private final PaymentGatewayService paymentGatewayService;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     @Transactional
-    public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request) {
+    public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request, String sessionId) {
         validateRequest(request);
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
@@ -69,8 +71,19 @@ public class PurchaseService {
 
         try {
             var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
+
+            String estadoTransaccion = gatewayResult.isSuccess() ? "aprobado" : "rechazado";
+
+            PaymentProgressDTO progressDTO = new PaymentProgressDTO(
+                "resultado_final",
+                "Resultado del pago",
+                gatewayResult.getMessage(),
+                estadoTransaccion
+            );
+            paymentEventPublisher.publishPhase(progressDTO, sessionId);
+
             if (!gatewayResult.isSuccess()) {
-                log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}", 
+                log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",
                     user.getUserName(), montoFinal, gatewayResult.getMessage());
                 throw new IllegalStateException(gatewayResult.getMessage());
             }
