@@ -266,13 +266,15 @@ public class EventController {
     }
 
     @GetMapping("/buy-ticket/{eventId}")
-    public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model) {
+    public String viewBuyTicket(@PathVariable Long eventId, Principal principal, Model model,
+                                jakarta.servlet.http.HttpSession session) {
         try {
             EventDetailDTO detailDTO = eventService.obtenerDetalleEvento(eventId);
             if (detailDTO.isHistorical()) {
                 return "redirect:/?error=evento_historico";
             }
             model.addAttribute(ATTR_EVENT, detailDTO);
+            model.addAttribute("sessionId", session.getId());
 
             if (principal != null) {
                 userService.findByUserName(principal.getName())

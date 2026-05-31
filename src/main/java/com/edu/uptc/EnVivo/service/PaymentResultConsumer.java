@@ -22,7 +22,14 @@ public class PaymentResultConsumer {
         String contenido = (String) message.get("contenido");
         String sessionId = (String) message.get("sessionId");
 
-        PaymentProgressDTO dto = new PaymentProgressDTO(tipo, "Resultado del pago", contenido, null);
-        paymentProgressController.sendProgress(sessionId, dto);
+        if ("MENSAJE_BONITO".equals(tipo)) {
+            paymentProgressController.sendProgress(sessionId,
+                new PaymentProgressDTO("MENSAJE_BONITO", "Asistente IA", contenido, null));
+            return;
+        }
+
+        String estadoTransaccion = "EXITO".equals(tipo) ? "aprobado" : "rechazado";
+        paymentProgressController.sendProgress(sessionId,
+            new PaymentProgressDTO("resultado_final", "Resultado del pago", contenido, estadoTransaccion));
     }
 }

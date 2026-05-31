@@ -1,5 +1,6 @@
 package com.edu.uptc.EnVivo.controller;
 
+import com.edu.uptc.EnVivo.exception.PaymentRejectedException;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseConfirmationDTO;
 import com.edu.uptc.EnVivo.service.PurchaseService;
@@ -47,6 +48,9 @@ public class PurchaseController {
                     KEY_SUCCESS, true,
                     KEY_PURCHASE, confirmation
             ));
+        } catch (PaymentRejectedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, e.getMessage(), "paymentHandled", true));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.<String, Object>of(KEY_SUCCESS, false, KEY_MESSAGE, e.getMessage()));
