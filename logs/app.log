@@ -13,3 +13,11 @@
 2026-05-19 18:18:48 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****0365
 2026-05-19 18:18:48 [ERROR] NO SE PUDO CONECTAR CON LA PASARELA DE PAGOS (sin respuesta) - Error: I/O error on POST request for "http://localhost:8002/pagos": Connection refused: connect
 2026-05-19 18:18:48 [ERROR] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.
+2026-05-31 08:40:44 [WARN] [THYMELEAF][http-nio-8080-exec-5][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-31 08:40:45 [INFO] WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 1 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(1)-CONNECTED(1)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 9, active threads = 0, queued tasks = 0, completed tasks = 9], outboundChannel[pool size = 3, active threads = 0, queued tasks = 0, completed tasks = 3], sockJsScheduler[pool size = 10, active threads = 1, queued tasks = 1, completed tasks = 5]
+2026-05-31 08:40:46 [WARN] [THYMELEAF][http-nio-8080-exec-7][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-31 08:41:04 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 50000, Tipo tarjeta: visa
+2026-05-31 08:41:04 [INFO] Iniciando procesamiento de pago - monto: 50000, tarjeta: ****1111
+2026-05-31 08:41:06 [WARN] Pasarela respondió con error de negocio - Status: 200, Mensaje: Tarjeta rechazada.
+2026-05-31 08:41:06 [INFO] Publicando en RabbitMQ — tipo: ERROR, contenido: Tarjeta rechazada.
+2026-05-31 08:41:06 [WARN] FALLO EN CONEXIÓN CON PASARELA - Usuario: Sofia, Monto: 50000, Error: Tarjeta rechazada.

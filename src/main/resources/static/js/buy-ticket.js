@@ -19,6 +19,7 @@ const cancelButton = document.getElementById('cancel-btn');
 let currentStep = 1;
 let isSubmitting = false;
 let lastPaymentStatus = null;
+let lastPurchaseId = null;
 
 function showError(message) {
     errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
@@ -358,26 +359,14 @@ confirmStepButton.addEventListener('click', async () => {
         // 2. STOMP listo — ahora sí llamar al checkout
         confirmStepButton.textContent = 'Procesando...';
         const purchase = await submitCheckout();
+        lastPurchaseId = purchase.purchaseId;
+        lastPaymentStatus = 'aprobado';
 
         confirmStepButton.classList.add('hidden');
         prevStepButton.classList.add('hidden');
         cancelButton.textContent = 'Volver a la cartelera';
         cancelButton.classList.remove('btn-ghost');
         cancelButton.classList.add('btn-neutral');
-
-        showSuccess(`
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div>
-                    <p class="font-black">¡Compra registrada exitosamente!</p>
-                    <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
-                </div>
-                <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas"
-                   target="_blank"
-                   class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-download"></i>
-                    Descargar Entradas (PDF)
-                </a>
-            </div>`);
 
         // STOMP sigue abierto — espera el mensaje bonito de la IA
 
@@ -388,6 +377,8 @@ confirmStepButton.addEventListener('click', async () => {
         confirmStepButton.textContent = 'Confirmar compra';
         if (!error.paymentHandled) {
             showError(error.message || 'No fue posible confirmar la compra.');
+        } else {
+            lastPaymentStatus = 'rechazado';
         }
     }
 });
@@ -444,22 +435,35 @@ input.min = `${anio}-${mes}`;
 function handleMessage(dto) {
     if (dto.fase === 'MENSAJE_BONITO') {
         if (lastPaymentStatus === 'aprobado') {
-            showSuccess(dto.detalle);
+            showSuccess(`
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-normal">${dto.detalle}</p>
+                        <p class="text-xs font-normal mt-1 opacity-70">ID de compra: ${lastPurchaseId}</p>
+                    </div>
+                    <a href="/api/purchases/${lastPurchaseId}/descargar-entradas"
+                       target="_blank"
+                       class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                        <i class="fa-solid fa-download"></i>
+                        Descargar Entradas (PDF)
+                    </a>
+                </div>`);
         } else {
             showError(dto.detalle);
         }
         return;
     }
 
-    appendLog(dto);
-    advanceTo(faseToStep(dto.fase));
-
     if (dto.fase === 'resultado_final') {
         lastPaymentStatus = dto.estadoTransaccion;
-        if (dto.estadoTransaccion === 'aprobado') {
-            setCircle(3, 'bg-success');
-        } else {
-            setCircle(3, 'bg-error');
+    }
+
+    if (typeof appendLog === 'function') appendLog(dto);
+    if (typeof faseToStep === 'function' && typeof advanceTo === 'function') advanceTo(faseToStep(dto.fase));
+
+    if (dto.fase === 'resultado_final') {
+        if (typeof setCircle === 'function') {
+            setCircle(3, dto.estadoTransaccion === 'aprobado' ? 'bg-success' : 'bg-error');
         }
     }
 }
