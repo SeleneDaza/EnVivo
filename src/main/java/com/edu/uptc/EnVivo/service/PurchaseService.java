@@ -69,8 +69,6 @@ public class PurchaseService {
         String numeroTarjeta = request.getPayment().getCardNumber();
         String cvv = request.getPayment().getCvv();
 
-        PaymentResultConsumer.setCurrentSession(sessionId);
-
         try {
             var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
 
@@ -82,7 +80,7 @@ public class PurchaseService {
                 gatewayResult.getMessage(),
                 estadoTransaccion
             );
-            paymentEventPublisher.publishPhase(progressDTO);
+            paymentEventPublisher.publishPhase(progressDTO, sessionId);
 
             if (!gatewayResult.isSuccess()) {
                 log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",

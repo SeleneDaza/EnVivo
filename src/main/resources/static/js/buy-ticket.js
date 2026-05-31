@@ -321,9 +321,7 @@ prevStepButton.addEventListener('click', () => {
 
 confirmStepButton.addEventListener('click', async () => {
     if (isSubmitting) return;
-
     if (!validateStep(3)) return;
-
     if (!eventId || eventId <= 0) {
         showError('No se pudo identificar el evento para registrar la compra.');
         return;
@@ -332,9 +330,30 @@ confirmStepButton.addEventListener('click', async () => {
     isSubmitting = true;
     confirmStepButton.disabled = true;
     confirmStepButton.setAttribute('aria-busy', 'true');
-    confirmStepButton.textContent = 'Procesando...';
+    confirmStepButton.textContent = 'Conectando...';
 
     try {
+        // 1. Conectar STOMP y esperar suscripción ANTES de llamar al checkout
+        await new Promise(function (resolve, reject) {
+            const sessionId = document.querySelector('meta[name="session-id"]')
+                ?.getAttribute('content');
+            if (!sessionId) { resolve(); return; }
+
+            const socket = new SockJS('/ws');
+            const stomp = Stomp.over(socket);
+            stomp.debug = null;
+            stomp.connect({}, function () {
+                stomp.subscribe('/topic/payment-progress/' + sessionId, function (frame) {
+                    try { handleMessage(JSON.parse(frame.body)); } catch (e) {}
+                });
+                resolve(); // ← resuelve SOLO después de suscribirse
+            }, function () {
+                resolve(); // si falla STOMP, continuar igual
+            });
+        });
+
+        // 2. STOMP listo — ahora sí llamar al checkout
+        confirmStepButton.textContent = 'Procesando...';
         const purchase = await submitCheckout();
 
         confirmStepButton.classList.add('hidden');
@@ -344,21 +363,21 @@ confirmStepButton.addEventListener('click', async () => {
         cancelButton.classList.add('btn-neutral');
 
         showSuccess(`
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-                <p class="font-black">¡Compra registrada exitosamente!</p>
-                <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
-            </div>
-            <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas"
-               target="_blank"
-               class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-download"></i>
-                Descargar Entradas (PDF)
-            </a>
-        </div>`);
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <p class="font-black">¡Compra registrada exitosamente!</p>
+                    <p class="text-sm font-normal mt-1">ID de compra: ${purchase.purchaseId}</p>
+                </div>
+                <a href="/api/purchases/${purchase.purchaseId}/descargar-entradas"
+                   target="_blank"
+                   class="bg-success text-white px-5 py-2.5 rounded-2xl hover:bg-success/90 transition-colors flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-download"></i>
+                    Descargar Entradas (PDF)
+                </a>
+            </div>`);
 
-        // Do NOT disconnect STOMP here — keep it open to receive
-        // the AI message from cola.resultados via WebSocket
+        // STOMP sigue abierto — espera el mensaje bonito de la IA
+
     } catch (error) {
         isSubmitting = false;
         confirmStepButton.disabled = false;
