@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="session-id" th:content="${sessionId}">
     <title>EnVivo | Compra de Boletas</title>
 
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
@@ -269,6 +270,8 @@
     </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script th:src="@{/js/buy-ticket.js}" defer></script>
 
 </body>

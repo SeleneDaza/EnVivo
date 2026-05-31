@@ -1,5 +1,6 @@
 package com.edu.uptc.EnVivo.service;
 
+import com.edu.uptc.EnVivo.exception.PaymentRejectedException;
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentProgressDTO;
@@ -85,7 +86,7 @@ public class PurchaseService {
             if (!gatewayResult.isSuccess()) {
                 log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",
                     user.getUserName(), montoFinal, gatewayResult.getMessage());
-                throw new IllegalStateException(gatewayResult.getMessage());
+                throw new PaymentRejectedException(gatewayResult.getMessage());
             }
         } catch (PaymentGatewayService.GatewayConnectionException e) {
             log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.", 

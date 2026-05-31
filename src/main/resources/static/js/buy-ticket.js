@@ -18,6 +18,7 @@ const cancelButton = document.getElementById('cancel-btn');
 
 let currentStep = 1;
 let isSubmitting = false;
+let lastPaymentStatus = null;
 
 function showError(message) {
     errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
@@ -298,7 +299,9 @@ async function submitCheckout() {
 
     const result = await response.json();
     if (!response.ok || !result.success) {
-        throw new Error(result.message || 'No fue posible registrar la compra.');
+        const err = new Error(result.message || 'No fue posible registrar la compra.');
+        err.paymentHandled = result.paymentHandled === true;
+        throw err;
     }
 
     return result.purchase;
@@ -383,7 +386,9 @@ confirmStepButton.addEventListener('click', async () => {
         confirmStepButton.disabled = false;
         confirmStepButton.removeAttribute('aria-busy');
         confirmStepButton.textContent = 'Confirmar compra';
-        showError(error.message || 'No fue posible confirmar la compra.');
+        if (!error.paymentHandled) {
+            showError(error.message || 'No fue posible confirmar la compra.');
+        }
     }
 });
 
@@ -438,19 +443,10 @@ input.min = `${anio}-${mes}`;
 
 function handleMessage(dto) {
     if (dto.fase === 'MENSAJE_BONITO') {
-        const aiBox = document.getElementById('ai-result-box');
-        if (aiBox) {
-            aiBox.classList.remove('hidden');
-            aiBox.innerHTML = `
-                <div class="flex items-start gap-3">
-                    <i class="fa-solid fa-robot text-info mt-0.5"></i>
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-widest text-info mb-1">
-                            Asistente IA
-                        </p>
-                        <p class="text-sm text-gray-700">${dto.detalle}</p>
-                    </div>
-                </div>`;
+        if (lastPaymentStatus === 'aprobado') {
+            showSuccess(dto.detalle);
+        } else {
+            showError(dto.detalle);
         }
         return;
     }
@@ -459,13 +455,11 @@ function handleMessage(dto) {
     advanceTo(faseToStep(dto.fase));
 
     if (dto.fase === 'resultado_final') {
+        lastPaymentStatus = dto.estadoTransaccion;
         if (dto.estadoTransaccion === 'aprobado') {
             setCircle(3, 'bg-success');
         } else {
             setCircle(3, 'bg-error');
-            if (typeof showError === 'function') {
-                showError(dto.detalle || 'Pago rechazado por la pasarela.');
-            }
         }
     }
 }

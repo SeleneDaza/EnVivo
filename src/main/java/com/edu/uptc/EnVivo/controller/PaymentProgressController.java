@@ -12,6 +12,6 @@ public class PaymentProgressController {
     private final SimpMessagingTemplate messagingTemplate;
 
     public void sendProgress(String sessionId, PaymentProgressDTO dto) {
-        messagingTemplate.convertAndSend("/topic/progreso/" + sessionId, dto);
+        messagingTemplate.convertAndSend("/topic/payment-progress/" + sessionId, dto);
     }
 }
