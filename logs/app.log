@@ -1,4 +1,4 @@
-﻿2026-05-19 18:16:45 [WARN] [THYMELEAF][http-nio-8080-exec-1][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
+2026-05-19 18:16:45 [WARN] [THYMELEAF][http-nio-8080-exec-1][main] Deprecated unwrapped fragment expression "components/navbar :: navbar('user','')" found in template main, line 41, col 6. Please use the complete syntax of fragment expressions instead ("~{components/navbar :: navbar('user','')}"). The old, unwrapped syntax for fragment expressions will be removed in future versions of Thymeleaf.
 2026-05-19 18:17:13 [INFO] Iniciando checkout - Usuario: Sofia, Monto: 5622222, Tipo tarjeta: nu
 2026-05-19 18:17:13 [INFO] Iniciando procesamiento de pago - monto: 5622222, tarjeta: ****0366
 2026-05-19 18:17:14 [INFO] Pago procesado exitosamente - Respuesta: TransacciÃ³n aprobada ID:Pago aprobado correctamente.
