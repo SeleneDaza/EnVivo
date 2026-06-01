@@ -7,6 +7,7 @@ import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
@@ -28,10 +29,10 @@ public class PaymentResultConsumer {
         String sessionId = (String) message.get("sessionId");
         String transactionId = (String) message.get("transactionId");
 
-        try (StructuredLogContext.Scope ignored = structuredLogService.scope(Map.of(
-                StructuredLogContext.KEY_TRANSACTION_ID, transactionId,
-                StructuredLogContext.KEY_SESSION_ID, sessionId
-        ))) {
+        Map<String, String> ctx = new LinkedHashMap<>();
+        ctx.put(StructuredLogContext.KEY_TRANSACTION_ID, transactionId);
+        ctx.put(StructuredLogContext.KEY_SESSION_ID, sessionId);
+        try (StructuredLogContext.Scope ignored = structuredLogService.scope(ctx)) {
             if ("MENSAJE_BONITO".equals(tipo)) {
                 paymentProgressController.sendProgress(sessionId,
                     new PaymentProgressDTO("MENSAJE_BONITO", "Asistente IA", contenido, null));
