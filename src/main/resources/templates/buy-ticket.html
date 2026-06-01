@@ -253,7 +253,12 @@
                 </div>
             </section>
 
-            <div id="step-error" class="hidden mt-8 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
+            <div id="payment-phases-log" class="hidden mt-8 p-5 rounded-2xl border border-gray-200 bg-gray-50">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Procesando pago</p>
+                <div id="phases-list" class="space-y-2 text-sm text-gray-600"></div>
+            </div>
+
+            <div id="step-error" class="hidden mt-4 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
 
             <footer class="mt-10 flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center">
                 <a id="cancel-btn" href="/" class="btn btn-ghost">

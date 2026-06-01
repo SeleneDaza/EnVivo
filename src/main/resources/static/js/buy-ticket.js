@@ -432,9 +432,26 @@ const mes = String(hoy.getMonth() + 1).padStart(2, '0');
 // Establece el valor mínimo como el mes actual (Ej: "2026-04")
 input.min = `${anio}-${mes}`;
 
+function appendPhaseLog(text) {
+    const log = document.getElementById('payment-phases-log');
+    const list = document.getElementById('phases-list');
+    if (!log || !list || !text) return;
+    log.classList.remove('hidden');
+    const item = document.createElement('div');
+    item.className = 'flex items-start gap-2';
+    item.innerHTML = `<span class="text-main font-black mt-0.5 shrink-0">›</span><span>${text}</span>`;
+    list.appendChild(item);
+}
+
 function handleMessage(dto) {
+    if (dto.fase === 'fase_progreso') {
+        appendPhaseLog(dto.detalle);
+        return;
+    }
+
     if (dto.fase === 'MENSAJE_BONITO') {
-        if (lastPaymentStatus === 'aprobado') {
+        const esExito = dto.estadoTransaccion === 'aprobado' || lastPaymentStatus === 'aprobado';
+        if (esExito) {
             showSuccess(`
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
