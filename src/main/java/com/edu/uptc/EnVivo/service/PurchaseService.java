@@ -1,6 +1,8 @@
 package com.edu.uptc.EnVivo.service;
 
 import com.edu.uptc.EnVivo.exception.PaymentRejectedException;
+import com.edu.uptc.EnVivo.logging.StructuredLogContext;
+import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentProgressDTO;
@@ -16,8 +18,6 @@ import com.edu.uptc.EnVivo.entity.User;
 import com.edu.uptc.EnVivo.repository.PurchaseRepository;
 import com.edu.uptc.EnVivo.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PurchaseService {
 
-    private static final Logger log = LoggerFactory.getLogger(PurchaseService.class);
+    private static final String MODULE = "purchase_service";
 
     private final PurchaseRepository purchaseRepository;
     private final TicketRepository ticketRepository;
@@ -42,6 +42,7 @@ public class PurchaseService {
     private final PdfTicketService pdfTicketService;
     private final PaymentGatewayService paymentGatewayService;
     private final PaymentEventPublisher paymentEventPublisher;
+    private final StructuredLogService structuredLogService;
 
     @Transactional
     public PurchaseConfirmationDTO checkout(String principalName, PurchaseCheckoutRequestDTO request, String sessionId) {
@@ -49,16 +50,23 @@ public class PurchaseService {
         Map<Long, Integer> requestedItems = normalizeItems(request);
 
         User user = getUser(principalName);
-        
-        // Log inicial de checkout
         String tipoTarjeta = request.getPayment().getTipoTarjeta();
+        String paymentProvider = normalizePaymentProvider(tipoTarjeta);
         long monto = request.getItems().stream()
             .mapToLong(item -> {
                 Ticket ticket = ticketRepository.findById(item.getTicketId()).orElse(null);
                 return ticket != null ? (long) ticket.getPrice() * item.getQuantity() : 0;
             }).sum();
-        log.info("Iniciando checkout - Usuario: {}, Monto: {}, Tipo tarjeta: {}", 
-            user.getUserName(), monto, tipoTarjeta.toLowerCase());
+
+        try (StructuredLogContext.Scope ignored = structuredLogService.scope(Map.of(
+                StructuredLogContext.KEY_USER_ID, user.getId().toString(),
+                StructuredLogContext.KEY_SESSION_ID, sessionId,
+                StructuredLogContext.KEY_PAYMENT_PROVIDER, paymentProvider
+        ))) {
+            structuredLogService.logInfo(MODULE, "PAYMENT_REQUEST_SENT", StructuredLogContext.currentTransactionId(),
+                    sessionId, user.getId().toString(), StructuredLogContext.currentClientIp(), paymentProvider,
+                    "STARTED", "Checkout started for purchase flow.");
+        }
         
         Purchase purchase = initializePurchase(user, request);
         List<PurchaseItemSummaryDTO> ticketItems = new ArrayList<>();
@@ -84,21 +92,26 @@ public class PurchaseService {
             paymentEventPublisher.publishPhase(progressDTO, sessionId);
 
             if (!gatewayResult.isSuccess()) {
-                log.warn("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: {}",
-                    user.getUserName(), montoFinal, gatewayResult.getMessage());
+                structuredLogService.logError(MODULE, "PAYMENT_DECLINED", StructuredLogContext.currentTransactionId(),
+                        sessionId, user.getId().toString(), StructuredLogContext.currentClientIp(), paymentProvider,
+                        "PAYMENT_DECLINED", "Gateway rejected the payment: " + gatewayResult.getMessage(),
+                        "The card was declined and the purchase was not completed.", null);
                 throw new PaymentRejectedException(gatewayResult.getMessage());
             }
         } catch (PaymentGatewayService.GatewayConnectionException e) {
-            log.error("FALLO EN CONEXIÓN CON PASARELA - Usuario: {}, Monto: {}, Error: No hay conexión con la pasarela de pagos. Verifique que esté disponible.", 
-                user.getUserName(), montoFinal);
+            structuredLogService.logError(MODULE, "PAYMENT_DECLINED", StructuredLogContext.currentTransactionId(),
+                    sessionId, user.getId().toString(), StructuredLogContext.currentClientIp(), paymentProvider,
+                    "PAYMENT_GATEWAY_UNAVAILABLE",
+                    "Unable to reach payment gateway: " + e.getMessage(),
+                    "The payment provider is unavailable. Try again later.", null);
             throw new IllegalStateException(e.getMessage());
         }
 
         Purchase saved = purchaseRepository.save(purchase);
-        
-        // Log de compra registrada exitosamente
-        log.info("Compra registrada exitosamente - Usuario: {}, ID Compra: {}, Monto: {}", 
-            user.getUserName(), saved.getId(), montoFinal);
+
+        structuredLogService.logSuccess(MODULE, "PAYMENT_CAPTURED", StructuredLogContext.currentTransactionId(),
+                sessionId, user.getId().toString(), StructuredLogContext.currentClientIp(), paymentProvider,
+                "CAPTURED", "Purchase persisted and payment captured for purchaseId=" + saved.getId());
         
         return buildConfirmation(saved, ticketItems, request.getPayment().getCardNumber());
     }
@@ -355,6 +368,21 @@ public class PurchaseService {
 
     private boolean isHistoricalEvent(LocalDate eventDate) {
         return eventDate != null && eventDate.isBefore(LocalDate.now());
+    }
+
+    private String normalizePaymentProvider(String tipoTarjeta) {
+        if (tipoTarjeta == null || tipoTarjeta.isBlank()) {
+            return "UNKNOWN";
+        }
+
+        String normalized = tipoTarjeta.trim().toUpperCase();
+        if (normalized.contains("VISA")) {
+            return "VISA";
+        }
+        if (normalized.contains("MASTER")) {
+            return "MASTERCARD";
+        }
+        return normalized;
     }
 
     @Transactional(readOnly = true)

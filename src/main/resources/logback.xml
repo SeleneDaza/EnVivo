@@ -1,8 +1,8 @@
 <configuration>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] %msg%n</pattern>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.edu.uptc.EnVivo.logging.StructuredCsvLayout" />
         </encoder>
     </appender>
 
@@ -14,8 +14,8 @@
             <maxHistory>7</maxHistory>
         </rollingPolicy>
 
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] %msg%n</pattern>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.edu.uptc.EnVivo.logging.StructuredCsvLayout" />
         </encoder>
     </appender>
 
