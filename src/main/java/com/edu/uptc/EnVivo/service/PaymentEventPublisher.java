@@ -27,6 +27,23 @@ public class PaymentEventPublisher {
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void publishFase(String tipo, String contenido, String sessionId) {
+        String transactionId = StructuredLogContext.currentTransactionId();
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("tipo", tipo);
+        message.put("contenido", contenido);
+        message.put("sessionId", sessionId);
+        message.put("transactionId", transactionId);
+
+        structuredLogService.logInfo("rabbitmq", "PAYMENT_PHASE_QUEUED", transactionId, sessionId,
+                StructuredLogContext.currentUserId(), StructuredLogContext.currentClientIp(),
+                StructuredLogContext.currentPaymentProvider(), "QUEUED",
+                "Payment fase [" + tipo + "] published to RabbitMQ.");
+        rabbitTemplate.convertAndSend(queueRecibidos, message);
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void publishPhase(PaymentProgressDTO dto, String sessionId) {
         String tipo = "aprobado".equals(dto.getEstadoTransaccion()) ? "EXITO" : "ERROR";
         String transactionId = StructuredLogContext.currentTransactionId();

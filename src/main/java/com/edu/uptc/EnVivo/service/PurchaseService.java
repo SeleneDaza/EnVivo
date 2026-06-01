@@ -5,7 +5,6 @@ import com.edu.uptc.EnVivo.logging.StructuredLogContext;
 import com.edu.uptc.EnVivo.logging.StructuredLogService;
 import com.edu.uptc.EnVivo.dto.BuyerInfoDTO;
 import com.edu.uptc.EnVivo.dto.PaymentInfoDTO;
-import com.edu.uptc.EnVivo.dto.PaymentProgressDTO;
 import com.edu.uptc.EnVivo.dto.ProfilePurchaseDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutItemDTO;
 import com.edu.uptc.EnVivo.dto.PurchaseCheckoutRequestDTO;
@@ -81,15 +80,12 @@ public class PurchaseService {
         try {
             var gatewayResult = paymentGatewayService.processPayment(montoFinal, tipoTarjeta, numeroTarjeta, cvv);
 
-            String estadoTransaccion = gatewayResult.isSuccess() ? "aprobado" : "rechazado";
-
-            PaymentProgressDTO progressDTO = new PaymentProgressDTO(
-                "resultado_final",
-                "Resultado del pago",
-                gatewayResult.getMessage(),
-                estadoTransaccion
-            );
-            paymentEventPublisher.publishPhase(progressDTO, sessionId);
+            List<PaymentGatewayService.Fase> fases = gatewayResult.getFases();
+            if (fases != null) {
+                for (PaymentGatewayService.Fase fase : fases) {
+                    paymentEventPublisher.publishFase(fase.getTipo(), fase.getContenido(), sessionId);
+                }
+            }
 
             if (!gatewayResult.isSuccess()) {
                 structuredLogService.logError(MODULE, "PAYMENT_DECLINED", StructuredLogContext.currentTransactionId(),

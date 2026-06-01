@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -61,7 +62,7 @@ public class PaymentGatewayService {
                         "GATEWAY_EMPTY_RESPONSE",
                         "Gateway returned an empty response body.",
                         "The payment provider did not return a valid decision.", null);
-                return new GatewayResult(false, "Respuesta vacia de la pasarela.");
+                return new GatewayResult(false, "Respuesta vacia de la pasarela.", null);
             }
             
             if (body.success) {
@@ -69,7 +70,7 @@ public class PaymentGatewayService {
                         StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
                         StructuredLogContext.currentClientIp(), paymentProvider,
                         "AUTHORIZED", "Payment authorized by provider: " + safeMessage(body.message));
-                return new GatewayResult(true, body.message);
+                return new GatewayResult(true, body.message, body.fases);
             } else {
                 structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
                         StructuredLogContext.currentSessionId(), StructuredLogContext.currentUserId(),
@@ -77,7 +78,7 @@ public class PaymentGatewayService {
                         "PAYMENT_DECLINED",
                         "Gateway returned a business rejection: " + safeMessage(body.message),
                         "The card issuer declined the transaction.", null);
-                return new GatewayResult(false, body.message);
+                return new GatewayResult(false, body.message, body.fases);
             }
         } catch (HttpServerErrorException e) {
             structuredLogService.logError(MODULE, "PAYMENT_DECLINED", transactionId,
@@ -145,15 +146,24 @@ public class PaymentGatewayService {
     }
 
     @Data
+    public static class Fase {
+        public int numero;
+        public String tipo;
+        public String contenido;
+    }
+
+    @Data
     public static class GatewayResult {
         private final boolean success;
         private final String message;
+        private final List<Fase> fases;
     }
 
     @Data
     static class GatewayResponse {
         public boolean success;
         public String message;
+        public List<Fase> fases;
     }
 
     public static class GatewayConnectionException extends RuntimeException {
