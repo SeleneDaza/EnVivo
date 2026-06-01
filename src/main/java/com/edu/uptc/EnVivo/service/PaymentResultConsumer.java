@@ -33,15 +33,12 @@ public class PaymentResultConsumer {
         ctx.put(StructuredLogContext.KEY_TRANSACTION_ID, transactionId);
         ctx.put(StructuredLogContext.KEY_SESSION_ID, sessionId);
         try (StructuredLogContext.Scope ignored = structuredLogService.scope(ctx)) {
-            if ("MENSAJE_BONITO".equals(tipo)) {
-                paymentProgressController.sendProgress(sessionId,
-                    new PaymentProgressDTO("MENSAJE_BONITO", "Asistente IA", contenido, null));
+            if ("INFO".equals(tipo)) {
                 return;
             }
 
-            String estadoTransaccion = "EXITO".equals(tipo) ? "aprobado" : "rechazado";
             paymentProgressController.sendProgress(sessionId,
-                new PaymentProgressDTO("resultado_final", "Resultado del pago", contenido, estadoTransaccion));
+                new PaymentProgressDTO("MENSAJE_BONITO", "Asistente IA", contenido, null));
         }
     }
 }
