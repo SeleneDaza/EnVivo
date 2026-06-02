@@ -20,6 +20,7 @@ let currentStep = 1;
 let isSubmitting = false;
 let lastPaymentStatus = null;
 let lastPurchaseId = null;
+let failCount = 0;
 
 function showError(message) {
     errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
@@ -477,6 +478,7 @@ function handleMessage(dto) {
                 resultBtn.onclick = () => { window.location.href = '/'; };
             }
         } else {
+            failCount += 1;
             showError(dto.detalle);
             if (resultBtn) {
                 resultBtn.textContent = 'Reintentar pago';
@@ -489,9 +491,13 @@ function handleMessage(dto) {
                     confirmStepButton.textContent = 'Confirmar compra';
                     confirmStepButton.classList.remove('hidden');
                     document.getElementById('phases-list').innerHTML = '';
+                    document.getElementById('notify-btn').classList.add('hidden');
                     resultBtn.classList.add('hidden');
                     updateStepUI();
                 };
+            }
+            if (failCount >= 3) {
+                document.getElementById('notify-btn').classList.remove('hidden');
             }
         }
         return;
@@ -510,3 +516,85 @@ function handleMessage(dto) {
         }
     }
 }
+
+(function initNotifyModal() {
+    const modal        = document.getElementById('notify-modal');
+    const panelConfirm = document.getElementById('notify-panel-confirm');
+    const panelForm    = document.getElementById('notify-panel-form');
+    const panelDesc    = document.getElementById('notify-panel-desc');
+    const panelSuccess = document.getElementById('notify-panel-success');
+    const contactValue = document.getElementById('notify-contact-value');
+    const dropdownBtn    = document.getElementById('notify-dropdown-btn');
+    const dropdownOpts   = document.getElementById('notify-dropdown-options');
+    const dropdownLabel  = document.getElementById('notify-dropdown-label');
+    const dropdownArrow  = document.getElementById('notify-dropdown-arrow');
+
+    let selectedContactType = 'email';
+
+    function showPanel(panel) {
+        [panelConfirm, panelForm, panelDesc, panelSuccess].forEach(p => p?.classList.add('hidden'));
+        panel.classList.remove('hidden');
+    }
+
+    function openModal() {
+        showPanel(panelConfirm);
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
+
+    function toggleDropdown(open) {
+        dropdownOpts.classList.toggle('hidden', !open);
+        dropdownArrow.style.transform = open ? 'rotate(180deg)' : '';
+    }
+
+    dropdownBtn.addEventListener('click', () => {
+        const isOpen = !dropdownOpts.classList.contains('hidden');
+        toggleDropdown(!isOpen);
+    });
+
+    dropdownOpts.querySelectorAll('button[data-value]').forEach(opt => {
+        opt.addEventListener('click', () => {
+            selectedContactType = opt.dataset.value;
+            dropdownLabel.textContent = opt.textContent.trim();
+            toggleDropdown(false);
+            if (selectedContactType === 'email') {
+                contactValue.type = 'email';
+                contactValue.pattern = '';
+                contactValue.placeholder = 'correo@ejemplo.com';
+            } else {
+                contactValue.type = 'tel';
+                contactValue.pattern = '[0-9+\\s\\-]{7,15}';
+                contactValue.placeholder = '+57 300 000 0000';
+            }
+            contactValue.value = '';
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!dropdownBtn.contains(e.target) && !dropdownOpts.contains(e.target)) {
+            toggleDropdown(false);
+        }
+    });
+
+    document.getElementById('notify-btn').addEventListener('click', openModal);
+    document.getElementById('notify-no').addEventListener('click', closeModal);
+    document.getElementById('notify-yes').addEventListener('click', () => showPanel(panelForm));
+    document.getElementById('notify-cancel').addEventListener('click', closeModal);
+    document.getElementById('notify-cancel-desc').addEventListener('click', closeModal);
+
+    document.getElementById('notify-next').addEventListener('click', () => {
+        if (!contactValue.checkValidity() || !contactValue.value.trim()) {
+            contactValue.reportValidity();
+            return;
+        }
+        showPanel(panelDesc);
+    });
+
+    document.getElementById('notify-send').addEventListener('click', () => {
+        showPanel(panelSuccess);
+        setTimeout(() => { closeModal(); window.location.href = '/'; }, 3000);
+    });
+}());
