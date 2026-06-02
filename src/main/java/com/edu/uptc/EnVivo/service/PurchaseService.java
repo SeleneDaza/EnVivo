@@ -83,7 +83,14 @@ public class PurchaseService {
             List<PaymentGatewayService.Fase> fases = gatewayResult.getFases();
             if (fases != null) {
                 for (PaymentGatewayService.Fase fase : fases) {
-                    paymentEventPublisher.publishFase(fase.getTipo(), fase.getContenido(), sessionId);
+                    String contenido = fase.getContenido();
+                    if (fase.getNumero() == 5 && "EXITO".equals(fase.getTipo()) && !purchase.getDetails().isEmpty()) {
+                        var evento = purchase.getDetails().get(0).getTicket().getEvent();
+                        String nombreEvento = evento.getName();
+                        String categoria = evento.getCategory() != null ? evento.getCategory().getName() : "sin categoria";
+                        contenido = "Pago aprobado, reservando tu boleta de " + nombreEvento + " y categoria " + categoria;
+                    }
+                    paymentEventPublisher.publishFase(fase.getTipo(), contenido, sessionId);
                 }
             }
 
