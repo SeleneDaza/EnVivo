@@ -471,13 +471,6 @@ function stopDots() {
     if (el) el.classList.add('hidden');
 }
 
-const ERROR_KEYWORDS = ['no se pudo', 'error', 'falló', 'fallo', 'no fue posible', 'rechaz', 'denegado', 'cancelado', 'imposible', 'fallida'];
-
-function isErrorPhase(text) {
-    const lower = text.toLowerCase();
-    return ERROR_KEYWORDS.some(kw => lower.includes(kw));
-}
-
 function processPhaseQueue() {
     if (phaseQueue.length === 0) {
         phaseDisplaying = false;
@@ -490,10 +483,9 @@ function processPhaseQueue() {
     }
     stopDots();
     phaseDisplaying = true;
-    const text = phaseQueue.shift();
+    const { text, isError } = phaseQueue.shift();
     const list = document.getElementById('phases-list');
     if (!list) { processPhaseQueue(); return; }
-    const isError = isErrorPhase(text);
     const item = document.createElement('div');
     item.className = `flex items-center gap-3 text-sm ${isError ? 'text-error' : 'text-gray-700'}`;
     item.style.cssText = 'opacity:0; transform:translateY(6px); transition:opacity 0.35s ease, transform 0.35s ease;';
@@ -509,15 +501,15 @@ function processPhaseQueue() {
     setTimeout(processPhaseQueue, 900);
 }
 
-function appendPhaseLog(text) {
+function appendPhaseLog(text, isError) {
     if (!text) return;
-    phaseQueue.push(text);
+    phaseQueue.push({ text, isError: isError === true });
     if (!phaseDisplaying) processPhaseQueue();
 }
 
 function handleMessage(dto) {
     if (dto.fase === 'fase_progreso') {
-        appendPhaseLog(dto.detalle);
+        appendPhaseLog(dto.detalle, dto.mensaje === 'ERROR');
         return;
     }
 

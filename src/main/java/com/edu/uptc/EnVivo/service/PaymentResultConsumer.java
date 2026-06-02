@@ -37,7 +37,7 @@ public class PaymentResultConsumer {
         try (StructuredLogContext.Scope ignored = structuredLogService.scope(ctx)) {
             if ("INFO".equals(tipo)) {
                 paymentProgressController.sendProgress(sessionId,
-                    new PaymentProgressDTO("fase_progreso", null, contenido, null));
+                    new PaymentProgressDTO("fase_progreso", "INFO", contenido, null));
                 return;
             }
 
@@ -52,7 +52,7 @@ public class PaymentResultConsumer {
             int errorCount = errorCountBySession.merge(sessionId, 1, Integer::sum);
             if (errorCount < 2) {
                 paymentProgressController.sendProgress(sessionId,
-                    new PaymentProgressDTO("fase_progreso", null, contenido, null));
+                    new PaymentProgressDTO("fase_progreso", "ERROR", contenido, null));
             } else {
                 errorCountBySession.remove(sessionId);
                 paymentProgressController.sendProgress(sessionId,
