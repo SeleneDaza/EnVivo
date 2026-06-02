@@ -35,6 +35,8 @@ public class PaymentResultConsumer {
         ctx.put(StructuredLogContext.KEY_TRANSACTION_ID, transactionId);
         ctx.put(StructuredLogContext.KEY_SESSION_ID, sessionId);
         try (StructuredLogContext.Scope ignored = structuredLogService.scope(ctx)) {
+            structuredLogService.logInfo("rabbitmq", "PAYMENT_RESULT_CONSUMED", transactionId, sessionId,
+                    null, null, null, "RECEIVED", "Payment result [" + tipo + "] consumed from queue.");
             if ("INFO".equals(tipo)) {
                 paymentProgressController.sendProgress(sessionId,
                     new PaymentProgressDTO("fase_progreso", "INFO", contenido, null));
