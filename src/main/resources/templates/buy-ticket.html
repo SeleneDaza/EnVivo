@@ -60,13 +60,13 @@
         <header class="px-8 md:px-10 py-8 border-b border-gray-100 bg-gray-50/50">
             <p class="text-[10px] uppercase tracking-[0.25em] font-black text-main">Proceso de compra</p>
             <h1 class="text-2xl md:text-3xl font-black mt-2" th:text="${evento.name}">Nombre del evento</h1>
-            <p class="text-sm text-gray-500 mt-2">
+            <p id="step-description" class="text-sm text-gray-500 mt-2">
                 Completa los 4 pasos para finalizar tu compra de forma segura.
             </p>
         </header>
 
-        <div class="px-8 md:px-10 pt-8 md:pt-10 pb-7 md:pb-8 border-b border-gray-100">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div id="step-nav" class="px-8 md:px-10 pt-8 md:pt-10 pb-7 md:pb-8 border-b border-gray-100">
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-4 text-sm">
                 <div data-step-indicator="1" class="font-black text-gray-900 flex items-center gap-2">
                     <i class="fa-solid fa-ticket"></i>
                     Tipo de boleta
@@ -82,6 +82,10 @@
                 <div data-step-indicator="4" class="font-bold text-gray-400 flex items-center gap-2">
                     <i class="fa-solid fa-check"></i>
                     Confirmacion
+                </div>
+                <div data-step-indicator="5" class="font-bold text-gray-400 flex items-center gap-2">
+                    <i class="fa-solid fa-spinner"></i>
+                    Procesando
                 </div>
             </div>
             <div class="mt-4 h-2 rounded-full bg-subtle/70 overflow-hidden">
@@ -253,10 +257,12 @@
                 </div>
             </section>
 
-            <div id="payment-phases-log" class="hidden mt-8 p-5 rounded-2xl border border-gray-200 bg-gray-50">
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Procesando pago</p>
-                <div id="phases-list" class="space-y-2 text-sm text-gray-600"></div>
-            </div>
+            <section data-step="5" class="space-y-8 hidden">
+                <div id="payment-phases-log" class="p-5 rounded-2xl border border-gray-200 bg-gray-50">
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Procesando pago</p>
+                    <div id="phases-list" class="space-y-2 text-sm text-gray-600"></div>
+                </div>
+            </section>
 
             <div id="step-error" class="hidden mt-4 p-5 rounded-2xl border border-error/20 bg-error/5 text-error text-sm font-bold"></div>
 
@@ -269,6 +275,7 @@
                     <button id="prev-step" type="button" class="btn btn-neutral hidden">Anterior</button>
                     <button id="next-step" type="button" class="btn btn-primary">Siguiente</button>
                     <button id="confirm-step" type="button" class="btn btn-success hidden">Confirmar compra</button>
+                    <button id="payment-result-btn" type="button" class="btn btn-success hidden"></button>
                 </div>
             </footer>
         </div>
