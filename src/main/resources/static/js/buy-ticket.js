@@ -21,6 +21,7 @@ let isSubmitting = false;
 let lastPaymentStatus = null;
 let lastPurchaseId = null;
 let failCount = 0;
+let activeStompClient = null;
 
 function showError(message) {
     errorBox.classList.remove('bg-success/10', 'border-success/30', 'text-success');
@@ -342,7 +343,13 @@ confirmStepButton.addEventListener('click', async () => {
     confirmStepButton.textContent = 'Conectando...';
 
     try {
-        // 1. Conectar STOMP y esperar suscripción ANTES de llamar al checkout
+        // 1. Desconectar cliente STOMP previo si existe
+        if (activeStompClient && activeStompClient.connected) {
+            try { activeStompClient.disconnect(); } catch (e) {}
+            activeStompClient = null;
+        }
+
+        // 2. Conectar STOMP y esperar suscripción ANTES de llamar al checkout
         await new Promise(function (resolve, reject) {
             const sessionId = document.querySelector('meta[name="session-id"]')
                 ?.getAttribute('content');
@@ -352,6 +359,7 @@ confirmStepButton.addEventListener('click', async () => {
             const stomp = Stomp.over(socket);
             stomp.debug = null;
             stomp.connect({}, function () {
+                activeStompClient = stomp;
                 stomp.subscribe('/topic/payment-progress/' + sessionId, function (frame) {
                     try { handleMessage(JSON.parse(frame.body)); } catch (e) {}
                 });
@@ -365,6 +373,7 @@ confirmStepButton.addEventListener('click', async () => {
         confirmStepButton.textContent = 'Procesando...';
         currentStep = 5;
         updateStepUI();
+        startDots();
         const purchase = await submitCheckout();
         lastPurchaseId = purchase.purchaseId;
         lastPaymentStatus = 'aprobado';
@@ -439,14 +448,71 @@ const mes = String(hoy.getMonth() + 1).padStart(2, '0');
 // Establece el valor mínimo como el mes actual (Ej: "2026-04")
 input.min = `${anio}-${mes}`;
 
-function appendPhaseLog(text) {
-    const log = document.getElementById('payment-phases-log');
+const phaseQueue = [];
+let phaseDisplaying = false;
+let pendingFinalAction = null;
+let dotsInterval = null;
+
+function startDots() {
+    const el = document.getElementById('phase-dots');
+    if (!el) return;
+    el.textContent = '•';
+    el.classList.remove('hidden');
+    let count = 1;
+    dotsInterval = setInterval(() => {
+        count = count >= 3 ? 1 : count + 1;
+        el.textContent = '•'.repeat(count);
+    }, 500);
+}
+
+function stopDots() {
+    if (dotsInterval) { clearInterval(dotsInterval); dotsInterval = null; }
+    const el = document.getElementById('phase-dots');
+    if (el) el.classList.add('hidden');
+}
+
+const ERROR_KEYWORDS = ['no se pudo', 'error', 'falló', 'fallo', 'no fue posible', 'rechaz', 'denegado', 'cancelado', 'imposible', 'fallida'];
+
+function isErrorPhase(text) {
+    const lower = text.toLowerCase();
+    return ERROR_KEYWORDS.some(kw => lower.includes(kw));
+}
+
+function processPhaseQueue() {
+    if (phaseQueue.length === 0) {
+        phaseDisplaying = false;
+        if (pendingFinalAction) {
+            const action = pendingFinalAction;
+            pendingFinalAction = null;
+            setTimeout(action, 400);
+        }
+        return;
+    }
+    stopDots();
+    phaseDisplaying = true;
+    const text = phaseQueue.shift();
     const list = document.getElementById('phases-list');
-    if (!log || !list || !text) return;
+    if (!list) { processPhaseQueue(); return; }
+    const isError = isErrorPhase(text);
     const item = document.createElement('div');
-    item.className = 'flex items-start gap-2';
-    item.innerHTML = `<span class="text-main font-black mt-0.5 shrink-0">›</span><span>${text}</span>`;
+    item.className = `flex items-center gap-3 text-sm ${isError ? 'text-error' : 'text-gray-700'}`;
+    item.style.cssText = 'opacity:0; transform:translateY(6px); transition:opacity 0.35s ease, transform 0.35s ease;';
+    const icon = isError
+        ? `<i class="fa-solid fa-circle-xmark text-error text-lg shrink-0"></i>`
+        : `<i class="fa-solid fa-circle-check text-main text-lg shrink-0"></i>`;
+    item.innerHTML = `${icon}<span>${text}</span>`;
     list.appendChild(item);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        item.style.opacity = '1';
+        item.style.transform = 'translateY(0)';
+    }));
+    setTimeout(processPhaseQueue, 900);
+}
+
+function appendPhaseLog(text) {
+    if (!text) return;
+    phaseQueue.push(text);
+    if (!phaseDisplaying) processPhaseQueue();
 }
 
 function handleMessage(dto) {
@@ -457,6 +523,7 @@ function handleMessage(dto) {
 
     if (dto.fase === 'MENSAJE_BONITO') {
         const esExito = dto.estadoTransaccion === 'aprobado' || lastPaymentStatus === 'aprobado';
+        const showFinalMessage = () => {
         const resultBtn = document.getElementById('payment-result-btn');
         if (esExito) {
             showSuccess(`
@@ -490,7 +557,12 @@ function handleMessage(dto) {
                     confirmStepButton.removeAttribute('aria-busy');
                     confirmStepButton.textContent = 'Confirmar compra';
                     confirmStepButton.classList.remove('hidden');
+                    stopDots();
                     document.getElementById('phases-list').innerHTML = '';
+                    document.getElementById('phase-dots').classList.remove('hidden');
+                    phaseQueue.length = 0;
+                    phaseDisplaying = false;
+                    pendingFinalAction = null;
                     document.getElementById('notify-btn').classList.add('hidden');
                     resultBtn.classList.add('hidden');
                     updateStepUI();
@@ -499,6 +571,12 @@ function handleMessage(dto) {
             if (failCount >= 3) {
                 document.getElementById('notify-btn').classList.remove('hidden');
             }
+        }
+        }; // fin showFinalMessage
+        if (phaseDisplaying || phaseQueue.length > 0) {
+            pendingFinalAction = showFinalMessage;
+        } else {
+            showFinalMessage();
         }
         return;
     }
