@@ -151,11 +151,15 @@ function updateStepUI() {
         }
     });
 
-    progress.style.width = `${currentStep * 25}%`;
+    progress.style.width = `${currentStep * 20}%`;
 
-    prevStepButton.classList.toggle('hidden', currentStep === 1);
-    nextStepButton.classList.toggle('hidden', currentStep === 4);
+    prevStepButton.classList.toggle('hidden', currentStep === 1 || currentStep >= 5);
+    nextStepButton.classList.toggle('hidden', currentStep >= 4);
     confirmStepButton.classList.toggle('hidden', currentStep !== 4);
+
+    const inProcessing = currentStep === 5;
+    document.getElementById('step-description')?.classList.toggle('hidden', inProcessing);
+    document.getElementById('step-nav')?.classList.toggle('hidden', inProcessing);
 
     hideError();
 
@@ -358,6 +362,8 @@ confirmStepButton.addEventListener('click', async () => {
 
         // 2. STOMP listo — ahora sí llamar al checkout
         confirmStepButton.textContent = 'Procesando...';
+        currentStep = 5;
+        updateStepUI();
         const purchase = await submitCheckout();
         lastPurchaseId = purchase.purchaseId;
         lastPaymentStatus = 'aprobado';
@@ -436,7 +442,6 @@ function appendPhaseLog(text) {
     const log = document.getElementById('payment-phases-log');
     const list = document.getElementById('phases-list');
     if (!log || !list || !text) return;
-    log.classList.remove('hidden');
     const item = document.createElement('div');
     item.className = 'flex items-start gap-2';
     item.innerHTML = `<span class="text-main font-black mt-0.5 shrink-0">›</span><span>${text}</span>`;
@@ -451,6 +456,7 @@ function handleMessage(dto) {
 
     if (dto.fase === 'MENSAJE_BONITO') {
         const esExito = dto.estadoTransaccion === 'aprobado' || lastPaymentStatus === 'aprobado';
+        const resultBtn = document.getElementById('payment-result-btn');
         if (esExito) {
             showSuccess(`
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -465,8 +471,28 @@ function handleMessage(dto) {
                         Descargar Entradas (PDF)
                     </a>
                 </div>`);
+            if (resultBtn) {
+                resultBtn.textContent = 'Finalizar';
+                resultBtn.classList.remove('hidden');
+                resultBtn.onclick = () => { window.location.href = '/'; };
+            }
         } else {
             showError(dto.detalle);
+            if (resultBtn) {
+                resultBtn.textContent = 'Reintentar pago';
+                resultBtn.classList.remove('hidden');
+                resultBtn.onclick = () => {
+                    currentStep = 4;
+                    isSubmitting = false;
+                    confirmStepButton.disabled = false;
+                    confirmStepButton.removeAttribute('aria-busy');
+                    confirmStepButton.textContent = 'Confirmar compra';
+                    confirmStepButton.classList.remove('hidden');
+                    document.getElementById('phases-list').innerHTML = '';
+                    resultBtn.classList.add('hidden');
+                    updateStepUI();
+                };
+            }
         }
         return;
     }
