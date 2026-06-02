@@ -275,12 +275,74 @@
                     <button id="prev-step" type="button" class="btn btn-neutral hidden">Anterior</button>
                     <button id="next-step" type="button" class="btn btn-primary">Siguiente</button>
                     <button id="confirm-step" type="button" class="btn btn-success hidden">Confirmar compra</button>
+                    <button id="notify-btn" type="button" class="btn btn-neutral hidden">Notificar inconveniente</button>
                     <button id="payment-result-btn" type="button" class="btn btn-success hidden"></button>
                 </div>
             </footer>
         </div>
     </section>
 </main>
+
+<div id="notify-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+
+    <div id="notify-panel-confirm" class="bg-white rounded-3xl p-10 w-full max-w-lg space-y-8 shadow-xl">
+        <p class="text-base font-bold text-gray-800">Lamentamos el inconveniente. ¿Desea notificar a nuestro equipo?</p>
+        <div class="flex gap-3 justify-end">
+            <button id="notify-no" type="button" class="btn btn-ghost">No</button>
+            <button id="notify-yes" type="button" class="btn btn-primary">Sí</button>
+        </div>
+    </div>
+
+    <div id="notify-panel-form" class="hidden bg-white rounded-3xl p-10 w-full max-w-lg space-y-6 shadow-xl">
+        <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Medio de contacto</h3>
+        <div class="space-y-3">
+            <div class="relative">
+                <button type="button" id="notify-dropdown-btn"
+                        class="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 hover:border-gray-400 transition-colors">
+                    <span id="notify-dropdown-label">Email</span>
+                    <i class="fa-solid fa-chevron-down text-gray-400 text-xs transition-transform duration-200" id="notify-dropdown-arrow"></i>
+                </button>
+                <div id="notify-dropdown-options"
+                     class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden z-10">
+                    <button type="button" data-value="email"
+                            class="w-full text-left px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 transition-colors font-medium">
+                        Email
+                    </button>
+                    <button type="button" data-value="phone"
+                            class="w-full text-left px-4 py-3 text-sm text-gray-800 hover:bg-gray-50 transition-colors font-medium border-t border-gray-100">
+                        Número de teléfono
+                    </button>
+                </div>
+            </div>
+            <input id="notify-contact-value" type="email" class="w-full rounded-xl border-gray-200 text-sm" placeholder="correo@ejemplo.com" required>
+        </div>
+        <p class="text-xs text-gray-400">El error será notificado y atendido, nos comunicaremos con usted lo más pronto posible.</p>
+        <div class="flex gap-3 justify-end">
+            <button id="notify-cancel" type="button" class="btn btn-ghost">Cancelar</button>
+            <button id="notify-next" type="button" class="btn btn-primary">Continuar</button>
+        </div>
+    </div>
+
+    <div id="notify-panel-desc" class="hidden bg-white rounded-3xl p-10 w-full max-w-lg space-y-6 shadow-xl">
+        <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Descripción del problema</h3>
+        <div class="space-y-2">
+            <label for="notify-desc-value" class="text-sm text-gray-600">Cuéntanos qué ocurrió <span class="text-gray-400">(opcional)</span></label>
+            <textarea id="notify-desc-value" rows="4"
+                      class="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-main/30 focus:border-main transition-colors resize-none"
+                      placeholder="Describe brevemente el inconveniente que se presentó..."></textarea>
+        </div>
+        <div class="flex gap-3 justify-end">
+            <button id="notify-cancel-desc" type="button" class="btn btn-ghost">Cancelar</button>
+            <button id="notify-send" type="button" class="btn btn-success">Enviar</button>
+        </div>
+    </div>
+
+    <div id="notify-panel-success" class="hidden bg-white rounded-3xl p-10 w-full max-w-lg shadow-xl text-center space-y-2">
+        <p class="text-base font-bold text-gray-800">Gracias por confiar en nosotros.</p>
+        <p class="text-xs text-gray-400">Esta ventana se cerrará automáticamente.</p>
+    </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
